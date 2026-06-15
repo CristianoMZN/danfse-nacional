@@ -8,3 +8,6 @@ composer.lock
 /examples/danfse_simples.*
 
 anex
+
+tests/output/*
+tests/xmls/*
