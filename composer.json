@@ -1,5 +1,5 @@
 {
-    "name": "andrevabo/danfse-nacional",
+    "name": "CristianoMZN/danfse-nacional",
     "description": "Gerador de PDF do DANFSe Nacional a partir do XML da NFS-e Padrão Nacional",
     "keywords": ["danfse", "nfs-e", "nfse", "nfse-nacional", "danfe", "pdf", "nota-fiscal", "brazil"],
     "type": "library",
@@ -8,12 +8,16 @@
         {
             "name": "André R. Vabo",
             "role": "Developer"
+        },
+        {
+            "name": "Cristiano MZN",
+            "role": "Developer"
         }
     ],
-    "homepage": "https://github.com/andrevabo/danfse-nacional",
+    "homepage": "https://github.com/CristianoMZN/danfse-nacional",
     "support": {
-        "issues": "https://github.com/andrevabo/danfse-nacional/issues",
-        "source": "https://github.com/andrevabo/danfse-nacional"
+        "issues": "https://github.com/CristianoMZN/danfse-nacional/issues",
+        "source": "https://github.com/CristianoMZN/danfse-nacional"
     },
     "require": {
         "php": "^8.1",

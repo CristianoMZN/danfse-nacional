@@ -1,5 +1,7 @@
 # DANFSe Nacional
 
+> **Fork** do repositório original [`andrevabo/danfse-nacional`](https://github.com/andrevabo/danfse-nacional), modificado para operar com o padrão **NFSe 2.0** (NT 008/2026 e NT 009/2026 — IBS/CBS).
+
 Biblioteca PHP para geração de PDF do DANFSe (Documento Auxiliar da Nota Fiscal de Serviços eletrônica) a partir do XML da NFS-e Padrão Nacional.
 
 A biblioteca recebe o XML de uma NFS-e autorizada e devolve o conteúdo binário de um PDF em A4 retrato, sem nenhuma dependência de framework. Pode ser usada em projetos Laravel, Symfony, ou em scripts PHP puro.
@@ -29,7 +31,7 @@ PHP 8.1 ou superior com as extensões `simplexml`, `mbstring` e `fileinfo` habil
 ## Instalação
 
 ```bash
-composer require andrevabo/danfse-nacional
+composer require CristianoMZN/danfse-nacional
 ```
 
 ## Uso básico
@@ -200,7 +202,7 @@ NFSe
 │   │   ├── valores (IBSCBSValores)
 │   │   │   ├── uf (IBSCBSUF) — pIBSUF, pAliqEfetUF
 │   │   │   ├── mun (IBSCBSMun) — pIBSMun, pAliqEfetMun
-│   │   │   └── fed (IBSCBSFed) — pCBS, pAliqEfetCBS
+│   │   │   └── fed (IBSCBSFed) — pCBS, pAliqEfetCBS, pRedAliqCBS
 │   │   └── totCIBS (TotCIBS)
 │   │       ├── gIBS (GIBS) — gIBSUFTot, gIBSMunTot
 │   │       └── gCBS (GCBS) — vCBS, vDifCBS
