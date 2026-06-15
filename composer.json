@@ -1,7 +1,7 @@
 {
     "name": "cristianomzn/danfse-nacional",
     "description": "Gerador de DANFSe Nacional PHP: Totalmente pronto para a NFS-e v2.0 e a Reforma Tributária. Converta XMLs em PDFs A4 com suporte nativo às Notas Técnicas 008/2026 e 009/2026, renderizando automaticamente as novas seções e DTOs de tributação do IBS e da CBS, com retrocompatibilidade garantida.",
-    "keywords": ["danfse", "nfs-e", "nfse", "nfse-nacional", "danfe", "pdf", "nota-fiscal", "brazil", "reforma-tributaria", "cbs", "ibs", "cbs/ibs", "danfse-2.0"],
+    "keywords": ["danfse", "nfs-e", "nfse", "nfse-nacional", "danfe", "pdf", "nota-fiscal", "brazil", "reforma-tributaria", "cbs", "ibs", "cbs-ibs", "danfse-2.0"],
     "type": "library",
     "license": "MIT",
     "authors": [
