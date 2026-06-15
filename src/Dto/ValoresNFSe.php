@@ -5,11 +5,13 @@ namespace DanfseNacional\Dto;
 readonly class ValoresNFSe
 {
     public function __construct(
-        public string $vLiq = '',
+        public string $vCalcAjusteBCISSQN = '',
+        public string $tpBM = '',
+        public string $vCalcBM = '',
         public string $vBC = '',
         public string $pAliqAplic = '',
         public string $vISSQN = '',
         public string $vTotalRet = '',
-        public string $vLiqApurado = '',
+        public string $vLiq = '',
     ) {}
 }

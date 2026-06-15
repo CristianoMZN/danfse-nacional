@@ -8,6 +8,7 @@ enum OpSimpNac: int
 
     case MEI = 2;
     case ME_EPP = 3;
+    case OPTANTE_PENDENTE = 4;
 
     public function label(): string
     {
@@ -15,6 +16,7 @@ enum OpSimpNac: int
             self::NAO_OPTANTE => 'Não Optante',
             self::MEI => 'Optante - Microempreendedor Individual (MEI)',
             self::ME_EPP => 'Optante - Microempresa ou Empresa de Pequeno Porte (ME/EPP)',
+            self::OPTANTE_PENDENTE => 'Optante - Pendente de Julgamento/Regularização',
         };
     }
 

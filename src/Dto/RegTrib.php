@@ -7,6 +7,7 @@ readonly class RegTrib
     public function __construct(
         public string $opSimpNac = '',
         public string $regApTribSN = '',
+        public string $regApIBSCBSSN = '',
         public string $regEspTrib = '',
     ) {}
 }

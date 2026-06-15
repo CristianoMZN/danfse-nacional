@@ -17,8 +17,8 @@
         }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 7pt;
+            font-family: 'Microsoft Sans Serif', Arial, Helvetica, sans-serif;
+            font-size: 8pt;
             color: #000;
             margin: 7pt;
             padding: 4pt 7pt;
@@ -55,6 +55,7 @@
         }
 
         .label {
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 7pt;
             font-weight: bold;
             color: #000;
@@ -63,25 +64,31 @@
         }
 
         .value {
+            font-family: 'Microsoft Sans Serif', Arial, Helvetica, sans-serif;
             font-size: 8pt;
             font-weight: normal;
             color: #000;
         }
 
         .section-header {
+            font-family: Arial, Helvetica, sans-serif;
             font-weight: bold;
-            font-size: 8pt;
+            font-size: 9pt;
             text-align: left;
             padding: 3pt;
+            background-color: #E0E0E0;
         }
 
         .section-title {
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 8pt;
+            font-weight: bold;
         }
 
         .header-table {
             margin-bottom: 2pt;
             border-bottom: 1px solid #000;
+            background-color: #E0E0E0;
         }
 
         .header-table td {
@@ -102,13 +109,12 @@
         .municipality-cell {
             width: 150pt;
             text-align: left;
-            font-size: 5.5pt;
+            font-size: 6pt;
             vertical-align: top;
         }
 
         .qr-container {
             text-align: center;
-            /*padding: 3pt;*/
             position: absolute;
             right: 0;
             top: 0;
@@ -126,6 +132,15 @@
             z-index: -1;
             white-space: nowrap;
         }
+
+        .valor-liquido-highlight {
+            background-color: #E0E0E0;
+            font-weight: bold;
+        }
+
+        .ibs-cbs-section {
+            background-color: #F5F5F5;
+        }
     </style>
 </head>
 <body>
@@ -142,10 +157,10 @@
                 <?php endif; ?>
             </td>
             <td class="title-cell">
-                <div style="font-size: 10pt; font-weight: bold;">DANFSe v1.0</div>
-                <div style="font-size: 8pt; font-weight: bold;">Documento Auxiliar da NFS-e</div>
+                <div style="font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold;">DANFSe v2.0</div>
+                <div style="font-family: Arial, Helvetica, sans-serif; font-size: 9pt; font-weight: bold;">Documento Auxiliar da NFS-e</div>
                 <?php if ($data['ambiente'] == 2): ?>
-                    <div style="color: red; font-weight: bold;">NFS-e SEM VALIDADE JURÍDICA</div>
+                    <div style="font-family: Arial, Helvetica, sans-serif; color: #FF0000; font-weight: bold; font-size: 9pt;">NFS-e SEM VALIDADE JURÍDICA</div>
                 <?php endif; ?>
             </td>
             <td class="municipality-cell">
@@ -181,8 +196,8 @@
                 </td>
                 <td style="width: 25%; position: relative;" rowspan="3">
                     <div class="qr-container">
-                        <img src="<?= htmlspecialchars($qrCode) ?>" alt="QR Code" style="width: 70px; height: 70px; display: block; margin: 0 auto;" />
-                        <div style="font-size: 6pt; padding-top: 2pt; text-align: left; line-height: 1.2;">
+                        <img src="<?= htmlspecialchars($qrCode) ?>" alt="QR Code" style="width: 58px; height: 58px; display: block; margin: 0 auto;" />
+                        <div style="font-family: 'Microsoft Sans Serif', Arial, Helvetica, sans-serif; font-size: 6pt; padding-top: 2pt; text-align: left; line-height: 1.2;">
                             A autenticidade desta NFS-e pode ser verificada pela leitura deste código QR ou pela consulta da chave de acesso no portal nacional da NFS-e
                         </div>
                     </div>
@@ -534,6 +549,52 @@
         </table>
     </div>
 
+    <!-- IBS/CBS -->
+    <?php if (isset($data['ibs_cbs']) && ($data['ibs_cbs']['aliquota_ibs_uf'] !== '-' || $data['ibs_cbs']['aliquota_ibs_mun'] !== '-' || $data['ibs_cbs']['aliquota_cbs'] !== '-')): ?>
+    <div class="bordered-section ibs-cbs-section">
+        <table>
+            <tr>
+                <td colspan="4" class="section-header">
+                  <span class="section-title">TRIBUTAÇÃO IBS / CBS</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 25%;">
+                    <span class="label">Alíquota Efetiva IBS (UF)</span>
+                    <span class="value"><?= $data['ibs_cbs']['aliquota_ibs_uf'] ?></span>
+                </td>
+                <td style="width: 25%;">
+                    <span class="label">Alíquota Efetiva IBS (Município)</span>
+                    <span class="value"><?= $data['ibs_cbs']['aliquota_ibs_mun'] ?></span>
+                </td>
+                <td style="width: 25%;">
+                    <span class="label">Alíquota Efetiva CBS</span>
+                    <span class="value"><?= $data['ibs_cbs']['aliquota_cbs'] ?></span>
+                </td>
+                <td style="width: 25%;">
+                    <span class="label">Total NFS-e + IBS/CBS</span>
+                    <span class="value"><?= $data['ibs_cbs']['total_ibs_cbs'] ?></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="label">Valor IBS (UF)</span>
+                    <span class="value"><?= $data['ibs_cbs']['valor_ibs_uf'] ?></span>
+                </td>
+                <td>
+                    <span class="label">Valor IBS (Município)</span>
+                    <span class="value"><?= $data['ibs_cbs']['valor_ibs_mun'] ?></span>
+                </td>
+                <td>
+                    <span class="label">Valor CBS</span>
+                    <span class="value"><?= $data['ibs_cbs']['valor_cbs'] ?></span>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <?php endif; ?>
+
     <!-- Valor Total -->
     <div class="bordered-section">
         <table>
@@ -569,7 +630,7 @@
                     <span class="label">PIS/COFINS - Débito Apur. Própria</span>
                     <span class="value"><?= $data['totais']['pis_cofins'] ?? '-' ?></span>
                 </td>
-                <td>
+                <td class="valor-liquido-highlight">
                     <span class="label">Valor Líquido da NFS-e</span>
                     <span class="value" style="font-weight: bold;"><?= $data['totais']['valor_liquido'] ?></span>
                 </td>

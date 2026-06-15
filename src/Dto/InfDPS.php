@@ -13,11 +13,18 @@ readonly class InfDPS
         public string $nDPS = '',
         public string $dCompet = '',
         public string $tpEmit = '',
+        public string $cMotivoEmisTI = '',
+        public string $finNFSe = '',
+        public string $tpNFSeDebito = '',
+        public string $tpNFSeCredito = '',
+        public string $chNFSeRej = '',
         public string $cLocEmi = '',
+        public ?Substituicao $subst = null,
         public ?Prestador $prest = null,
         public ?Tomador $toma = null,
         public ?Intermediario $interm = null,
         public ?Servico $serv = null,
         public ?Valores $valores = null,
+        public ?DPS_IBSCBS $IBSCBS = null,
     ) {}
 }

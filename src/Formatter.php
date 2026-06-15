@@ -13,6 +13,11 @@ class Formatter
             return '-';
         }
 
+        // CNPJ alfanumérico (NT 009): se contiver letras, retorna sem formatação
+        if (preg_match('/[a-zA-Z]/', $value)) {
+            return $value;
+        }
+
         $value = preg_replace('/\D/', '', $value);
 
         if (strlen($value) === 14) {
@@ -122,5 +127,17 @@ class Formatter
         }
 
         return mb_substr($value, 0, $limit) . $end;
+    }
+
+    /**
+     * Formata valor percentual para o padrão brasileiro XX,XX%
+     */
+    public function percent(string $value): string
+    {
+        if ($value === '' || $value === '-') {
+            return '-';
+        }
+
+        return number_format((float) $value, 2, ',', '.') . '%';
     }
 }

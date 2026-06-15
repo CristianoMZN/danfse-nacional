@@ -11,12 +11,17 @@ use PHPUnit\Framework\TestCase;
 class DanfseGeneratorTest extends TestCase
 {
     private string $realXml;
+    private string $v2Xml;
 
     protected function setUp(): void
     {
         $path = __DIR__ . '/../examples/nfse_exemplo.xml';
         $this->realXml = file_get_contents($path);
         $this->assertNotFalse($this->realXml, "real_nfse.xml não encontrado em $path");
+
+        $v2Path = __DIR__ . '/../examples/nfse_exemplo_v2.xml';
+        $this->v2Xml = file_get_contents($v2Path);
+        $this->assertNotFalse($this->v2Xml, "nfse_exemplo_v2.xml não encontrado em $v2Path");
     }
 
     public function test_parse_xml_returns_nfse_dto(): void
@@ -157,5 +162,141 @@ class DanfseGeneratorTest extends TestCase
         $size = strlen($pdf);
         $this->assertGreaterThan(1000, $size, 'PDF parece muito pequeno');
         $this->assertLessThan(5_000_000, $size, 'PDF parece muito grande');
+    }
+
+    // ========== v2.0 (NT 008/2026 + NT 009/2026) ==========
+
+    public function test_v2_parse_returns_nfse_dto(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->v2Xml);
+
+        $this->assertInstanceOf(NFSe::class, $nfse);
+        $this->assertNotNull($nfse->infNFSe);
+    }
+
+    public function test_v2_ibscbs_fields_are_populated(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->v2Xml);
+
+        $inf = $nfse->infNFSe;
+        $this->assertNotNull($inf);
+        $this->assertNotNull($inf->IBSCBS);
+
+        // IBSCBS valores
+        $ibsCbs = $inf->IBSCBS;
+        $this->assertSame('3303302', $ibsCbs->cLocalidadeIncid);
+        $this->assertNotNull($ibsCbs->valores);
+        $this->assertSame('1500.00', $ibsCbs->valores->vBC);
+
+        // Alíquotas
+        $this->assertSame('1.00', $ibsCbs->valores->uf?->pAliqEfetUF);
+        $this->assertSame('2.00', $ibsCbs->valores->mun?->pAliqEfetMun);
+        $this->assertSame('8.00', $ibsCbs->valores->fed?->pAliqEfetCBS);
+
+        // TotCIBS
+        $this->assertNotNull($ibsCbs->totCIBS);
+        $this->assertSame('1500.00', $ibsCbs->totCIBS->vTotNF);
+        $this->assertSame('45.00', $ibsCbs->totCIBS->gIBS?->vIBSTot);
+        $this->assertSame('15.00', $ibsCbs->totCIBS->gIBS?->gIBSUFTot?->vIBSUF);
+        $this->assertSame('30.00', $ibsCbs->totCIBS->gIBS?->gIBSMunTot?->vIBSMun);
+        $this->assertSame('120.00', $ibsCbs->totCIBS->gCBS?->vCBS);
+    }
+
+    public function test_v2_dps_ibscbs_fields(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->v2Xml);
+
+        $dps = $nfse->infNFSe->DPS;
+        $this->assertNotNull($dps);
+
+        $infDps = $dps->infDPS;
+        $this->assertNotNull($infDps);
+        $this->assertSame('1', $infDps->finNFSe);
+
+        $ibsCbsDps = $infDps->IBSCBS;
+        $this->assertNotNull($ibsCbsDps);
+        $this->assertSame('1', $ibsCbsDps->indFinal);
+        $this->assertSame('100', $ibsCbsDps->valores?->trib?->gIBSCBS?->CST);
+    }
+
+    public function test_v2_prestador_and_intermediario_new_fields(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->v2Xml);
+
+        $infDps = $nfse->infNFSe->DPS->infDPS;
+        $this->assertNotNull($infDps);
+
+        // Prestador: IM, xNome, regApIBSCBSSN
+        $prest = $infDps->prest;
+        $this->assertNotNull($prest);
+        $this->assertSame('0001234', $prest->IM);
+        $this->assertSame('EMPRESA EXEMPLO DESENVOLVIMENTO LTDA', $prest->xNome);
+        $this->assertSame('1', $prest->regTrib?->regApIBSCBSSN);
+
+        // Intermediário: IM (renomeado de IMPrestMun)
+        $interm = $infDps->interm;
+        $this->assertNotNull($interm);
+        $this->assertSame('654321', $interm->IM);
+    }
+
+    public function test_v2_totais_tributos_values(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->v2Xml);
+
+        $totTrib = $nfse->infNFSe->DPS->infDPS->valores?->trib?->totTrib;
+        $this->assertNotNull($totTrib);
+        $this->assertSame('67.50', $totTrib->vTotTribFed);
+        $this->assertSame('2.70', $totTrib->vTotTribEst);
+        $this->assertSame('27.00', $totTrib->vTotTribMun);
+    }
+
+    public function test_v2_template_data_ibscbs_section(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->v2Xml);
+
+        $template = new \DanfseNacional\Template\DanfseTemplate();
+        $data = $template->buildData($nfse);
+
+        // IBS/CBS section should be populated
+        $this->assertNotEmpty($data['ibs_cbs']);
+        $this->assertSame('R$ 15,00', $data['ibs_cbs']['valor_ibs_uf']);
+        $this->assertSame('R$ 30,00', $data['ibs_cbs']['valor_ibs_mun']);
+        $this->assertSame('R$ 120,00', $data['ibs_cbs']['valor_cbs']);
+        $this->assertSame('R$ 1.500,00', $data['ibs_cbs']['total_ibs_cbs']);
+        $this->assertSame('1,00%', $data['ibs_cbs']['aliquota_ibs_uf']);
+        $this->assertSame('2,00%', $data['ibs_cbs']['aliquota_ibs_mun']);
+        $this->assertSame('8,00%', $data['ibs_cbs']['aliquota_cbs']);
+    }
+
+    public function test_v2_generate_pdf(): void
+    {
+        $generator = new DanfseGenerator();
+        $pdf = $generator->generateFromXml($this->v2Xml);
+
+        $this->assertStringStartsWith('%PDF-', $pdf);
+
+        $size = strlen($pdf);
+        $this->assertGreaterThan(1000, $size, 'v2.0 PDF parece muito pequeno');
+        $this->assertLessThan(5_000_000, $size, 'v2.0 PDF parece muito grande');
+    }
+
+    public function test_v1_and_v2_coexist(): void
+    {
+        $generator = new DanfseGenerator();
+
+        $pdfV1 = $generator->generateFromXml($this->realXml);
+        $pdfV2 = $generator->generateFromXml($this->v2Xml);
+
+        $this->assertStringStartsWith('%PDF-', $pdfV1);
+        $this->assertStringStartsWith('%PDF-', $pdfV2);
+
+        // v2.0 should produce a different (likely larger) PDF due to IBS/CBS section
+        $this->assertNotSame($pdfV1, $pdfV2);
     }
 }

@@ -6,7 +6,16 @@ A biblioteca recebe o XML de uma NFS-e autorizada e devolve o conteúdo binário
 
 O objetivo principal desta biblioteca é criar um documento o mais fiel possível ao DANFSe original gerado pela API da SEFAZ, com apenas alguns ajustes para melhorar a legibilidade.
 
-Nas NFS-e do ambiente de Homologação, o PDF apresenta a mesma mensagem do documento original, "NFS-e SEM VALIDADE JURÍDICA", além de uma marca d’água adicional para diferenciar os PDFs de teste dos emitidos em Produção. 
+Nas NFS-e do ambiente de Homologação, o PDF apresenta a mesma mensagem do documento original, "NFS-e SEM VALIDADE JURÍDICA", além de uma marca d'água adicional para diferenciar os PDFs de teste dos emitidos em Produção.
+
+## Compatibilidade
+
+| Versão NFS-e | Norma Técnica | Status |
+|---|---|---|
+| v1.01 | Padrão Nacional original | Suportada |
+| v2.0 | NT 008/2026 (DANFSe) + NT 009/2026 (XML IBS/CBS) | Suportada |
+
+A biblioteca é retrocompatível: XMLs v1.01 (sem IBS/CBS) continuam funcionando normalmente. A seção IBS/CBS no PDF só é renderizada quando os dados estão presentes no XML.
 
 ## Exemplos
 
@@ -36,6 +45,44 @@ $generator = new DanfseGenerator();
 $pdf = $generator->generateFromXml($xml);
 
 file_put_contents('danfse.pdf', $pdf);
+```
+
+## NFS-e v2.0 com IBS/CBS (NT 009/2026)
+
+Para XMLs v2.0 que incluem os grupos IBS/CBS (Imposto sobre Bens e Serviços / Contribuição sobre Bens e Serviços), a biblioteca renderiza automaticamente a seção de tributação do IBS/CBS no DANFSe:
+
+```php
+use DanfseNacional\DanfseGenerator;
+
+// XML v2.0 com IBS/CBS
+$xml = file_get_contents('nfse_v2_com_ibs_cbs.xml');
+
+$generator = new DanfseGenerator();
+$pdf = $generator->generateFromXml($xml);
+
+// O PDF inclui a seção IBS/CBS automaticamente
+file_put_contents('danfse_v2.pdf', $pdf);
+```
+
+Acesse os campos IBS/CBS via DTOs:
+
+```php
+$nfse = $generator->parseXml($xml);
+
+// IBS/CBS calculados (infNFSe)
+$ibsCbs = $nfse->infNFSe->IBSCBS;
+$aliqIBSUF = $ibsCbs->valores?->uf?->pAliqEfetUF;
+$aliqIBSMun = $ibsCbs->valores?->mun?->pAliqEfetMun;
+$aliqCBS = $ibsCbs->valores?->fed?->pAliqEfetCBS;
+$vTotalIBS = $ibsCbs->totCIBS?->gIBS?->vIBSTot;
+$vTotalCBS = $ibsCbs->totCIBS?->gCBS?->vCBS;
+
+// IBS/CBS declarados (DPS)
+$ibsCbsDps = $nfse->infNFSe->DPS->infDPS->IBSCBS;
+$cst = $ibsCbsDps->valores?->trib?->gIBSCBS?->CST;
+
+// FinNFSe (finalidade da NFS-e)
+$finNFSe = $nfse->infNFSe->DPS->infDPS->finNFSe;
 ```
 
 ## Logo da empresa
@@ -143,30 +190,52 @@ O método `parseXml()` retorna um objeto `DanfseNacional\Dto\NFSe` com proprieda
 
 ```
 NFSe
-└── InfNFSe
-    ├── emit (Emitente)
-    │   └── enderNac (EnderecoEmitente)
-    ├── valores (ValoresNFSe)
-    └── DPS (Dps)
-        └── infDPS (InfDPS)
-            ├── prest (Prestador)
-            │   └── regTrib (RegTrib)
-            ├── toma (Tomador)
-            │   └── end (Endereco)
-            │       └── endNac (EnderecoNacional)
-            ├── interm (Intermediario)
-            │   └── end (Endereco)
-            ├── serv (Servico)
-            │   ├── locPrest (LocPrest)
-            │   └── cServ (CServ)
-            └── valores (Valores)
-                ├── vServPrest (VServPrest)
-                └── trib (Tributacao)
-                    ├── tribMun (TribMunicipal)
-                    ├── tribFed (TribFederal)
-                    │   └── piscofins (PisCofins)
-                    └── totTrib (TotTrib)
-                        └── pTotTrib (TotTribPercent)
+├── InfNFSe
+│   ├── emit (Emitente)
+│   │   └── enderNac (EnderecoEmitente)
+│   ├── valores (ValoresNFSe)
+│   │   ├── vBC, vISSQN, vLiq ...
+│   │   └── (v2.0) vCalcAjusteBCISSQN, tpBM, vCalcBM
+│   ├── IBSCBS [v2.0] (IBSCBS)
+│   │   ├── valores (IBSCBSValores)
+│   │   │   ├── uf (IBSCBSUF) — pIBSUF, pAliqEfetUF
+│   │   │   ├── mun (IBSCBSMun) — pIBSMun, pAliqEfetMun
+│   │   │   └── fed (IBSCBSFed) — pCBS, pAliqEfetCBS
+│   │   └── totCIBS (TotCIBS)
+│   │       ├── gIBS (GIBS) — gIBSUFTot, gIBSMunTot
+│   │       └── gCBS (GCBS) — vCBS, vDifCBS
+│   └── DPS (Dps)
+│       └── infDPS (InfDPS)
+│           ├── prest (Prestador)
+│           │   ├── IM, xNome [v2.0]
+│           │   └── regTrib (RegTrib)
+│           │       └── regApIBSCBSSN [v2.0]
+│           ├── toma (Tomador)
+│           │   └── end (Endereco)
+│           │       └── endNac (EnderecoNacional)
+│           ├── interm (Intermediario)
+│           │   └── IM [v2.0, renomeado de IMPrestMun]
+│           ├── serv (Servico)
+│           │   ├── locPrest (LocPrest)
+│           │   ├── cServ (CServ)
+│           │   │   └── cAtvSN [v2.0]
+│           │   ├── comExt [v2.0]
+│           │   ├── obra [v2.0]
+│           │   └── atvEvento [v2.0]
+│           ├── valores (Valores)
+│           │   ├── vServPrest (VServPrest)
+│           │   └── trib (Tributacao)
+│           │       ├── tribMun (TribMunicipal)
+│           │       ├── tribFed (TribFederal)
+│           │       │   └── piscofins (PisCofins)
+│           │       └── totTrib (TotTrib)
+│           │           ├── vTotTribFed/Est/Mun [v2.0]
+│           │           └── pTotTrib (TotTribPercent)
+│           └── IBSCBS [v2.0] (DPS_IBSCBS)
+│               ├── indFinal, tpOper
+│               └── valores (ValoresDPS_IBSCBS)
+│                   └── trib (TribDPS_IBSCBS)
+│                       └── gIBSCBS (GIBSCBS_DPS) — CST, cClassTrib
 ```
 
 Todos os campos opcionais no esquema da NFS-e são representados como propriedades `nullable` ou com valor padrão de string vazia, portanto o acesso nunca lança exceções por campo ausente.

@@ -13,6 +13,7 @@ readonly class InfNFSe
         public string $xLocIncid = '',
         public string $xTribNac = '',
         public string $xTribMun = '',
+        public string $xNBS = '',
         public string $verAplic = '',
         public string $ambGer = '',
         public string $tpEmis = '',
@@ -20,8 +21,10 @@ readonly class InfNFSe
         public string $cStat = '',
         public string $dhProc = '',
         public string $nDFSe = '',
+        public string $xOutInf = '',
         public ?Emitente $emit = null,
         public ?ValoresNFSe $valores = null,
+        public ?IBSCBS $IBSCBS = null,
         public ?Dps $DPS = null,
     ) {}
 }

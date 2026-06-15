@@ -8,7 +8,9 @@ use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use DanfseNacional\Config\DanfseConfig;
 use DanfseNacional\Dto\NFSe;
+use DanfseNacional\Enums\FinNFSe;
 use DanfseNacional\Enums\OpSimpNac;
+use DanfseNacional\Enums\RegApIBSCBSSN;
 use DanfseNacional\Enums\RegApTribSN;
 use DanfseNacional\Enums\RegEspTrib;
 use DanfseNacional\Enums\TpRetISSQN;
@@ -73,6 +75,10 @@ class DanfseTemplate
         $totTrib = $trib?->totTrib;
         $valoresNfse = $inf?->valores;
 
+        // Grupos IBS/CBS (v2.0)
+        $ibscbsNfse = $inf?->IBSCBS;
+        $ibscbsDps = $infDps?->IBSCBS;
+
         // Chave de acesso (remove prefixo "NFS")
         $id = $inf?->Id ?? '';
         $chaveAcesso = str_starts_with($id, 'NFS') ? substr($id, 3) : $id;
@@ -107,6 +113,38 @@ class DanfseTemplate
 
         $cepInterm = $endInterm?->endNac?->CEP ?? '';
 
+        // IBS/CBS no infNFSe (valores calculados pelo sistema)
+        $ibsCbsValores = $ibscbsNfse?->valores;
+        $ibsCbsTotCIBS = $ibscbsNfse?->totCIBS;
+        $ibsCbsGIBS = $ibsCbsTotCIBS?->gIBS;
+        $ibsCbsGCBS = $ibsCbsTotCIBS?->gCBS;
+
+        // IBS/CBS no DPS (declarado pelo emitente)
+        $ibsCbsDpsValores = $ibscbsDps?->valores?->trib?->gIBSCBS;
+
+        // Totais aproximados de tributos
+        $totTribPercent = $totTrib?->pTotTrib;
+        $totTribValores = [
+            'federais' => $totTrib?->vTotTribFed ? $this->fmt->currency($totTrib->vTotTribFed) : '-',
+            'estaduais' => $totTrib?->vTotTribEst ? $this->fmt->currency($totTrib->vTotTribEst) : '-',
+            'municipais' => $totTrib?->vTotTribMun ? $this->fmt->currency($totTrib->vTotTribMun) : '-',
+        ];
+        $totTribPerc = [
+            'federais' => $totTribPercent?->pTotTribFed ? $this->fmt->percent($totTribPercent->pTotTribFed) : '-',
+            'estaduais' => $totTribPercent?->pTotTribEst ? $this->fmt->percent($totTribPercent->pTotTribEst) : '-',
+            'municipais' => $totTribPercent?->pTotTribMun ? $this->fmt->percent($totTribPercent->pTotTribMun) : '-',
+        ];
+
+        // Alíquotas IBS/CBS (do infNFSe/IBSCBS/valores)
+        $aliquotaIBSUF = $ibsCbsValores?->uf?->pAliqEfetUF ?? '';
+        $aliquotaIBSMun = $ibsCbsValores?->mun?->pAliqEfetMun ?? '';
+        $aliquotaCBS = $ibsCbsValores?->fed?->pAliqEfetCBS ?? '';
+
+        // Valores IBS/CBS
+        $vIBSUF = $ibsCbsGIBS?->gIBSUFTot?->vIBSUF ?? '';
+        $vIBSMun = $ibsCbsGIBS?->gIBSMunTot?->vIBSMun ?? '';
+        $vCBS = $ibsCbsGCBS?->vCBS ?? '';
+
         return [
             'chave_acesso' => $chaveAcesso,
             'numero_nfse' => $inf?->nNFSe ?? '-',
@@ -120,7 +158,7 @@ class DanfseTemplate
             'emitente' => [
                 'nome' => $emit?->xNome ?? '-',
                 'cnpj_cpf' => $this->fmt->cnpjCpf($emit?->documento() ?? ''),
-                'im' => '-',
+                'im' => $emit?->IM ?? '-',
                 'telefone' => $this->fmt->phone($emit?->fone ?? ''),
                 'email' => strtolower($emit?->email ?? ''),
                 'endereco' => $enderecoEmit ?: '-',
@@ -144,7 +182,7 @@ class DanfseTemplate
             'intermediario' => $interm !== null ? [
                 'nome' => $interm->xNome ?: '-',
                 'cnpj_cpf' => $this->fmt->cnpjCpf($interm->documento()),
-                'im' => $interm->IMPrestMun ?: '-',
+                'im' => $interm->IM ?: '-',
                 'telefone' => $this->fmt->phone($interm->fone),
                 'email' => strtolower($interm->email),
                 'endereco' => $enderecoInterm ?: '-',
@@ -181,6 +219,16 @@ class DanfseTemplate
                 'cofins' => $tribFed?->piscofins?->vCofins ? $this->fmt->currency($tribFed->piscofins->vCofins) : '-',
             ],
 
+            'ibs_cbs' => [
+                'aliquota_ibs_uf' => $aliquotaIBSUF !== '' ? $this->fmt->percent($aliquotaIBSUF) : '-',
+                'aliquota_ibs_mun' => $aliquotaIBSMun !== '' ? $this->fmt->percent($aliquotaIBSMun) : '-',
+                'aliquota_cbs' => $aliquotaCBS !== '' ? $this->fmt->percent($aliquotaCBS) : '-',
+                'valor_ibs_uf' => $vIBSUF !== '' ? $this->fmt->currency($vIBSUF) : '-',
+                'valor_ibs_mun' => $vIBSMun !== '' ? $this->fmt->currency($vIBSMun) : '-',
+                'valor_cbs' => $vCBS !== '' ? $this->fmt->currency($vCBS) : '-',
+                'total_ibs_cbs' => $ibsCbsTotCIBS?->vTotNF ? $this->fmt->currency($ibsCbsTotCIBS->vTotNF) : '-',
+            ],
+
             'totais' => [
                 'valor_servico' => $this->fmt->currency($vServPrest?->vServ ?? ''),
                 'desconto_condicionado' => $tribMun?->vDescCond ? $this->fmt->currency($tribMun->vDescCond) : '-',
@@ -198,13 +246,12 @@ class DanfseTemplate
                     $tribFed?->piscofins?->vCofins ?? '',
                 ),
                 'valor_liquido' => $this->fmt->currency($valoresNfse?->vLiq ?? ''),
+                'valor_liquido_ibs_cbs' => $ibsCbsTotCIBS?->vTotNF ? $this->fmt->currency($ibsCbsTotCIBS->vTotNF) : $this->fmt->currency($valoresNfse?->vLiq ?? ''),
             ],
 
-            'totais_tributos' => [
-                'federais' => $totTrib?->pTotTrib?->pTotTribFed ? $totTrib->pTotTrib->pTotTribFed . '%' : '-',
-                'estaduais' => $totTrib?->pTotTrib?->pTotTribEst ? $totTrib->pTotTrib->pTotTribEst . '%' : '-',
-                'municipais' => $totTrib?->pTotTrib?->pTotTribMun ? $totTrib->pTotTrib->pTotTribMun . '%' : '-',
-            ],
+            'totais_tributos' => $totTribValores,
+
+            'totais_tributos_percentual' => $totTribPerc,
 
             'informacoes_complementares' => $serv?->infoCompl?->xInfComp ?? '',
         ];

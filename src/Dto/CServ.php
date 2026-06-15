@@ -7,7 +7,9 @@ readonly class CServ
     public function __construct(
         public string $cTribNac = '',
         public string $cTribMun = '',
-        public string $xDescServ = '',
         public string $cNBS = '',
+        public string $cAtvSN = '',
+        public string $cIntContrib = '',
+        public string $xDescServ = '',
     ) {}
 }
