@@ -138,6 +138,45 @@ class DanfseGeneratorTest extends TestCase
             'Não Optante',
             $data['emitente']['simples_nacional'],
         );
+
+        // Header novos campos
+        $this->assertSame('Niterói - RJ', $data['municipio_uf']);
+        $this->assertSame('1', $data['ambiente_gerador']);
+        $this->assertSame('Produção', $data['tipo_ambiente']);
+        $this->assertSame('NFS-e Normal', $data['situacao_nfse']);
+        $this->assertSame('-', $data['finalidade']);
+
+        // Emitente: NIF e código IBGE
+        $this->assertSame('-', $data['emitente']['nif']);
+        $this->assertSame('3303302', $data['emitente']['codigo_ibge']);
+
+        // Tomador: identificado
+        $this->assertTrue($data['tomador_identificado']);
+        $this->assertSame('-', $data['tomador']['nif']);
+        $this->assertSame('3550308', $data['tomador']['codigo_ibge']);
+
+        // Destinatário: mesmo tomador
+        $this->assertSame('mesmo_tomador', $data['destinatario_situacao']);
+
+        // Serviço: NBS
+        $this->assertSame('-', $data['servico']['codigo_nbs']);
+
+        // Tributação municipal: suppress lines
+        $this->assertTrue($data['is_sujeita_issqn']);
+        $this->assertFalse($data['suppress_regime_line']);
+        $this->assertFalse($data['suppress_beneficio_line']);
+
+        // Tributação federal: contrib_sociais
+        $this->assertSame('R$ 30,00', $data['tributacao_federal']['contrib_sociais']);
+        $this->assertSame('CSLL e Contribuição Previdenciária', $data['tributacao_federal']['desc_contrib_sociais']);
+
+        // Totais: novo campo
+        $this->assertSame('-', $data['totais']['total_ibs_cbs']);
+        $this->assertSame('R$ 1.292,75', $data['totais']['valor_liquido_ibs_cbs']);
+
+        // Informações complementares contém Totais Aproximados
+        $this->assertStringContainsString('Totais Aproximados dos Tributos', $data['informacoes_complementares']);
+        $this->assertStringContainsString('Federal:', $data['informacoes_complementares']);
     }
 
     public function test_homologacao_environment_flag(): void
@@ -272,6 +311,25 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('1,00%', $data['ibs_cbs']['aliquota_ibs_uf']);
         $this->assertSame('2,00%', $data['ibs_cbs']['aliquota_ibs_mun']);
         $this->assertSame('8,00%', $data['ibs_cbs']['aliquota_cbs']);
+
+        // IBS/CBS expanded fields
+        $this->assertSame('100', $data['ibs_cbs']['cst']);
+        $this->assertSame('0001', $data['ibs_cbs']['c_class_trib']);
+        $this->assertSame('-', $data['ibs_cbs']['c_ind_op']);
+        $this->assertSame('3303302', $data['ibs_cbs']['c_localidade_incid']);
+        $this->assertSame('Niterói', $data['ibs_cbs']['x_localidade_incid']);
+        $this->assertSame('1,00%', $data['ibs_cbs']['p_ibs_uf']);
+        $this->assertSame('2,00%', $data['ibs_cbs']['p_ibs_mun']);
+        $this->assertSame('8,00%', $data['ibs_cbs']['p_cbs']);
+        $this->assertSame('R$ 1.500,00', $data['ibs_cbs']['v_bc_ibscbs']);
+        $this->assertSame('0,00%', $data['ibs_cbs']['p_red_aliq_uf']);
+        $this->assertSame('0,00%', $data['ibs_cbs']['p_red_aliq_mun']);
+        $this->assertSame('0,00%', $data['ibs_cbs']['p_red_aliq_cbs']);
+        $this->assertSame('R$ 45,00', $data['ibs_cbs']['v_ibs_tot']);
+
+        // IBS/CBS no totais
+        $this->assertSame('R$ 1.500,00', $data['totais']['total_ibs_cbs']);
+        $this->assertSame('R$ 1.500,00', $data['totais']['valor_liquido_ibs_cbs']);
     }
 
     public function test_v2_generate_pdf(): void
