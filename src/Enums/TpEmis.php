@@ -11,7 +11,7 @@ enum TpEmis: int
     public function label(): string
     {
         return match ($this) {
-            self::NORMAL => 'NFS-e Normal',
+            self::NORMAL => 'NFS-e regular (Autorizada)',
             self::SUBSTITUICAO => 'NFS-e de Substituição',
             self::CANCELAMENTO => 'NFS-e Cancelada',
         };

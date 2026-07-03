@@ -2,7 +2,7 @@
 
 namespace DanfseNacional\Enums;
 
-enum TipoAmbiente: int
+enum TpAmb: int
 {
     case PRODUCAO = 1;
     case HOMOLOGACAO = 2;
@@ -15,8 +15,9 @@ enum TipoAmbiente: int
         };
     }
 
-    public function isHomologacao(): bool
+    public static function labelFor(int $value): string
     {
-        return $this === self::HOMOLOGACAO;
+        $case = self::tryFrom((int) $value);
+        return $case ? $case->label() : '-';
     }
 }

@@ -15,7 +15,9 @@ use DanfseNacional\Enums\RegEspTrib;
 use DanfseNacional\Enums\TpEmis;
 use DanfseNacional\Enums\TpRetISSQN;
 use DanfseNacional\Enums\TribISSQN;
+use DanfseNacional\Enums\AmbGer;
 use DanfseNacional\Data\Municipios;
+use DanfseNacional\Enums\TpAmb;
 use DanfseNacional\Formatter;
 
 /**
@@ -90,10 +92,8 @@ class DanfseTemplate
             $enderEmit?->xBairro ?? '',
         ], fn($v) => $v !== ''));
 
-        $municipioEmit = '';
-        if (($inf?->xLocEmi ?? '') !== '' && ($enderEmit?->UF ?? '') !== '') {
-            $municipioEmit = ($inf->xLocEmi) . ' - ' . $enderEmit->UF;
-        }
+        $municipioEmit = Municipios::lookup($inf?->cLocIncid ?? '');
+        
 
         // Endereço tomador
         $enderecoToma = implode(', ', array_filter([
@@ -103,7 +103,7 @@ class DanfseTemplate
         ], fn($v) => $v !== ''));
 
         $cepToma = $endToma?->endNac?->CEP ?? '';
-
+        $ibgeToma = $endToma?->endNac?->cMun ?? '';
         // Endereço intermediário
         $enderecoInterm = implode(', ', array_filter([
             $endInterm?->xLgr ?? '',
@@ -199,10 +199,9 @@ class DanfseTemplate
             'numero_dps' => $infDps?->nDPS ?? '-',
             'serie_dps' => $infDps?->serie ?? '-',
             'emissao_dps' => $this->fmt->dateTime($infDps?->dhEmi ?? ''),
-            'ambiente' => (int) ($infDps?->tpAmb ?? 1),
             'municipio_uf' => $municipioEmit ?: '-',
-            'ambiente_gerador' => $inf?->ambGer ?? '-',
-            'tipo_ambiente' => (int) ($infDps?->tpAmb ?? 1) === 1 ? 'Produção' : 'Homologação',
+            'ambiente_gerador' => AmbGer::labelFor($inf?->ambGer ?? ''),
+            'tipo_ambiente' => TpAmb::labelFor((int) ($inf?->tpAmb ?? 1)),
             'situacao_nfse' => TpEmis::labelFor($inf?->tpEmis ?? ''),
             'finalidade' => FinNFSe::labelFor($infDps?->finNFSe ?? ''),
 
@@ -210,8 +209,8 @@ class DanfseTemplate
             'emitente' => [
                 'nome' => $emit?->xNome ?? '-',
                 'cnpj_cpf' => $this->fmt->cnpjCpf($emit?->documento() ?? ''),
-                'nif' => $emit?->NIF ?: '-',
-                'im' => $emit?->IM ?? '-',
+                'nif' => $emit?->NIF ?: false,
+                'im' => $emit?->IM ?? false,
                 'telefone' => $this->fmt->phone($emit?->fone ?? ''),
                 'email' => strtolower($emit?->email ?? ''),
                 'endereco' => $enderecoEmit ?: '-',
@@ -233,7 +232,7 @@ class DanfseTemplate
                 'email' => strtolower($toma?->email ?? ''),
                 'endereco' => $enderecoToma ?: '-',
                 'municipio' => $endToma?->endNac?->cMun ? Municipios::lookup($endToma->endNac->cMun) : '-',
-                'codigo_ibge' => $endToma?->endNac?->cMun ?: '-',
+                'codigo_ibge' => $ibgeToma ?: '-',
                 'cep' => $this->fmt->cep($cepToma),
             ],
 
@@ -266,13 +265,15 @@ class DanfseTemplate
             ] : null,
 
             // ===== Bloco 6: Serviço Prestado =====
+            
+
             'servico' => [
                 'codigo_trib_nacional' => $this->fmt->codTribNacional($cServ?->cTribNac ?? ''),
                 'desc_trib_nacional' => $this->fmt->limit(trim($inf?->xTribNac ?? ''), 60),
                 'codigo_trib_municipal' => $cServ?->cTribMun ?? '-',
                 'desc_trib_municipal' => $this->fmt->limit(trim($inf?->xTribMun ?? ''), 60),
                 'codigo_nbs' => $cServ?->cNBS ?: '-',
-                'local_prestacao' => $inf?->xLocPrestacao ?? '-',
+                'local_prestacao' => $locPrest->cLocPrestacao ? Municipios::lookup($locPrest->cLocPrestacao) : '-',
                 'pais_prestacao' => $locPrest?->cPaisPrestacao ?? '-',
                 'descricao' => $cServ?->xDescServ ?? '-',
             ],
@@ -283,6 +284,7 @@ class DanfseTemplate
                 'tributacao_issqn' => TribISSQN::labelFor($tribMun?->tribISSQN ?? ''),
                 'municipio_incidencia' => $inf?->xLocIncid ?? '-',
                 'regime_especial' => $vRegime,
+                'tipo_tributacao_issqn' => $tribMun?->tpTribISSQN ?? '-',
                 'tipo_imunidade' => $vTipoImunidade ?: '-',
                 'suspensao_exigibilidade' => $vSuspensao ?: '-',
                 'num_processo_suspensao' => $vProcesso ?: '-',

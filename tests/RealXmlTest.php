@@ -131,4 +131,61 @@ class RealXmlTest extends TestCase
 
         $this->assertStringStartsWith('%PDF-', $pdf);
     }
+
+    public function test_schema_xml_generates_valid_pdf(): void
+    {
+        $xmlPath = __DIR__ . '/../schemas/208_DALTEC_601.xml';
+        $this->assertFileExists($xmlPath);
+
+        $xml = file_get_contents($xmlPath);
+        $this->assertNotFalse($xml);
+
+        $generator = new DanfseGenerator();
+        $pdf = $generator->generateFromXml($xml);
+
+        $this->assertStringStartsWith('%PDF-', $pdf);
+
+        $size = strlen($pdf);
+        $this->assertGreaterThan(1000, $size);
+        $this->assertLessThan(5_000_000, $size);
+    }
+
+    public function test_batch_generation_all_xmls(): void
+    {
+        $dirs = [
+            __DIR__ . '/xmls',
+            __DIR__ . '/../schemas',
+            __DIR__ . '/../examples',
+        ];
+
+        $generator = new DanfseGenerator();
+        $total = 0;
+        $success = 0;
+
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                continue;
+            }
+
+            $xmlFiles = glob($dir . '/*.xml');
+            foreach ($xmlFiles as $xmlFile) {
+                $total++;
+                $xml = file_get_contents($xmlFile);
+                if ($xml === false) {
+                    continue;
+                }
+
+                try {
+                    $pdf = $generator->generateFromXml($xml);
+                    $this->assertStringStartsWith('%PDF-', $pdf);
+                    $success++;
+                } catch (\Throwable $e) {
+                    $this->fail("Falha ao gerar PDF para " . basename($xmlFile) . ": " . $e->getMessage());
+                }
+            }
+        }
+
+        $this->assertGreaterThan(0, $total, 'Nenhum XML encontrado para teste');
+        $this->assertSame($total, $success, "Nem todos os XMLs geraram PDFs válidos");
+    }
 }

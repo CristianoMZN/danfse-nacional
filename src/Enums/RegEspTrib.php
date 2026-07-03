@@ -9,8 +9,8 @@ enum RegEspTrib: int
     case ESTIMATIVA = 2;
     case MICROEMPRESA_MUNICIPAL = 3;
     case NOTARIO_REGISTRADOR = 4;
-    case PROFISSIONAL_AUTONOMO = 5;
-    case SOCIEDADE_PROFISSIONAIS = 6;
+    case SOCIEDADE_PROFISSIONAIS = 5;
+    case PROFISSIONAL_AUTONOMO = 6;
 
     public function label(): string
     {
