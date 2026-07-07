@@ -92,7 +92,7 @@ class DanfseTemplate
             $enderEmit?->xBairro ?? '',
         ], fn($v) => $v !== ''));
 
-        $municipioEmit = Municipios::lookup($inf?->cLocIncid ?? '');
+        $municipioEmit = Municipios::lookup($emit?->enderNac->cMun ?? '');
         
 
         // Endereço tomador

@@ -218,7 +218,18 @@
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
+
         }
+        img.qr-code {
+                width: 96px !important; 
+                height: 96px !important; 
+                display: block; 
+                margin: 0 auto;
+            }
+            p.qr-code-text {
+                font-size: 7pt; 
+                margin-top: 2pt;
+            }
     </style>
 </head>
 <body>
@@ -285,10 +296,15 @@
                 </td>
                 <td style="width: 25%; position: relative;" rowspan="4">
                     <div style="text-align: center;">
-                        <img src="<?= htmlspecialchars($qrCode) ?>" alt="QR Code" style="width: 58px; height: 58px; display: block; margin: 0 auto;" />
-                        <div>
-                            A autenticidade desta NFS-e pode ser verificada pela leitura deste código QR ou pela consulta da chave de acesso no portal nacional da NFS-e
-                        </div>
+                        <img 
+                        class="qr-code" 
+                        src="<?= htmlspecialchars($qrCode) ?>" 
+                        alt="QR Code">
+                        <p class="qr-code-text">
+                            A autenticidade desta NFS-e pode ser verificada
+pela leitura deste código QR ou pela consulta da
+chave de acesso no portal nacional da NFS-e.
+                        </p>
                     </div>
                 </td>
             </tr>
