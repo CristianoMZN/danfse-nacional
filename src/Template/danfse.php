@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         html {
-            height: 100%;
+            height: auto;
             width: 100%;
         }
         body {
@@ -48,21 +48,27 @@
             padding: 1pt 2pt;
             border: none;
             vertical-align: top;
-            border: 1px solid #999;
+            border: hidden;
         }
         .table-data {
             width: 25%;
         }
         .table-footer {
             width: 100%;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            margin-top: auto;
             border: 1px solid #000;
+            border-top: 0;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
         table > tbody > tr > td {
             padding-bottom: 3pt;
+            width: 25%;
+        }
+        td[colspan="2"] {
+            width: 50%;
+        }
+        td[colspan="3"] {
+            width: 75%;
         }
         .footer-cell{
             border: 1px solid #000;
@@ -75,6 +81,15 @@
 
         .bordered-section:last-of-type {
             border-bottom: none;
+        }
+
+        /* Em tela: faz a seção de Informações Complementares crescer
+           para empurrar o canhoto (table-footer) para o final do layout */
+        .bordered-section:last-of-type > table {
+            flex-grow: 1;
+        }
+        .bordered-section:last-of-type > table > tbody > tr:last-child > td {
+            height: 100%;
         }
 
         .first-section table td {
@@ -156,7 +171,6 @@
         }
 
         .valor-liquido-highlight {
-            background-color: #E0E0E0;
             font-weight: bold;
         }
 
@@ -169,6 +183,41 @@
             font-weight: bold;
             font-size: 7pt;
             padding: 2pt;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 7pt;
+        }
+
+        @media print {
+            html, body {
+                height: 100%;
+            }
+            body {
+                border: 1pt #000 solid;  /* restaura a moldura do DANFSE na folha A4 */
+                margin: 0;
+                padding: 4pt 7pt; /* espaço interno entre borda e conteúdo */
+                box-sizing: border-box;
+                min-height: calc(100vh - 14pt);    /* preenche a área imprimível (A4 - 7pt topo - 7pt base) */
+            }
+
+            /* Em impressão, o conteúdo flui naturalmente dentro da moldura;
+               a última bordered-section cresce para empurrar o canhoto ao final. */
+            .bordered-section:last-of-type,
+            .bordered-section:last-of-type > table {
+                flex-grow: 1;
+            }
+
+            /* Canhoto no fluxo natural (sem posicionamento fixo) para ficar
+               dentro da moldura; largura 100% explícita para o Dompdf
+               não colapsar a caixa. */
+            .table-footer {
+                width: 100%;
+                border-top: 1pt dashed #000;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
         }
     </style>
 </head>
@@ -332,27 +381,26 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3" style="width: 75%;">
                     <span class="label">Endereço</span>
                     <span class="value"><?= $data['emitente']['endereco'] ?></span>
-                </td colspan="2">
+                </td>
                 <td class="table-data">
                     <span class="label">E-mail</span>
-                    <span class="value"><?= $data['emitente']['email'] ?? '-' ?></span>
+                    <span class="value">
+                        <?= $data['emitente']['email'] ?? '-' ?>
+                    </span>
                 </td>
-                <td></td>
+                
             </tr>
             <tr>
-                <td colspan="1">
+                <td colspan="2">
                     <span class="label">Simples Nacional na Data de Competência</span>
                     <span class="value"><?= $data['emitente']['simples_nacional'] ?></span>
                 </td>
                 <td colspan="2">
                     <span class="label">Regime de Apuração Tributária pelo SN</span>
                     <span class="value"><?= $data['emitente']['regime_sn'] ?></span>
-                </td>
-                <td colspan="2">
-                    
                 </td>
             </tr>
         </table>
@@ -396,11 +444,11 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3" style="width: 75%;">
                     <span class="label">Endereço</span>
                     <span class="value"><?= $data['tomador']['endereco'] ?></span>
                 </td>
-                <td colspan="2">
+                <td>
                     <span class="label">Email</span>
                     <span class="value"><?= $data['tomador']['email'] ?></span>
                 </td>
@@ -575,7 +623,7 @@
                     </span>
                     <span class="value"><?= $data['tributacao_municipal']['tipo_tributacao_issqn'] ?? '-' ?></span>
                 </td>
-                <td>
+                <td colspan="2" style="width: 50%;">
                     <span class="label">
                         Município / Sigla UF / País de Incidência do ISSQN
                     </span>
@@ -583,7 +631,6 @@
                         <?= $data['tributacao_municipal']['municipio_incidencia'] ?? '-' ?>
                     </span>
                 </td>
-                <td></td>
             </tr>
             <?php if (!$data['suppress_regime_line']): ?>
             <tr>
@@ -716,7 +763,7 @@
                         <?= $data['ibs_cbs']['cst'] ?> / <?= $data['ibs_cbs']['c_class_trib'] ?>
                     </span>
                 </td>
-                <td colspan="2">
+                <td colspan="2" style="width: 50%;">
                     <span class="label">Indicador de Operação / Código IBGE Incidência / Município Incidência / Sigla UF</span>
                     <span class="value">
                         <?= $data['ibs_cbs']['c_ind_op'] ?> / <?= $data['ibs_cbs']['c_localidade_incid'] ?> / <?= $data['ibs_cbs']['x_localidade_incid'] ?> / <?= $data['ibs_cbs']['c_sigla_uf'] ?>
@@ -820,16 +867,22 @@
                 </td>
                 <td class="valor-liquido-highlight">
                     <span class="label">Valor Líquido da NFS-e</span>
-                    <span class="value" style="font-weight: bold;"><?= $data['totais']['valor_liquido'] ?></span>
+                    <span class="value" style="font-weight: bold;">
+                        <?= $data['totais']['valor_liquido'] ?>
+                    </span>
                 </td>
                 <td>
                     <span class="label">Total do IBS / CBS</span>
-                    <span class="value"><?= $data['totais']['total_ibs_cbs'] ?? '-' ?></span>
+                    <span class="value">
+                        <?= $data['totais']['total_ibs_cbs'] ?? '-' ?>
+                    </span>
                 </td>
                 
                 <td colspan="2" class="valor-liquido-highlight">
                     <span class="label">Valor Líquido da NFS-e + IBS/CBS</span>
-                    <span class="value" style="font-weight: bold;"><?= $data['totais']['valor_liquido_ibs_cbs'] ?></span>
+                    <span class="value" style="font-weight: bold;">
+                        <?= $data['totais']['valor_liquido_ibs_cbs'] ?>
+                    </span>
                 </td>
             </tr>
         </table>
@@ -849,26 +902,28 @@
                 </td>
             </tr>
         </table>
-        
-        <table class="table-footer">
-            <tr>
-                <td class="footer-cell">
-                    <span class="label">**** DATA CIENTIFICAÇÃO:</span>
-                    <span class="value"></span>
-                </td>
-                <td class="footer-cell">
-                    <span class="label">IDENTIFICAÇÃO E ASSINATURA:</span>
-                    <span class="value"></span>
-                </td>
-                <td class="footer-cell">
-                    <span class="label">Nº NFS-e / CHAVE NFS-e:</span>
-                    <span class="value">
-                        <?= $data['nfs_e'] ?? '-' ?> / <?= $data['chave_nfs_e'] ?? '-' ?>
-                    </span>
-                </td>
-            </tr>
-        </table>
     </div>
+
+    <!-- Rodapé / Canhoto da NFS-e (último filho de <body>;
+         em impressão usa position: fixed aparecendo na última página A4) -->
+    <table class="table-footer">
+        <tr>
+            <td class="footer-cell">
+                <span class="label">**** DATA CIENTIFICAÇÃO:</span>
+                <span class="value"></span>
+            </td>
+            <td class="footer-cell">
+                <span class="label">IDENTIFICAÇÃO E ASSINATURA:</span>
+                <span class="value"></span>
+            </td>
+            <td class="footer-cell">
+                <span class="label">Nº NFS-e / CHAVE NFS-e:</span>
+                <span class="value">
+                    <?= $data['numero_nfse'] ?? '-' ?> / <?= $data['chave_acesso'] ?? '-' ?>
+                </span>
+            </td>
+        </tr>
+    </table>
 
 </body>
 </html>
