@@ -70,9 +70,14 @@
         td[colspan="3"] {
             width: 75%;
         }
+        
         .footer-cell{
             border: 1px solid #000;
             margin: 0px;
+        }
+        .footer-cell > span.value {
+            font-family: 'Roboto', sans-serif;
+            font-size: 6pt;
         }
         .bordered-section {
             margin-bottom: 1pt;
@@ -272,14 +277,15 @@
                 </table>
                 <?php endif; ?>
                 <div>
-                    <span class="label">
+                    <span class="label" style="font-size: 8pt; font-weight: 500;">
                         Município: <?= $data['municipio_uf'] ?>
                     </span>
-                    <span class="value">
+                    <span class="value" style="font-size: 7pt;">
                         Ambiente Gerador: <?= $data['ambiente_gerador'] ?>
                     </span>
-                    <span class="value" >
-                        Ambiente Tipo de Ambiente: <?= $data['tipo_ambiente'] ?>
+                    <br>
+                    <span class="value" style="font-size: 7pt;">
+                        Tipo de Ambiente: <?= $data['tipo_ambiente'] ?>
                     </span>
                 </div>
             </td>
@@ -596,7 +602,7 @@ chave de acesso no portal nacional da NFS-e.
                         Código de Tributação Nacional / Municipal
                     </span>
                     <span class="value">
-                        <?= $data['servico']['codigo_trib_nacional'] ?> / <?= $data['servico']['desc_trib_nacional'] ?>
+                        <?= $data['servico']['codigo_trib_nacional'] ?>
                     </span>
                 </td>
                 <td>
@@ -606,8 +612,14 @@ chave de acesso no portal nacional da NFS-e.
                     </span>
                 </td>
                 <td>
-                    <span class="label">Local da Prestação</span>
+                    <span class="label">Local da Prestação / Sigla UF / País</span>
                     <span class="value"><?= $data['servico']['local_prestacao'] ?></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    
+                    <?= $data['servico']['desc_trib_municipal']?$data['servico']['desc_trib_municipal']:$data['servico']['desc_trib_nacional'] ?>
                 </td>
             </tr>
             <tr>
@@ -639,7 +651,7 @@ chave de acesso no portal nacional da NFS-e.
                     </span>
                     <span class="value"><?= $data['tributacao_municipal']['tipo_tributacao_issqn'] ?? '-' ?></span>
                 </td>
-                <td colspan="2" style="width: 50%;">
+                <td colspan="2" >
                     <span class="label">
                         Município / Sigla UF / País de Incidência do ISSQN
                     </span>
@@ -743,7 +755,7 @@ chave de acesso no portal nacional da NFS-e.
             <tr>
                 <td>
                     <span class="label">
-                        PIS - Débito Apuração Própri
+                        PIS - Débito Apuração Própria
                     </span>
                     <span class="value"><?= $data['tributacao_federal']['desc_contrib_sociais'] ?? '-' ?></span>
                 </td>
@@ -789,11 +801,11 @@ chave de acesso no portal nacional da NFS-e.
             <tr>
 
                 <td>
-                    <span class="label">Exclusões/Reduções BC (UF/Mun/CBS)</span>
+                    <span class="label">Exclusões e Reduções BC (UF/Mun/CBS)</span>
                     <span class="value"><?= $data['ibs_cbs']['p_red_aliq_uf'] ?> / <?= $data['ibs_cbs']['p_red_aliq_mun'] ?> / <?= $data['ibs_cbs']['p_red_aliq_cbs'] ?></span>
                 </td>
                 <td>
-                    <span class="label">Base de Cálculo Após Exclusões/Reduções</span>
+                    <span class="label">Base de Cálculo Após Exclusões e Reduções</span>
                     <span class="value"><?= $data['ibs_cbs']['v_bc_ibscbs'] ?></span>
                 </td>
                 <td>
@@ -812,15 +824,15 @@ chave de acesso no portal nacional da NFS-e.
             <tr>
                 <td>
                     <span class="label">Alíq. Efetiva Municipal – IBS</span>
-                    <span class="value"><?= $data['ibs_cbs']['aliquota_ibs'] ?></span>
-                </td>
-                <td>
-                    <span class="label">Valor Apurado Municipal – IBS</span>
                     <span class="value"><?= $data['ibs_cbs']['aliquota_ibs_mun'] ?></span>
                 </td>
                 <td>
+                    <span class="label">Valor Apurado Municipal – IBS</span>
+                    <span class="value"><?= $data['ibs_cbs']['valor_ibs_mun'] ?></span>
+                </td>
+                <td>
                     <span class="label">Alíq. Efetiva Estadual – IBS</span>
-                    <span class="value"><?= $data['ibs_cbs']['valor_ibs_uf'] ?></span>
+                    <span class="value"><?= $data['ibs_cbs']['aliquota_ibs_uf'] ?></span>
                 </td>
                 <td>
                     <span class="label">Valor Apurado Estadual – IBS</span>
