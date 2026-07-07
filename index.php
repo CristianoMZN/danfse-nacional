@@ -43,6 +43,10 @@ try {
             h1 {
                 color: #ff7300;
             }
+            p {
+                color: #333;
+            }
+
         </style>
     </head>
     <body>
@@ -63,6 +67,9 @@ try {
             }
             h1 {
                 color: #ff0000;
+            }
+            p {
+                color: #333;
             }
         </style>
     </head>
