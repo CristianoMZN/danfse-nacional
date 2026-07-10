@@ -365,6 +365,30 @@ presente no XML).
 
 ---
 
+# 4. Customização do template
+
+O template do DANFSe usa unidades `rem` em todas as regras de `font-size`,
+tanto no bloco `<style>` quanto nos estilos inline do HTML. A base do `rem`
+é o `font-size` do elemento `<html>`.
+
+Para ajustar o tamanho de **todas** as fontes do PDF gerado, edite a regra
+`html { font-size: ...; }` dentro do bloco `@media print` em
+`src/Template/danfse.php`. Por exemplo, `font-size: 90%` reduz todas as
+fontes em ~10% apenas na impressão, sem alterar a visualização em tela:
+
+```css
+@media print {
+    html { font-size: 90%; }
+    /* ... */
+}
+```
+
+O valor padrão é `100%` (equivalente a 16px na maioria dos navegadores),
+que preserva o tamanho visual original. Paddings, margens, bordas e
+larguras permanecem em `pt`/`px` e não escalam junto com o `rem`.
+
+---
+
 ## Dependências
 
 A biblioteca depende exclusivamente de pacotes sem acoplamento a frameworks:

@@ -22,7 +22,7 @@
         }
         body {
             font-family: 'Roboto', sans-serif;
-            font-size: 8pt;
+            font-size: 0.67rem;
             color: #000;
             margin: 7pt;
             padding: 4pt 7pt;
@@ -80,7 +80,7 @@
         }
         .footer-cell > span.value {
             font-family: 'Roboto', sans-serif;
-            font-size: 6pt;
+            font-size: 0.5rem;
         }
         .bordered-section {
             margin-bottom: 1pt;
@@ -106,7 +106,7 @@
 
         .label {
             font-family: 'Roboto', sans-serif;
-            font-size: 7pt;
+            font-size: 0.58rem;
             font-weight: bold;
             color: #000;
             display: block;
@@ -115,7 +115,7 @@
 
         .value {
             font-family: 'Roboto', sans-serif;
-            font-size: 8pt;
+            font-size: 0.67rem;
             font-weight: normal;
             color: #000;
         }
@@ -123,7 +123,7 @@
         .section-header {
             font-family: 'Roboto', sans-serif;
             font-weight: bold;
-            font-size: 9pt;
+            font-size: 0.75rem;
             text-align: left;
             padding: 3pt;
             background-color: #E0E0E0;
@@ -131,7 +131,7 @@
 
         .section-title {
             font-family: 'Roboto', sans-serif;
-            font-size: 8pt;
+            font-size: 0.67rem;
             font-weight: bold;
         }
         .header-cell {
@@ -161,7 +161,7 @@
         .municipality-cell {
             width: 150pt;
             text-align: left;
-            font-size: 6pt;
+            font-size: 0.5rem;
             vertical-align: top;
         }
 
@@ -171,7 +171,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 48pt;
+            font-size: 4rem;
             font-weight: bold;
             color: rgba(200, 200, 200, 0.3);
             z-index: -1;
@@ -189,7 +189,7 @@
         .fixed-text-block {
             text-align: center;
             font-weight: bold;
-            font-size: 7pt;
+            font-size: 0.58rem;
             padding: 2pt;
         }
 
@@ -199,6 +199,7 @@
         }
 
         @media print {
+            html { font-size: 100%; }
             html, body {
                 height: 100%;
             }
@@ -235,7 +236,7 @@
                 margin: 0 auto;
             }
             p.qr-code-text {
-                font-size: 7pt; 
+                font-size: 0.58rem; 
                 margin-top: 2pt;
             }
     </style>
@@ -252,10 +253,10 @@
                 <img src="<?= htmlspecialchars($logo) ?>" alt="NFS-e" style="max-width: 130pt; max-height: 40pt;">
             </td>
             <td class="title-cell">
-                <div style="font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold;">DANFSe v2.0</div>
-                <div style="font-family: Arial, Helvetica, sans-serif; font-size: 9pt; font-weight: bold;">Documento Auxiliar da NFS-e</div>
+                <div style="font-family: Arial, Helvetica, sans-serif; font-size: 0.83rem; font-weight: bold;">DANFSe v2.0</div>
+                <div style="font-family: Arial, Helvetica, sans-serif; font-size: 0.75rem; font-weight: bold;">Documento Auxiliar da NFS-e</div>
                 <?php if ($data['ambiente'] == 2): ?>
-                    <div style="font-family: Arial, Helvetica, sans-serif; color: #FF0000; font-weight: bold; font-size: 9pt;">NFS-e SEM VALIDADE JURÍDICA</div>
+                    <div style="font-family: Arial, Helvetica, sans-serif; color: #FF0000; font-weight: bold; font-size: 0.75rem;">NFS-e SEM VALIDADE JURÍDICA</div>
                 <?php endif; ?>
             </td>
             <td class="municipality-cell">
@@ -265,7 +266,7 @@
                         <?php if ($municipality->logoDataUri): ?>
                         <td><img style="height: 30pt; width: auto" src="<?= htmlspecialchars($municipality->logoDataUri) ?>" alt="Prefeitura" /></td>
                         <?php endif; ?>
-                        <td style="font-size: 7pt;">
+                        <td style="font-size: 0.58rem;">
                             <?= htmlspecialchars($municipality->name) ?><br>
                             <?php if ($municipality->department): ?>
                             <?= htmlspecialchars($municipality->department) ?><br>
@@ -278,16 +279,16 @@
                 </table>
                 <?php else: ?>
                 <div>
-                    <span class="label" style="font-size: 8pt; font-weight: 500;">
+                    <span class="label" style="font-size: 0.67rem; font-weight: 500;">
                         Município: <?= $data['municipio_uf'] ?>
                     </span>
                 <?php endif; ?>
                 <div>
-                    <span class="value" style="font-size: 7pt;">
+                    <span class="value" style="font-size: 0.58rem;">
                         Ambiente Gerador: <?= $data['ambiente_gerador'] ?>
                     </span>
                     <br>
-                    <span class="value" style="font-size: 7pt;">
+                    <span class="value" style="font-size: 0.58rem;">
                         Tipo de Ambiente: <?= $data['tipo_ambiente'] ?>
                     </span>
                 </div>
