@@ -38,6 +38,13 @@ class DanfseTemplate
     public function render(NFSe $nfse, DanfseConfig $config): string
     {
         $data = $this->buildData($nfse);
+        $data = array_replace_recursive([
+            'ambiente' => 1,
+            'ibs_cbs' => [
+                'c_sigla_uf' => '-',
+                'p_red_aliq_ibs' => '-',
+            ],
+        ], $data);
         $logo = $config->logoDataUri;
         $municipality = $config->municipality;
         $qrCode = $this->generateQrCode($data['chave_acesso']);
