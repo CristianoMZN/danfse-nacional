@@ -135,7 +135,9 @@ class RealXmlTest extends TestCase
     public function test_schema_xml_generates_valid_pdf(): void
     {
         $xmlPath = __DIR__ . '/../schemas/208_DALTEC_601.xml';
-        $this->assertFileExists($xmlPath);
+        if (!is_file($xmlPath)) {
+            $this->markTestSkipped("Fixture local ausente: {$xmlPath} (diretório schemas/ não é versionado).");
+        }
 
         $xml = file_get_contents($xmlPath);
         $this->assertNotFalse($xml);

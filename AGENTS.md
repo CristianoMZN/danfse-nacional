@@ -1,13 +1,14 @@
 # Instruções para o agente (opencode)
 
 ## Sobre o projeto
-Biblioteca PHP 8.1+ (`DanfseNacional\`) para a NFS-e Nacional 2.0,
+Biblioteca PHP 8.1+ (`DanfseNacional\`) para a NFS-e Nacional,
 distribuída via Packagist/Composer. Entrega três pilares de mesmo nível:
 **geração de PDF** do DANFSe a partir do XML autorizado, **parser tipado**
 do XML (XML→array e XML→DTO) e **visualizador HTML** do DANFSe. Suporta
-v1.01 e v2.0 (NT 008/009/2026, com IBS/CBS). PSR-4; sem dependência de
-framework — integra em qualquer framework PHP ou em scripts PHP puros.
-Detalhes e exemplos de uso público em `README.md` (também em português).
+o XML v1.01 (com ou sem bloco IBS/CBS) e o DANFSe v2.0 (NT 008/2026,
+layout com seção IBS/CBS). PSR-4; sem dependência de framework — integra
+em qualquer framework PHP ou em scripts PHP puros. Detalhes e exemplos
+de uso público em `README.md` (também em português).
 
 ## Comandos essenciais
 - Instalar dependências: `composer install`
@@ -57,11 +58,14 @@ verificação automática é o `phpunit`.**
 ## Arquivos que NÃO devem ser commitados
 Respeitar o `.gitignore` (risco real de vazar ou poluir o repo):
 - `vendor/`, `composer.lock`
-- `examples/danfse_com_config.*`, `examples/danfse_simples.*` — saídas
-  geradas por `examples/example.php`
 - `tests/output/*` — PDFs gerados pelos testes
-- `tests/xmls/*` — amostras reais de NFS-e (dado sensível, não versionar)
 - `anex` — item solto no `.gitignore`
+
+Os XMLs de exemplo em `examples/` e os fixtures em `tests/xmls/`
+**são** versionados: tratam-se de notas reais do próprio autor da
+biblioteca, publicadas como amostra. O mesmo vale para os PDFs/HTMLs
+gerados por `examples/example.php` (`examples/danfse_simples_*.pdf`,
+`examples/danfse_com_config_*.pdf`, `examples/danfse_com_config_*.html`).
 
 O diretório `schemas/` é fixture local usado pelo `index.php`
 (`schemas/{key}.xml`); não tratar como artefato de produção nem
@@ -94,8 +98,7 @@ o agente deve:
    acabou de fazer (arquivos tocados, propósito da mudança).
 5. **NÃO** executar `git push`. Os commits permanecem apenas locais.
 6. **NÃO** commitar arquivos ignorados (`vendor/`, `composer.lock`,
-   `tests/output/*`, `tests/xmls/*`, `examples/danfse_*.*`, etc.).
-   Respeitar o `.gitignore`.
+   `tests/output/*`, etc.). Respeitar o `.gitignore`.
 7. **NÃO** commitar se não houver nada para commitar
    (`git status --porcelain` vazio). Apenas encerrar a ação.
 8. Manter-se na branch `main`. Não criar branches para o commit

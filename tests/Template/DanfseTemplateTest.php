@@ -7,21 +7,16 @@ use PHPUnit\Framework\TestCase;
 
 class DanfseTemplateTest extends TestCase
 {
-    private string $v1Xml;
-    private string $v2Xml;
+    private string $xml;
 
     /** @var callable|null */
     private $previousErrorHandler = null;
 
     protected function setUp(): void
     {
-        $v1Path = __DIR__ . '/../../examples/nfse_exemplo.xml';
-        $this->v1Xml = (string) file_get_contents($v1Path);
-        $this->assertNotFalse($this->v1Xml, "nfse_exemplo.xml não encontrado em {$v1Path}");
-
-        $v2Path = __DIR__ . '/../../examples/nfse_exemplo_v2.xml';
-        $this->v2Xml = (string) file_get_contents($v2Path);
-        $this->assertNotFalse($this->v2Xml, "nfse_exemplo_v2.xml não encontrado em {$v2Path}");
+        $path = __DIR__ . '/../../examples/35489062255036530000181000000000653426072486424961.xml';
+        $this->xml = (string) file_get_contents($path);
+        $this->assertNotFalse($this->xml, "XML canônico não encontrado em {$path}");
 
         $this->previousErrorHandler = set_error_handler(
             static function (int $errno, string $errstr, string $errfile = '', int $errline = 0): bool {
@@ -39,10 +34,10 @@ class DanfseTemplateTest extends TestCase
         $this->previousErrorHandler = null;
     }
 
-    public function test_renders_minimal_v1_xml_without_warnings(): void
+    public function test_renders_xml_without_warnings(): void
     {
         $generator = new DanfseGenerator();
-        $nfse = $generator->parseXml($this->v1Xml);
+        $nfse = $generator->parseXml($this->xml);
         $html = $generator->generateHtml($nfse);
 
         $this->assertStringContainsString('<!DOCTYPE html>', $html);
@@ -51,10 +46,10 @@ class DanfseTemplateTest extends TestCase
         $this->assertStringNotContainsString('Notice', $html);
     }
 
-    public function test_renders_v2_ibs_cbs_xml_without_warnings(): void
+    public function test_renders_ibscbs_section_when_present(): void
     {
         $generator = new DanfseGenerator();
-        $nfse = $generator->parseXml($this->v2Xml);
+        $nfse = $generator->parseXml($this->xml);
         $html = $generator->generateHtml($nfse);
 
         $this->assertStringNotContainsString('Undefined', $html);
@@ -65,7 +60,7 @@ class DanfseTemplateTest extends TestCase
 
     public function test_ambiente_2_renders_homologacao_watermark(): void
     {
-        $xml = $this->v2XmlWithAmbiente(2);
+        $xml = $this->xmlWithAmbiente(2);
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xml);
@@ -77,7 +72,7 @@ class DanfseTemplateTest extends TestCase
 
     public function test_ambiente_1_does_not_render_homologacao_watermark(): void
     {
-        $xml = $this->v2XmlWithAmbiente(1);
+        $xml = $this->xmlWithAmbiente(1);
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xml);
@@ -87,12 +82,35 @@ class DanfseTemplateTest extends TestCase
         $this->assertStringNotContainsString('SEM VALIDADE JURÍDICA', $html);
     }
 
-    private function v2XmlWithAmbiente(int $ambiente): string
+    public function test_renders_without_ibscbs_block(): void
+    {
+        $xml = $this->xmlWithoutIBSCBS();
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xml);
+        $html = $generator->generateHtml($nfse);
+
+        $this->assertStringNotContainsString('Undefined', $html);
+        $this->assertStringNotContainsString('Warning', $html);
+        $this->assertStringNotContainsString('Notice', $html);
+        $this->assertStringContainsString('<!DOCTYPE html>', $html);
+    }
+
+    private function xmlWithAmbiente(int $ambiente): string
     {
         return str_replace(
             '<tpAmb>1</tpAmb>',
             '<tpAmb>' . $ambiente . '</tpAmb>',
-            $this->v2Xml
+            $this->xml
+        );
+    }
+
+    private function xmlWithoutIBSCBS(): string
+    {
+        return preg_replace(
+            '#<IBSCBS>.*?</IBSCBS>#s',
+            '',
+            $this->xml
         );
     }
 }

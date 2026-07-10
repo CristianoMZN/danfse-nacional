@@ -23,19 +23,25 @@ adicional para diferenciar os PDFs de teste dos emitidos em Produção.
 
 ## Compatibilidade
 
-| Versão NFS-e | Norma Técnica | Status |
-|---|---|---|
-| v1.01 | Padrão Nacional original | Suportada |
-| v2.0 | NT 008/2026 (DANFSe) + NT 009/2026 (XML IBS/CBS) | Suportada |
+A biblioteca lida com o **XML NFS-e v1.01** (única versão de XML existente) e
+renderiza o **DANFSe em dois layouts**:
 
-A biblioteca é retrocompatível: XMLs v1.01 (sem IBS/CBS) continuam funcionando
-normalmente. A seção IBS/CBS no PDF só é renderizada quando os dados estão
-presentes no XML.
+| Layout do DANFSe | Norma Técnica | Status |
+|---|---|---|
+| v1.0 | Padrão original, sem bloco IBS/CBS | Suportado |
+| v2.0 | NT 008/2026, com seção IBS/CBS quando o XML traz o bloco | Suportado |
+
+O XML v1.01 pode ou não trazer o grupo `IBSCBS` (reforma tributária,
+NT 009/2026). Quando presente, a biblioteca preenche automaticamente a seção
+de tributação IBS/CBS do DANFSe. A escolha do layout é feita pelo conteúdo
+do XML, não pela versão dele.
 
 ## Exemplos
 
-- [DANFSe - Produção](examples/danfse.pdf)
-- [DANFSe - Homologação](examples/danfse-homologacao.pdf)
+`examples/example.php` itera todos os XMLs em `examples/`, gerando para cada
+um um PDF sem configuração (`danfse_simples_<chave>.pdf`) e um PDF com
+identificação da Prefeitura de Niterói (`danfse_com_config_<chave>.pdf`,
+acompanhado de `danfse_com_config_<chave>.html`).
 
 ## Requisitos
 
@@ -68,23 +74,23 @@ file_put_contents('danfse.pdf', $pdf);
 O PDF é gerado em A4 retrato e busca ser fiel ao DANFSe original emitido pela
 SEFAZ, com pequenos ajustes para melhorar a legibilidade.
 
-## NFS-e v2.0 com IBS/CBS (NT 009/2026)
+## NFS-e com IBS/CBS (reforma tributária)
 
-Para XMLs v2.0 que incluem os grupos IBS/CBS (Imposto sobre Bens e Serviços /
-Contribuição sobre Bens e Serviços), a biblioteca renderiza automaticamente a
-seção de tributação do IBS/CBS no DANFSe:
+XMLs v1.01 que incluam os grupos IBS/CBS (Imposto sobre Bens e Serviços /
+Contribuição sobre Bens e Serviços, conforme NT 009/2026) fazem a biblioteca
+renderizar automaticamente a seção de tributação do IBS/CBS no DANFSe:
 
 ```php
 use DanfseNacional\DanfseGenerator;
 
-// XML v2.0 com IBS/CBS
-$xml = file_get_contents('nfse_v2_com_ibs_cbs.xml');
+// XML v1.01 com bloco IBS/CBS
+$xml = file_get_contents('nfse_com_ibs_cbs.xml');
 
 $generator = new DanfseGenerator();
 $pdf = $generator->generateFromXml($xml);
 
 // O PDF inclui a seção IBS/CBS automaticamente
-file_put_contents('danfse_v2.pdf', $pdf);
+file_put_contents('danfse.pdf', $pdf);
 ```
 
 Acesse os campos IBS/CBS via DTOs:

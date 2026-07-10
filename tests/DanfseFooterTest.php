@@ -12,9 +12,9 @@ class DanfseFooterTest extends TestCase
 
     protected function setUp(): void
     {
-        $path = __DIR__ . '/../examples/nfse_exemplo.xml';
+        $path = __DIR__ . '/../examples/35489062255036530000181000000000653426072486424961.xml';
         $this->realXml = file_get_contents($path);
-        $this->assertNotFalse($this->realXml, "real_nfse.xml não encontrado em $path");
+        $this->assertNotFalse($this->realXml, "XML canônico não encontrado em $path");
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($this->realXml);
@@ -178,10 +178,10 @@ class DanfseFooterTest extends TestCase
         $this->assertNotEmpty($matches, 'Bloco table-footer não encontrado');
         $footerHtml = $matches[1];
 
-        // O número da NFS-e e a chave devem aparecer (vindos do XML de exemplo)
-        $this->assertStringContainsString('10', $footerHtml, 'Número da NFS-e não aparece no canhoto');
+        // O número da NFS-e e a chave devem aparecer (vindos do XML canônico)
+        $this->assertStringContainsString('6534', $footerHtml, 'Número da NFS-e não aparece no canhoto');
         $this->assertStringContainsString(
-            '3303302112233450000195000000000000100000000001',
+            '35489062255036530000181000000000653426072486424961',
             $footerHtml,
             'Chave de acesso não aparece no canhoto'
         );
