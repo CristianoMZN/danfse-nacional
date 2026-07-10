@@ -152,6 +152,24 @@ class RealXmlTest extends TestCase
         $this->assertLessThan(5_000_000, $size);
     }
 
+    public function test_rendered_html_contains_embedded_nfse_logo(): void
+    {
+        $xmlPath = __DIR__ . '/xmls/43118092261508808000179000000000025926020142727080.xml';
+        $xml = file_get_contents($xmlPath);
+        $this->assertNotFalse($xml);
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xml);
+        $html = $generator->generateHtml($nfse);
+
+        $this->assertStringContainsString('<td class="logo-cell">', $html);
+        $this->assertMatchesRegularExpression(
+            '#<td class="logo-cell">\s*<img src="(data:image/png;base64,[^"]{1000,})" alt="NFS-e"#s',
+            $html,
+            'Logo NFS-e deve ser renderizada incondicionalmente no template, como data URI base64 da DefaultLogo::DATA_URI.',
+        );
+    }
+
     public function test_batch_generation_all_xmls(): void
     {
         $dirs = [

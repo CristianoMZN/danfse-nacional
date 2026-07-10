@@ -42,8 +42,13 @@ verificação automática é o `phpunit`.**
   visualizador HTML (`generateHtml()`).
 - `Formatter.php` — formatadores (datas, valores).
 
-`assets/logo-nfse.png` é o logo padrão do pacote (substituível via
-`DanfseConfig`).
+A logo NFS-e fica **embutida em `src/Config/DefaultLogo.php`** (constante
+`DATA_URI`) e é parte fixa e obrigatória do DANFSe. O consumidor **não
+pode** substituí-la nem desativá-la — tentativas via `DanfseConfig` (1.x)
+deixam de compilar em 2.0.0. `assets/logo-nfse.png` é mantido apenas como
+fonte/referência para regenerar a constante, não é lido em runtime. O
+único logo configurável é o do ente emitente (empresa ou brasão), via
+`MunicipalityBranding::logoDataUri` ou `::logoPath`.
 
 ## Convenções
 - **Sem comentários no código** salvo pedido explícito. A descrição da

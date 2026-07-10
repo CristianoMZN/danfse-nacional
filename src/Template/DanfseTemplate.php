@@ -7,6 +7,7 @@ use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use DanfseNacional\Config\DanfseConfig;
+use DanfseNacional\Config\DefaultLogo;
 use DanfseNacional\Dto\NFSe;
 use DanfseNacional\Enums\FinNFSe;
 use DanfseNacional\Enums\OpSimpNac;
@@ -45,7 +46,7 @@ class DanfseTemplate
                 'p_red_aliq_ibs' => '-',
             ],
         ], $data);
-        $logo = $config->logoDataUri;
+        $logo = DefaultLogo::DATA_URI;
         $municipality = $config->municipality;
         $qrCode = $this->generateQrCode($data['chave_acesso']);
         array_walk_recursive($data, fn(&$v) => $v = is_string($v) ? htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') : $v);

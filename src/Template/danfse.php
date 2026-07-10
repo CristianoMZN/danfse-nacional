@@ -249,9 +249,7 @@
     <table class="header-table">
         <tr>
             <td class="logo-cell">
-                <?php if ($logo): ?>
-                <img src="<?= htmlspecialchars($logo) ?>" alt="Logo" style="max-width: 130pt; max-height: 40pt;">
-                <?php endif; ?>
+                <img src="<?= htmlspecialchars($logo) ?>" alt="NFS-e" style="max-width: 130pt; max-height: 40pt;">
             </td>
             <td class="title-cell">
                 <div style="font-family: Arial, Helvetica, sans-serif; font-size: 10pt; font-weight: bold;">DANFSe v2.0</div>

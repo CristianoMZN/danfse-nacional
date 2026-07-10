@@ -114,41 +114,47 @@ $cst = $ibsCbsDps->valores?->trib?->gIBSCBS?->CST;
 $finNFSe = $nfse->infNFSe->DPS->infDPS->finNFSe;
 ```
 
-## Logo da empresa
+## Logos do documento
 
-Por padrão, o cabeçalho do documento exibe o logo incluído no pacote. Esse
-logo default é **embutido no binário da biblioteca** (constante PHP), de
-forma que o DANFSe é gerado corretamente em qualquer ambiente (Laravel,
-scripts puros, PHAR, etc.) sem depender da leitura de arquivos em
-`vendor/`. Para
-substituí-lo pelo logo da empresa, informe o caminho do arquivo de imagem via
-`logoPath`. A biblioteca detecta o MIME type e monta o data URI automaticamente.
+O DANFSe exibe **duas logos** no cabeçalho, com responsabilidades bem
+distintas:
+
+1. **Logo da NFS-e** (obrigatória) — vem embutida no binário da biblioteca
+   em `DanfseNacional\Config\DefaultLogo::DATA_URI`. É parte fixa do
+   documento: o consumidor **não pode** substituí-la, desativá-la nem
+   informá-la via `DanfseConfig`. A logo NFS-e é sempre renderizada.
+
+2. **Logo do ente emitente** (opcional) — brasão da prefeitura, logo da
+   empresa, marca de autarquia etc. Informada via `MunicipalityBranding`
+   (a classe serve para qualquer ente: município, empresa, autarquia).
+   Quando omitida, o canto direito do cabeçalho mostra apenas
+   "Município: &lt;cidade/UF&gt;" derivado do XML.
 
 ```php
 use DanfseNacional\DanfseGenerator;
 use DanfseNacional\Config\DanfseConfig;
+use DanfseNacional\Config\MunicipalityBranding;
 
-$config = new DanfseConfig(logoPath: '/caminho/para/logo.png');
-$generator = new DanfseGenerator($config);
+// Sem logo do ente (apenas a logo NFS-e obrigatória):
+$generator = new DanfseGenerator();
 
-$pdf = $generator->generateFromXml($xml);
+// Com brasão da prefeitura / logo da empresa:
+$generator = new DanfseGenerator(new DanfseConfig(
+    municipality: new MunicipalityBranding(
+        name: 'Prefeitura de Niterói',
+        department: 'Secretaria de Fazenda',
+        email: 'iss@fazenda.niteroi.gov.br',
+        logoPath: '/caminho/para/brasao.png',
+    ),
+));
 ```
 
-Para suprimir o logo completamente, passe `false`.
-
-```php
-$config = new DanfseConfig(logoPath: false);
-```
-
-Caso o dado já esteja disponível como data URI (por exemplo, quando o logo é
-armazenado em banco de dados), é possível fornecê-lo diretamente via
-`logoDataUri`. Se ambos `logoDataUri` e `logoPath` forem informados,
-`logoDataUri` tem precedência. `logoPath: false` sempre suprime o logo,
-independente de `logoDataUri`.
-
-```php
-$config = new DanfseConfig(logoDataUri: 'data:image/png;base64,...');
-```
+A logo do ente é convertida internamente para data URI e embutida no
+PDF. `MunicipalityBranding` aceita `logoPath` (caminho do arquivo) ou
+`logoDataUri` (data URI pronto). Os dois são mutuamente exclusivos;
+`logoDataUri` tem precedência. `logoPath` inválido lança
+`InvalidArgumentException` (a logo do ente é opt-in, mas quando você
+opta por ela, o caminho precisa existir).
 
 ## Identificação do município
 
