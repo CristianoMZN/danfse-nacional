@@ -129,6 +129,79 @@ class DanfseTemplateTest extends TestCase
         $this->assertStringContainsString('Tipo de Ambiente:', $html);
     }
 
+    public function test_tributacao_federal_renders_pis_and_cofins_with_distinct_values(): void
+    {
+        $xml = $this->xmlWithPisCofins('7.89', '4.32');
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xml);
+        $html = $generator->generateHtml($nfse);
+
+        $pisSection = $this->extractRowAfterLabel($html, 'PIS - Débito Apuração Própria');
+        $cofinsSection = $this->extractRowAfterLabel($html, 'COFINS - Débito Apuração Própria');
+
+        $this->assertStringContainsString('R$ 7,89', $pisSection);
+        $this->assertStringContainsString('R$ 4,32', $cofinsSection);
+        $this->assertNotSame($pisSection, $cofinsSection);
+    }
+
+    public function test_desconto_incondicionado_e_condicionado_rotulados_corretamente(): void
+    {
+        $xml = $this->xmlWithDescontos('123.45', '67.89');
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xml);
+        $html = $generator->generateHtml($nfse);
+
+        $incondSection = $this->extractCellAfterLabel($html, 'Desconto Incondicionado');
+        $condSection = $this->extractCellAfterLabel($html, 'Desconto Condicionado');
+
+        $this->assertStringContainsString('R$ 123,45', $incondSection);
+        $this->assertStringContainsString('R$ 67,89', $condSection);
+        $this->assertNotSame($incondSection, $condSection);
+    }
+
+    public function test_bloco_9_red_aliq_ibs_uses_uf_e_cbs(): void
+    {
+        $path = __DIR__ . '/../../examples/35503081262984091000951000001373996226063822327793.xml';
+        $xmlComReducao = (string) file_get_contents($path);
+        $this->assertNotFalse($xmlComReducao, "XML com pRedAliq não encontrado em {$path}");
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xmlComReducao);
+        $html = $generator->generateHtml($nfse);
+
+        $reducao = $this->extractCellAfterLabel($html, 'Red. Alíquota IBS / Red. Alíquota CBS');
+
+        $this->assertStringContainsString('60,00%', $reducao);
+        $this->assertStringNotContainsString('- /', $reducao);
+        $this->assertStringNotContainsString('/ -', $reducao);
+    }
+
+    public function test_pis_cofins_oculto_para_competencia_2027_ou_posterior(): void
+    {
+        $xml = $this->xmlWithCompetencia('2027-01-15');
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xml);
+        $html = $generator->generateHtml($nfse);
+
+        $this->assertStringNotContainsString('PIS - Débito Apuração Própria', $html);
+        $this->assertStringNotContainsString('COFINS - Débito Apuração Própria', $html);
+    }
+
+    public function test_pis_cofins_visivel_para_competencia_ate_2026(): void
+    {
+        $xml = $this->xmlWithCompetencia('2026-12-31');
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xml);
+        $html = $generator->generateHtml($nfse);
+
+        $this->assertStringContainsString('PIS - Débito Apuração Própria', $html);
+        $this->assertStringContainsString('COFINS - Débito Apuração Própria', $html);
+    }
+
     private function xmlWithAmbiente(int $ambiente): string
     {
         return str_replace(
@@ -145,5 +218,72 @@ class DanfseTemplateTest extends TestCase
             '',
             $this->xml
         );
+    }
+
+    private function xmlWithPisCofins(string $vPis, string $vCofins): string
+    {
+        $xml = $this->xml;
+        $xml = preg_replace(
+            '#<vPis>[^<]*</vPis>#',
+            '<vPis>' . $vPis . '</vPis>',
+            $xml,
+            1
+        );
+        $xml = preg_replace(
+            '#<vCofins>[^<]*</vCofins>#',
+            '<vCofins>' . $vCofins . '</vCofins>',
+            $xml,
+            1
+        );
+        return $xml;
+    }
+
+    private function xmlWithDescontos(string $vDescIncond, string $vDescCond): string
+    {
+        $xml = $this->xml;
+        if (!str_contains($xml, '<vDescIncond>')) {
+            $xml = preg_replace(
+                '#(<tribISSQN>1</tribISSQN>)#',
+                '$1<vDescIncond>' . $vDescIncond . '</vDescIncond><vDescCond>' . $vDescCond . '</vDescCond>',
+                $xml,
+                1
+            );
+        } else {
+            $xml = preg_replace('#<vDescIncond>[^<]*</vDescIncond>#', '<vDescIncond>' . $vDescIncond . '</vDescIncond>', $xml, 1);
+            $xml = preg_replace('#<vDescCond>[^<]*</vDescCond>#', '<vDescCond>' . $vDescCond . '</vDescCond>', $xml, 1);
+        }
+        return $xml;
+    }
+
+    private function xmlWithCompetencia(string $dCompet): string
+    {
+        return preg_replace(
+            '#<dCompet>[^<]*</dCompet>#',
+            '<dCompet>' . $dCompet . '</dCompet>',
+            $this->xml,
+            1
+        );
+    }
+
+    private function extractRowAfterLabel(string $html, string $label): string
+    {
+        $pos = strpos($html, $label);
+        if ($pos === false) {
+            return '';
+        }
+        return substr($html, $pos, 1200);
+    }
+
+    private function extractCellAfterLabel(string $html, string $label): string
+    {
+        $pos = strpos($html, $label);
+        if ($pos === false) {
+            return '';
+        }
+        $endTd = strpos($html, '</td>', $pos);
+        if ($endTd === false) {
+            return substr($html, $pos, 600);
+        }
+        return substr($html, $pos, $endTd - $pos + 5);
     }
 }

@@ -755,18 +755,19 @@ chave de acesso no portal nacional da NFS-e.
                 </td>
                 
             </tr>
+            <?php if (!$data['hide_pis_cofins']): ?>
             <tr>
                 <td>
                     <span class="label">
                         PIS - Débito Apuração Própria
                     </span>
-                    <span class="value"><?= $data['tributacao_federal']['desc_contrib_sociais'] ?? '-' ?></span>
+                    <span class="value"><?= $data['tributacao_federal']['pis'] ?? '-' ?></span>
                 </td>
                 <td >
                     <span class="label">
                         COFINS - Débito Apuração Própria
                     </span>
-                    <span class="value"><?= $data['tributacao_federal']['desc_contrib_sociais'] ?? '-' ?></span>
+                    <span class="value"><?= $data['tributacao_federal']['cofins'] ?? '-' ?></span>
                 </td>
                 <td >
                     <span class="label">
@@ -776,6 +777,7 @@ chave de acesso no portal nacional da NFS-e.
                 </td>
                 <td></td>
             </tr>
+            <?php endif; ?>
         </table>
     </div>
 
@@ -813,7 +815,7 @@ chave de acesso no portal nacional da NFS-e.
                 </td>
                 <td>
                     <span class="label">Red. Alíquota IBS / Red. Alíquota CBS</span>
-                    <span class="value"><?= $data['ibs_cbs']['p_red_aliq_ibs'] ?> / <?= $data['ibs_cbs']['p_red_aliq_cbs'] ?></span>
+                    <span class="value"><?= $data['ibs_cbs']['p_red_aliq_uf'] ?> / <?= $data['ibs_cbs']['p_red_aliq_cbs'] ?></span>
                 </td>
                 <td>
                     <span class="label">
@@ -881,11 +883,11 @@ chave de acesso no portal nacional da NFS-e.
                 </td>
                 <td >
                     <span class="label">Desconto Incondicionado</span>
-                    <span class="value"><?= $data['totais']['desconto_condicionado'] ?></span>
+                    <span class="value"><?= $data['totais']['desconto_incondicionado'] ?></span>
                 </td>
                 <td >
                     <span class="label">Desconto Condicionado</span>
-                    <span class="value"><?= $data['totais']['desconto_incondicionado'] ?></span>
+                    <span class="value"><?= $data['totais']['desconto_condicionado'] ?></span>
                 </td>
                 
             </tr>
