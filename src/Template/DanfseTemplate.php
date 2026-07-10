@@ -333,7 +333,7 @@ class DanfseTemplate
                 'c_ind_op' => $ibscbsDps?->cIndOp ?: '-',
                 'c_localidade_incid' => $ibscbsNfse?->cLocalidadeIncid ?: '-',
                 'x_localidade_incid' => $ibscbsNfse?->xLocalidadeIncid ?: '-',
-                'c_sigla_uf' => '-',
+                'c_sigla_uf' => Municipios::uf($ibscbsNfse?->cLocalidadeIncid ?? ''),
                 'p_red_aliq_ibs' => '-',
                 // Exclusões e reduções
                 'p_red_aliq_uf' => ($ibsCbsValores?->uf?->pRedAliqUF ?? '') !== '' ? $this->fmt->percent($ibsCbsValores->uf->pRedAliqUF) : '-',

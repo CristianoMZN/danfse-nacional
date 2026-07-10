@@ -256,6 +256,7 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('100301', $data['ibs_cbs']['c_ind_op']);
         $this->assertSame('4311809', $data['ibs_cbs']['c_localidade_incid']);
         $this->assertSame('Marau', $data['ibs_cbs']['x_localidade_incid']);
+        $this->assertSame('RS', $data['ibs_cbs']['c_sigla_uf']);
         $this->assertSame('0,10%', $data['ibs_cbs']['p_ibs_uf']);
         $this->assertSame('0,00%', $data['ibs_cbs']['p_ibs_mun']);
         $this->assertSame('0,90%', $data['ibs_cbs']['p_cbs']);

@@ -5591,4 +5591,13 @@ final class Municipios
         $m    = self::MAP[$code] ?? null;
         return $m !== null ? $m['nome'] . ' / ' . $m['uf'] : (string) $cMun;
     }
+
+    /**
+     * Retorna a sigla da UF (ex.: "RS") para o código IBGE informado, ou '-' se não encontrado.
+     */
+    public static function uf(string|int $cMun): string
+    {
+        $code = (int) $cMun;
+        return self::MAP[$code]['uf'] ?? '-';
+    }
 }
