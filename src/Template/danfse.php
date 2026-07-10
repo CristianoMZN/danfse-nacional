@@ -16,7 +16,9 @@
         html {
             height: auto;
             width: 100%;
-            zoom: 90%;
+            zoom: 80%;
+            margin: 0;
+            padding: 0;
         }
         body {
             font-family: 'Roboto', sans-serif;
