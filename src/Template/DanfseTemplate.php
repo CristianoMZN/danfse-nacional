@@ -201,7 +201,7 @@ class DanfseTemplate
             'emissao_dps' => $this->fmt->dateTime($infDps?->dhEmi ?? ''),
             'municipio_uf' => $municipioEmit ?: '-',
             'ambiente_gerador' => AmbGer::labelFor($inf?->ambGer ?? ''),
-            'tipo_ambiente' => TpAmb::labelFor((int) ($inf?->tpAmb ?? 1)),
+            'tipo_ambiente' => TpAmb::labelFor((int) ($infDps?->tpAmb ?? 1)),
             'situacao_nfse' => TpEmis::labelFor($inf?->tpEmis ?? ''),
             'finalidade' => FinNFSe::labelFor($infDps?->finNFSe ?? ''),
 
