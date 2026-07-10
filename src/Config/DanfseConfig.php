@@ -24,10 +24,13 @@ readonly class DanfseConfig
             ?? ($logoPath !== null ? self::pathToDataUri($logoPath) : self::defaultLogoDataUri());
     }
 
-    private static function defaultLogoDataUri(): ?string
+    private static function defaultLogoDataUri(): string
     {
-        $path = __DIR__ . '/../../assets/logo-nfse.png';
-        return is_readable($path) ? self::pathToDataUri($path) : null;
+        $uri = DefaultLogo::DATA_URI;
+        if ($uri === '' || !str_starts_with($uri, 'data:image/')) {
+            throw new \RuntimeException('Logo padrão do pacote DanfseNacional está ausente ou corrompido. Reinstale a dependência.');
+        }
+        return $uri;
     }
 
     private static function pathToDataUri(string $path): string

@@ -116,7 +116,11 @@ $finNFSe = $nfse->infNFSe->DPS->infDPS->finNFSe;
 
 ## Logo da empresa
 
-Por padrão, o cabeçalho do documento exibe o logo incluído no pacote. Para
+Por padrão, o cabeçalho do documento exibe o logo incluído no pacote. Esse
+logo default é **embutido no binário da biblioteca** (constante PHP), de
+forma que o DANFSe é gerado corretamente em qualquer ambiente (Laravel,
+scripts puros, PHAR, etc.) sem depender da leitura de arquivos em
+`vendor/`. Para
 substituí-lo pelo logo da empresa, informe o caminho do arquivo de imagem via
 `logoPath`. A biblioteca detecta o MIME type e monta o data URI automaticamente.
 

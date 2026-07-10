@@ -3,17 +3,23 @@
 namespace DanfseNacional\Tests;
 
 use DanfseNacional\Config\DanfseConfig;
+use DanfseNacional\Config\DefaultLogo;
 use DanfseNacional\Config\MunicipalityBranding;
 use PHPUnit\Framework\TestCase;
 
 class DanfseConfigTest extends TestCase
 {
-    public function test_no_logo_specified_uses_default_from_assets(): void
+    public function test_no_logo_specified_uses_embedded_default(): void
     {
         $config = new DanfseConfig();
 
-        $this->assertNotNull($config->logoDataUri);
-        $this->assertStringStartsWith('data:image/png;base64,', $config->logoDataUri);
+        $this->assertSame(DefaultLogo::DATA_URI, $config->logoDataUri);
+    }
+
+    public function test_default_logo_constant_is_a_valid_data_uri(): void
+    {
+        $this->assertNotEmpty(DefaultLogo::DATA_URI);
+        $this->assertStringStartsWith('data:image/', DefaultLogo::DATA_URI);
     }
 
     public function test_logo_false_disables_logo(): void
