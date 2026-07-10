@@ -16,6 +16,7 @@
         html {
             height: auto;
             width: 100%;
+            zoom: 90%;
         }
         body {
             font-family: 'Roboto', sans-serif;
@@ -275,11 +276,13 @@
                         </td>
                     </tr>
                 </table>
-                <?php endif; ?>
+                <?php else: ?>
                 <div>
                     <span class="label" style="font-size: 8pt; font-weight: 500;">
                         Município: <?= $data['municipio_uf'] ?>
                     </span>
+                <?php endif; ?>
+                <div>
                     <span class="value" style="font-size: 7pt;">
                         Ambiente Gerador: <?= $data['ambiente_gerador'] ?>
                     </span>

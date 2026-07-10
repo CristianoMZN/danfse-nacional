@@ -148,11 +148,19 @@ $config = new DanfseConfig(logoDataUri: 'data:image/png;base64,...');
 
 ## Identificação do município
 
-O cabeçalho do DANFSe possui um espaço reservado para a identificação do ente
-municipal emissor. Por padrão esse espaço fica em branco. Para preenchê-lo,
-configure `MunicipalityBranding` com o nome do município, a secretaria
-responsável e o e-mail de contato. O logotipo do município segue a mesma
-convenção: aceita caminho de arquivo ou data URI.
+O cabeçalho do DANFSe possui um espaço para a identificação do ente municipal
+emissor. **Sem configuração**, esse espaço mostra apenas a linha
+"Município: &lt;cidade / UF&gt;", derivada do próprio XML
+(`InfNFSe->xLocEmi` ou `Municipios::lookup(emit->enderNac->cMun)`).
+
+Quando `MunicipalityBranding` é informado, o conteúdo dele **substitui** a
+linha "Município:" (caso contrário o nome do município apareceria duplicado).
+As demais linhas do header — "Ambiente Gerador" e "Tipo de Ambiente" —
+continuam refletindo o XML, pois não são responsabilidade do branding.
+
+Use o `MunicipalityBranding` para customizar apenas a identificação
+institucional: nome, secretaria, e-mail e brasão (caminho de arquivo ou
+data URI).
 
 ```php
 use DanfseNacional\DanfseGenerator;

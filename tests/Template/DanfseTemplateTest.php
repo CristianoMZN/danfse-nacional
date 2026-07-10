@@ -96,6 +96,39 @@ class DanfseTemplateTest extends TestCase
         $this->assertStringContainsString('<!DOCTYPE html>', $html);
     }
 
+    public function test_header_without_branding_shows_municipio_from_xml(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $html = $generator->generateHtml($nfse);
+
+        $this->assertStringContainsString('Município: São Carlos / SP', $html);
+        $this->assertStringContainsString('Ambiente Gerador:', $html);
+        $this->assertStringNotContainsString('Prefeitura de Niterói', $html);
+    }
+
+    public function test_header_with_branding_replaces_municipio_line(): void
+    {
+        $config = new \DanfseNacional\Config\DanfseConfig(
+            municipality: new \DanfseNacional\Config\MunicipalityBranding(
+                name: 'Prefeitura de Niterói',
+                department: 'Secretaria Municipal de Fazenda',
+                email: 'iss@fazenda.niteroi.rj.gov.br',
+            ),
+        );
+        $generator = new DanfseGenerator($config);
+        $nfse = $generator->parseXml($this->xml);
+        $html = $generator->generateHtml($nfse);
+
+        $this->assertStringContainsString('Prefeitura de Niterói', $html);
+        $this->assertStringContainsString('Secretaria Municipal de Fazenda', $html);
+        $this->assertStringContainsString('iss@fazenda.niteroi.rj.gov.br', $html);
+        $this->assertStringNotContainsString('Município: São Carlos / SP', $html);
+        $this->assertStringNotContainsString('Município:', $html);
+        $this->assertStringContainsString('Ambiente Gerador:', $html);
+        $this->assertStringContainsString('Tipo de Ambiente:', $html);
+    }
+
     private function xmlWithAmbiente(int $ambiente): string
     {
         return str_replace(
