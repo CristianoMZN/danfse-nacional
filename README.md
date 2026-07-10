@@ -1,14 +1,25 @@
 # DANFSe Nacional
 
-> **Fork** do repositório original [`andrevabo/danfse-nacional`](https://github.com/andrevabo/danfse-nacional), modificado para operar com o padrão **NFSe 2.0** (NT 008/2026 e NT 009/2026 — IBS/CBS).
+> **Fork** do repositório [`andrevabo/danfse-nacional`](https://github.com/andrevabo/danfse-nacional), adaptado para o padrão NFS-e 2.0 (NT 008/2026 e NT 009/2026 — IBS/CBS).
 
-Biblioteca PHP para geração de PDF do DANFSe (Documento Auxiliar da Nota Fiscal de Serviços eletrônica) a partir do XML da NFS-e Padrão Nacional.
+Biblioteca PHP para a NFS-e Nacional 2.0, distribuída via Packagist/Composer.
+Oferece três entregáveis de mesmo nível:
 
-A biblioteca recebe o XML de uma NFS-e autorizada e devolve o conteúdo binário de um PDF em A4 retrato, sem nenhuma dependência de framework. Pode ser usada em projetos Laravel, Symfony, ou em scripts PHP puro.
+1. **Geração de PDF** do DANFSe (Documento Auxiliar da NFS-e) a partir do
+   XML autorizado — saída em A4 retrato, com o objetivo de ser o mais fiel
+   possível ao documento emitido pela SEFAZ.
+2. **Parser tipado do XML** — converte o XML da NFS-e em `array` associativo
+   ou em objetos DTO `readonly` (NFSe/InfNFSe/DPS/...) para uso em qualquer
+   outro recurso da sua aplicação.
+3. **Visualizador HTML** do DANFSe — gera o HTML intermediário consumido pelo
+   dompdf, útil para inspecionar o documento antes de produzir o PDF.
 
-O objetivo principal desta biblioteca é criar um documento o mais fiel possível ao DANFSe original gerado pela API da SEFAZ, com apenas alguns ajustes para melhorar a legibilidade.
+Sem dependência de framework: funciona em PHP puro, Laravel, Symfony, Cake ou
+qualquer outro projeto PHP. PSR-4; namespace `DanfseNacional\`.
 
-Nas NFS-e do ambiente de Homologação, o PDF apresenta a mesma mensagem do documento original, "NFS-e SEM VALIDADE JURÍDICA", além de uma marca d'água adicional para diferenciar os PDFs de teste dos emitidos em Produção.
+Nas NFS-e do ambiente de Homologação, o PDF apresenta a mesma mensagem do
+documento original, "NFS-e SEM VALIDADE JURÍDICA", além de uma marca d'água
+adicional para diferenciar os PDFs de teste dos emitidos em Produção.
 
 ## Compatibilidade
 
@@ -17,7 +28,9 @@ Nas NFS-e do ambiente de Homologação, o PDF apresenta a mesma mensagem do docu
 | v1.01 | Padrão Nacional original | Suportada |
 | v2.0 | NT 008/2026 (DANFSe) + NT 009/2026 (XML IBS/CBS) | Suportada |
 
-A biblioteca é retrocompatível: XMLs v1.01 (sem IBS/CBS) continuam funcionando normalmente. A seção IBS/CBS no PDF só é renderizada quando os dados estão presentes no XML.
+A biblioteca é retrocompatível: XMLs v1.01 (sem IBS/CBS) continuam funcionando
+normalmente. A seção IBS/CBS no PDF só é renderizada quando os dados estão
+presentes no XML.
 
 ## Exemplos
 
@@ -26,7 +39,8 @@ A biblioteca é retrocompatível: XMLs v1.01 (sem IBS/CBS) continuam funcionando
 
 ## Requisitos
 
-PHP 8.1 ou superior com as extensões `simplexml`, `mbstring` e `fileinfo` habilitadas.
+PHP 8.1 ou superior com as extensões `simplexml`, `mbstring` e `fileinfo`
+habilitadas.
 
 ## Instalação
 
@@ -34,7 +48,9 @@ PHP 8.1 ou superior com as extensões `simplexml`, `mbstring` e `fileinfo` habil
 composer require CristianoMZN/danfse-nacional
 ```
 
-## Uso básico
+---
+
+# 1. Geração de PDF
 
 O caminho mais direto é passar o XML e receber o PDF em uma única chamada.
 
@@ -49,9 +65,14 @@ $pdf = $generator->generateFromXml($xml);
 file_put_contents('danfse.pdf', $pdf);
 ```
 
+O PDF é gerado em A4 retrato e busca ser fiel ao DANFSe original emitido pela
+SEFAZ, com pequenos ajustes para melhorar a legibilidade.
+
 ## NFS-e v2.0 com IBS/CBS (NT 009/2026)
 
-Para XMLs v2.0 que incluem os grupos IBS/CBS (Imposto sobre Bens e Serviços / Contribuição sobre Bens e Serviços), a biblioteca renderiza automaticamente a seção de tributação do IBS/CBS no DANFSe:
+Para XMLs v2.0 que incluem os grupos IBS/CBS (Imposto sobre Bens e Serviços /
+Contribuição sobre Bens e Serviços), a biblioteca renderiza automaticamente a
+seção de tributação do IBS/CBS no DANFSe:
 
 ```php
 use DanfseNacional\DanfseGenerator;
@@ -87,11 +108,113 @@ $cst = $ibsCbsDps->valores?->trib?->gIBSCBS?->CST;
 $finNFSe = $nfse->infNFSe->DPS->infDPS->finNFSe;
 ```
 
-## Parse NFSe (sem gerar PDF)
+## Logo da empresa
 
-É possível extrair os dados do XML da NFS-e sem gerar o PDF. A biblioteca oferece duas abordagens: retornar um **array associativo** ou um **objeto DTO tipado**.
+Por padrão, o cabeçalho do documento exibe o logo incluído no pacote. Para
+substituí-lo pelo logo da empresa, informe o caminho do arquivo de imagem via
+`logoPath`. A biblioteca detecta o MIME type e monta o data URI automaticamente.
 
-### Como array
+```php
+use DanfseNacional\DanfseGenerator;
+use DanfseNacional\Config\DanfseConfig;
+
+$config = new DanfseConfig(logoPath: '/caminho/para/logo.png');
+$generator = new DanfseGenerator($config);
+
+$pdf = $generator->generateFromXml($xml);
+```
+
+Para suprimir o logo completamente, passe `false`.
+
+```php
+$config = new DanfseConfig(logoPath: false);
+```
+
+Caso o dado já esteja disponível como data URI (por exemplo, quando o logo é
+armazenado em banco de dados), é possível fornecê-lo diretamente via
+`logoDataUri`. Se ambos `logoDataUri` e `logoPath` forem informados,
+`logoDataUri` tem precedência. `logoPath: false` sempre suprime o logo,
+independente de `logoDataUri`.
+
+```php
+$config = new DanfseConfig(logoDataUri: 'data:image/png;base64,...');
+```
+
+## Identificação do município
+
+O cabeçalho do DANFSe possui um espaço reservado para a identificação do ente
+municipal emissor. Por padrão esse espaço fica em branco. Para preenchê-lo,
+configure `MunicipalityBranding` com o nome do município, a secretaria
+responsável e o e-mail de contato. O logotipo do município segue a mesma
+convenção: aceita caminho de arquivo ou data URI.
+
+```php
+use DanfseNacional\DanfseGenerator;
+use DanfseNacional\Config\DanfseConfig;
+use DanfseNacional\Config\MunicipalityBranding;
+
+$config = new DanfseConfig(
+    logoPath: '/caminho/para/logo-empresa.png',
+    municipality: new MunicipalityBranding(
+        name: 'Prefeitura de Niterói',
+        department: 'Secretaria Municipal de Fazenda',
+        email: 'iss@fazenda.niteroi.rj.gov.br',
+        logoPath: '/caminho/para/logo-prefeitura.png',
+    ),
+);
+
+$generator = new DanfseGenerator($config);
+$pdf = $generator->generateFromXml($xml);
+```
+
+## Geração em dois passos
+
+É possível acessar o método `parseXml()` para obter um objeto
+`DanfseNacional\Dto\NFSe` com os dados da NFS-e antes de gerar o PDF.
+
+```php
+use DanfseNacional\DanfseGenerator;
+
+$generator = new DanfseGenerator();
+
+$nfse = $generator->parseXml($xml);
+
+// Acessa os dados tipados via DTOs
+$numeroNfse = $nfse->infNFSe->nNFSe;
+$cnpjEmitente = $nfse->infNFSe->emit->CNPJ;
+$valorLiquido = $nfse->infNFSe->valores->vLiq;
+$descricaoServico = $nfse->infNFSe->DPS->infDPS->serv->cServ->xDescServ;
+
+$pdf = $generator->generatePdf($nfse);
+```
+
+## Entrega da resposta em aplicações web
+
+Em vez de salvar o arquivo em disco, o conteúdo binário do PDF pode ser
+enviado diretamente como resposta HTTP.
+
+```php
+// PHP puro
+header('Content-Type: application/pdf');
+header('Content-Disposition: inline; filename="danfse.pdf"');
+echo $pdf;
+
+// Laravel
+return response($pdf, 200, [
+    'Content-Type' => 'application/pdf',
+    'Content-Disposition' => 'inline; filename="danfse.pdf"',
+]);
+```
+
+---
+
+# 2. Parser de XML
+
+O parser transforma o XML da NFS-e em estruturas PHP prontas para uso.
+Funciona com XMLs v1.01 e v2.0 (IBS/CBS) e oferece duas saídas
+equivalentes: `array` associativo ou DTO tipado.
+
+## Como array
 
 Use `XmlToArray` para converter o XML em um array PHP associativo:
 
@@ -106,9 +229,10 @@ echo $array['infNFSe']['emit']['CNPJ'];     // "11222333000181"
 echo $array['infNFSe']['valores']['vLiq'];  // "1292.75"
 ```
 
-### Como objeto DTO
+## Como objeto DTO
 
-Use `DanfseGenerator::parseXml()` para obter um objeto `NFSe` com propriedades tipadas:
+Use `DanfseGenerator::parseXml()` para obter um objeto `NFSe` com propriedades
+tipadas:
 
 ```php
 use DanfseNacional\DanfseGenerator;
@@ -121,7 +245,7 @@ echo $nfse->infNFSe->valores->vLiq;         // "1292.75"
 echo $nfse->infNFSe->DPS->infDPS->dCompet;  // "2026-01-15"
 ```
 
-Ambas as abordagens funcionam com XMLs v1.01 e v2.0 (IBS/CBS). Para XMLs v2.0, os campos IBS/CBS também estarão disponíveis:
+Para XMLs v2.0, os campos IBS/CBS também estarão disponíveis:
 
 ```php
 $nfse = (new DanfseGenerator())->parseXml($xmlV2);
@@ -136,7 +260,9 @@ $vTotalCBS = $ibsCbs->totCIBS?->gCBS?->vCBS;
 
 ## Estrutura dos dados mapeados
 
-O método `parseXml()` retorna um objeto `DanfseNacional\Dto\NFSe` com propriedades tipadas e `readonly`. A hierarquia segue a estrutura do XML da NFS-e Nacional:
+O método `parseXml()` retorna um objeto `DanfseNacional\Dto\NFSe` com
+propriedades tipadas e `readonly`. A hierarquia segue a estrutura do XML da
+NFS-e Nacional:
 
 ```
 NFSe
@@ -188,80 +314,17 @@ NFSe
 │                       └── gIBSCBS (GIBSCBS_DPS) — CST, cClassTrib
 ```
 
-Todos os campos opcionais no esquema da NFS-e são representados como propriedades `nullable` ou com valor padrão de string vazia, portanto o acesso nunca lança exceções por campo ausente.
+Todos os campos opcionais no esquema da NFS-e são representados como
+propriedades `nullable` ou com valor padrão de string vazia, portanto o acesso
+nunca lança exceções por campo ausente.
 
-## Logo da empresa
+---
 
-Por padrão, o cabeçalho do documento exibe o logo incluído no pacote. Para substituí-lo pelo logo da empresa, informe o caminho do arquivo de imagem via `logoPath`. A biblioteca detecta o MIME type e monta o data URI automaticamente.
+# 3. Visualizador HTML
 
-```php
-use DanfseNacional\DanfseGenerator;
-use DanfseNacional\Config\DanfseConfig;
-
-$config = new DanfseConfig(logoPath: '/caminho/para/logo.png');
-$generator = new DanfseGenerator($config);
-
-$pdf = $generator->generateFromXml($xml);
-```
-
-Para suprimir o logo completamente, passe `false`.
-
-```php
-$config = new DanfseConfig(logoPath: false);
-```
-
-Caso o dado já esteja disponível como data URI (por exemplo, quando o logo é armazenado em banco de dados), é possível fornecê-lo diretamente via `logoDataUri`. Se ambos `logoDataUri` e `logoPath` forem informados, `logoDataUri` tem precedência. `logoPath: false` sempre suprime o logo, independente de `logoDataUri`.
-
-```php
-$config = new DanfseConfig(logoDataUri: 'data:image/png;base64,...');
-```
-
-## Identificação do município
-
-O cabeçalho do DANFSe possui um espaço reservado para a identificação do ente municipal emissor. Por padrão esse espaço fica em branco. Para preenchê-lo, configure `MunicipalityBranding` com o nome do município, a secretaria responsável e o e-mail de contato. O logotipo do município segue a mesma convenção: aceita caminho de arquivo ou data URI.
-
-```php
-use DanfseNacional\DanfseGenerator;
-use DanfseNacional\Config\DanfseConfig;
-use DanfseNacional\Config\MunicipalityBranding;
-
-$config = new DanfseConfig(
-    logoPath: '/caminho/para/logo-empresa.png',
-    municipality: new MunicipalityBranding(
-        name: 'Prefeitura de Niterói',
-        department: 'Secretaria Municipal de Fazenda',
-        email: 'iss@fazenda.niteroi.rj.gov.br',
-        logoPath: '/caminho/para/logo-prefeitura.png',
-    ),
-);
-
-$generator = new DanfseGenerator($config);
-$pdf = $generator->generateFromXml($xml);
-```
-
-## Geração em dois passos
-
-É possível acessar o método `parseXml()` para obter um objeto `DanfseNacional\Dto\NFSe` com os dados da NFS-e antes de gerar o PDF.
-
-```php
-use DanfseNacional\DanfseGenerator;
-
-$generator = new DanfseGenerator();
-
-$nfse = $generator->parseXml($xml);
-
-// Acessa os dados tipados via DTOs
-$numeroNfse = $nfse->infNFSe->nNFSe;
-$cnpjEmitente = $nfse->infNFSe->emit->CNPJ;
-$valorLiquido = $nfse->infNFSe->valores->vLiq;
-$descricaoServico = $nfse->infNFSe->DPS->infDPS->serv->cServ->xDescServ;
-
-$pdf = $generator->generatePdf($nfse);
-```
-
-## Geração do HTML intermediário
-
-Para inspecionar o HTML gerado antes da renderização, útil em testes e depuração, use `generateHtml()`.
+O visualizador HTML expõe o HTML intermediário consumido pelo `dompdf` para
+renderizar o PDF. Útil para inspecionar a marcação do DANFSe em testes,
+depuração ou em qualquer cenário em que o PDF ainda não é o destino final.
 
 ```php
 use DanfseNacional\DanfseGenerator;
@@ -272,28 +335,19 @@ $nfse = $generator->parseXml($xml);
 $html = $generator->generateHtml($nfse);
 ```
 
-## Entrega da resposta em aplicações web
+O método `generateHtml()` retorna a string HTML completa (com o logo
+aplicado conforme `DanfseConfig` e a seção IBS/CBS renderizada quando
+presente no XML).
 
-Em vez de salvar o arquivo em disco, o conteúdo binário do PDF pode ser enviado diretamente como resposta HTTP.
-
-```php
-// PHP puro
-header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="danfse.pdf"');
-echo $pdf;
-
-// Laravel
-return response($pdf, 200, [
-    'Content-Type' => 'application/pdf',
-    'Content-Disposition' => 'inline; filename="danfse.pdf"',
-]);
-```
+---
 
 ## Dependências
 
 A biblioteca depende exclusivamente de pacotes sem acoplamento a frameworks:
 
-`dompdf/dompdf` para renderização do HTML em PDF, `cuyz/valinor` para o mapeamento seguro do array XML para os DTOs tipados, e `bacon/bacon-qr-code` para a geração do QR Code de consulta pública.
+`dompdf/dompdf` para renderização do HTML em PDF, `cuyz/valinor` para o
+mapeamento seguro do array XML para os DTOs tipados, e `bacon/bacon-qr-code`
+para a geração do QR Code de consulta pública.
 
 ## Testes
 

@@ -1,10 +1,13 @@
 # Instruções para o agente (opencode)
 
 ## Sobre o projeto
-Biblioteca PHP 8.1+ (`DanfseNacional\`) que gera o PDF do DANFSe a partir
-do XML da NFS-e Nacional. Suporta v1.01 e v2.0 (NT 008/009/2026, com
-IBS/CBS). PSR-4; sem dependência de framework. Detalhes e exemplos de
-uso público em `README.md` (também em português).
+Biblioteca PHP 8.1+ (`DanfseNacional\`) para a NFS-e Nacional 2.0,
+distribuída via Packagist/Composer. Entrega três pilares de mesmo nível:
+**geração de PDF** do DANFSe a partir do XML autorizado, **parser tipado**
+do XML (XML→array e XML→DTO) e **visualizador HTML** do DANFSe. Suporta
+v1.01 e v2.0 (NT 008/009/2026, com IBS/CBS). PSR-4; sem dependência de
+framework — integra em qualquer framework PHP ou em scripts PHP puros.
+Detalhes e exemplos de uso público em `README.md` (também em português).
 
 ## Comandos essenciais
 - Instalar dependências: `composer install`
@@ -24,7 +27,8 @@ verificação automática é o `phpunit`.**
   `generateFromXml`, `parseXml`, `generateHtml`, `generatePdf`.
 - `XmlToArray.php` — converte XML em array; conhece o namespace
   `http://www.sped.fazenda.gov.br/nfse` e descarta a assinatura
-  digital.
+  digital. É uma das duas saídas do parser (a outra é o DTO, via
+  `DanfseGenerator::parseXml()`).
 - `Config/DanfseConfig.php`, `Config/MunicipalityBranding.php` —
   configuração imutável (`readonly`).
 - `Dto/` — DTOs `readonly`/nullable espelhando o XML. Campos opcionais
@@ -33,7 +37,8 @@ verificação automática é o `phpunit`.**
 - `Enums/` — enums da NFS-e (`TpAmb`, `FinNFSe`, `RegTrib`, ...).
 - `Data/Municipios.php` — tabela IBGE; `Municipios::lookup($cLocIncid)`.
 - `Template/DanfseTemplate.php` + `Template/danfse.php` — HTML
-  consumido pelo dompdf.
+  consumido pelo dompdf. Alimenta tanto o `generatePdf()` quanto o
+  visualizador HTML (`generateHtml()`).
 - `Formatter.php` — formatadores (datas, valores).
 
 `assets/logo-nfse.png` é o logo padrão do pacote (substituível via
