@@ -326,6 +326,8 @@ class DanfseTemplate
                 'c_ind_op' => $ibscbsDps?->cIndOp ?: '-',
                 'c_localidade_incid' => $ibscbsNfse?->cLocalidadeIncid ?: '-',
                 'x_localidade_incid' => $ibscbsNfse?->xLocalidadeIncid ?: '-',
+                'c_sigla_uf' => '-',
+                'p_red_aliq_ibs' => '-',
                 // Exclusões e reduções
                 'p_red_aliq_uf' => ($ibsCbsValores?->uf?->pRedAliqUF ?? '') !== '' ? $this->fmt->percent($ibsCbsValores->uf->pRedAliqUF) : '-',
                 'p_red_aliq_mun' => ($ibsCbsValores?->mun?->pRedAliqMun ?? '') !== '' ? $this->fmt->percent($ibsCbsValores->mun->pRedAliqMun) : '-',
