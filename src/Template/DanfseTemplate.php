@@ -204,6 +204,7 @@ class DanfseTemplate
             'tipo_ambiente' => TpAmb::labelFor((int) ($infDps?->tpAmb ?? 1)),
             'situacao_nfse' => TpEmis::labelFor($inf?->tpEmis ?? ''),
             'finalidade' => FinNFSe::labelFor($infDps?->finNFSe ?? ''),
+            'ambiente' => (int) ($infDps?->tpAmb ?? 1),
 
             // ===== Bloco 2: Prestador / Fornecedor =====
             'emitente' => [
