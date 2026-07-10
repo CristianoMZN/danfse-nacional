@@ -1,1 +1,213 @@
-<?xml version="1.0" encoding="utf-8"?><NFSe versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse"><infNFSe Id="NFS35489062255036530000181000000000653426072486424961"><xLocEmi>São Carlos</xLocEmi><xLocPrestacao>São Carlos</xLocPrestacao><nNFSe>6534</nNFSe><cLocIncid>3548906</cLocIncid><xLocIncid>São Carlos</xLocIncid><xTribNac>Processamento de dados, textos, imagens, vídeos, páginas eletrônicas, aplicativos e sistemas de informação, entre outros formatos, e congêneres.</xTribNac><xNBS>Serviços de hospedagem e de disponibilização de infraestrutura em tecnologia da informação (TI) não classificados em subposições anteriores</xNBS><verAplic>SefinNacional_1.6.0</verAplic><ambGer>2</ambGer><tpEmis>1</tpEmis><procEmi>1</procEmi><cStat>100</cStat><dhProc>2026-07-07T17:09:04-03:00</dhProc><nDFSe>2987172</nDFSe><emit><CNPJ>55036530000181</CNPJ><xNome>MAGALU CLOUD LTDA</xNome><enderNac><xLgr>PASSEIO DAS CASTANHEIRAS</xLgr><nro>431</nro><xBairro>PARQUE FABER CASTELL I</xBairro><cMun>3548906</cMun><UF>SP</UF><CEP>13561384</CEP></enderNac><fone>1135042011</fone><email>FISCAL.ESTADUAL@MAGAZINELUIZA.COM.BR</email></emit><valores><vBC>44.19</vBC><pAliqAplic>2.00</pAliqAplic><vISSQN>0.88</vISSQN><vLiq>44.19</vLiq></valores><IBSCBS><cLocalidadeIncid>4311809</cLocalidadeIncid><xLocalidadeIncid>Marau</xLocalidadeIncid><valores><vBC>39.22</vBC><vCalcReeRepRes>0.00</vCalcReeRepRes><uf><pIBSUF>0.10</pIBSUF><pAliqEfetUF>0.10</pAliqEfetUF></uf><mun><pIBSMun>0.00</pIBSMun><pAliqEfetMun>0.00</pAliqEfetMun></mun><fed><pCBS>0.90</pCBS><pAliqEfetCBS>0.90</pAliqEfetCBS></fed></valores><totCIBS><vTotNF>44.19</vTotNF><gIBS><vIBSTot>0.04</vIBSTot><gIBSUFTot><vIBSUF>0.04</vIBSUF></gIBSUFTot><gIBSMunTot><vIBSMun>0.00</vIBSMun></gIBSMunTot></gIBS><gCBS><vCBS>0.35</vCBS></gCBS></totCIBS></IBSCBS><DPS versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse"><infDPS Id="DPS354890625503653000018100001000000000017992"><tpAmb>1</tpAmb><dhEmi>2026-07-07T14:06:12-03:00</dhEmi><verAplic>TSPD_1.0.1</verAplic><serie>1</serie><nDPS>17992</nDPS><dCompet>2026-07-07</dCompet><tpEmit>1</tpEmit><cLocEmi>3548906</cLocEmi><prest><CNPJ>55036530000181</CNPJ><fone>1637138150</fone><email>cadastro.fiscal@magazineluiza.com.br</email><regTrib><opSimpNac>1</opSimpNac><regEspTrib>0</regEspTrib></regTrib></prest><toma><CPF>02507593067</CPF><xNome>ELSON CRISTIANO MOZENA</xNome><end><endNac><cMun>4311809</cMun><CEP>99150000</CEP></endNac><xLgr>RUA PAULO BORELLA BORGES</xLgr><nro>56</nro><xBairro>SANTA LUCIA</xBairro></end><fone>1637076409</fone><email>cadastro.fiscal@magazineluiza.com.br</email></toma><serv><locPrest><cLocPrestacao>3548906</cLocPrestacao></locPrest><cServ><cTribNac>010301</cTribNac><xDescServ>MAGALU CLOUD - Processamento, armazenamento ou hospedagem de dados, textos, imagens, videos, paginas eletronicas, aplicativos e sistemas de informacao, entre outros formatos, e congeneres.</xDescServ><cNBS>115069000</cNBS></cServ></serv><valores><vServPrest><vServ>44.19</vServ></vServPrest><trib><tribMun><tribISSQN>1</tribISSQN><tpRetISSQN>1</tpRetISSQN></tribMun><tribFed><piscofins><CST>01</CST><vBCPisCofins>44.19</vBCPisCofins><pAliqPis>1.65</pAliqPis><pAliqCofins>7.60</pAliqCofins><vPis>0.73</vPis><vCofins>3.36</vCofins><tpRetPisCofins>0</tpRetPisCofins></piscofins></tribFed><totTrib><vTotTrib><vTotTribFed>0.00</vTotTribFed><vTotTribEst>0.00</vTotTribEst><vTotTribMun>0.00</vTotTribMun></vTotTrib></totTrib></trib></valores><IBSCBS><finNFSe>0</finNFSe><indFinal>0</indFinal><cIndOp>100301</cIndOp><indDest>0</indDest><valores><trib><gIBSCBS><CST>000</CST><cClassTrib>000001</cClassTrib></gIBSCBS></trib></valores></IBSCBS></infDPS><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" /><Reference URI="#DPS354890625503653000018100001000000000017992"><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" /><DigestValue>JPyHvBxeh2lua2FT7bdRkMWirLs=</DigestValue></Reference></SignedInfo><SignatureValue>MopuNIxLzZlYNt1ITI2raZ55RqezhjOb/NBy8dL/a2t7F1n7fY+3a+UD6PqK1V8Mf1mx8u2zTRSolNI+zOF2lowMh8f9Dii8r1lptPSd87sexE2uflwHzLbQ6WM+QGZqXc5tW7gbgFf2qNqwWHkvojsmshQrPZ0oQ+v374l4OPXvQ+2FMtrSphmR2UJNIEUszoKvwMGd/bKEianm2IeMYxRRUa8du1o6rtEDZ7ZJuqsEC/lIQQKB9Jeo3IsxptmdpTjgex5RKRQJhxLVJfj597spZUKoTE0+7RwvEI0FRgi6OpthaoBMesoMvNtcrVHguwPDlGPnrpg7pTqtpkWSKg==</SignatureValue><KeyInfo><X509Data><X509Certificate>MIIICzCCBfOgAwIBAgIQHnIUIM/CAqFfKh38L9I/bjANBgkqhkiG9w0BAQsFADB4MQswCQYDVQQGEwJCUjETMBEGA1UEChMKSUNQLUJyYXNpbDE2MDQGA1UECxMtU2VjcmV0YXJpYSBkYSBSZWNlaXRhIEZlZGVyYWwgZG8gQnJhc2lsIC0gUkZCMRwwGgYDVQQDExNBQyBDZXJ0aXNpZ24gUkZCIEc1MB4XDTI2MDUxNTEyNTk1M1oXDTI3MDUxNTEyNTk1M1owgfMxCzAJBgNVBAYTAkJSMRMwEQYDVQQKDApJQ1AtQnJhc2lsMQswCQYDVQQIDAJTUDETMBEGA1UEBwwKU2FvIENhcmxvczEZMBcGA1UECwwQVmlkZW9Db25mZXJlbmNpYTEXMBUGA1UECwwOMDAzMjg1OTYwMDAxNTMxNjA0BgNVBAsMLVNlY3JldGFyaWEgZGEgUmVjZWl0YSBGZWRlcmFsIGRvIEJyYXNpbCAtIFJGQjEWMBQGA1UECwwNUkZCIGUtQ05QSiBBMTEpMCcGA1UEAwwgTUFHQUxVIENMT1VEIExUREE6NTUwMzY1MzAwMDAxODEwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDg4rnATdary4DAzim12Lzm8vhLnGJDOlHCw4/2yGqxbW1oe0WwjQzbh0rUlD7GAqFTRkWGe6FsaV4Iy0TbDHu+AWNx2QPMc2gct3FtJkdU8Dz5kyxmevMCGrfzwaI93hajaPfKQQEfJ0Pc4PCHO39Ae3TmGtXxaseUDJDUW9rQkptQeSpW2dnqikPxdB+gSJ1LOhB6dO39pU2q4It0b++NY5Ba+TCssSw8sdno+hVLwKJSxLUQglKBAomBSOuWyJFR0fvM46vYySmQzqMTxgg2AnXUQ7B2Ab1tE4zq6XDdf8afNhYiKWYSkVFzMNstGhbU3Oa1BtqMMbSR/TG9Xav/AgMBAAGjggMTMIIDDzCBwgYDVR0RBIG6MIG3oDgGBWBMAQMEoC8ELTEzMDkxOTYyMDQ2Njg4MTg4NjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMKAqBgVgTAEDAqAhBB9NQVJJQSBJU0FCRUwgQk9ORklNIERFIE9MSVZFSVJBoBkGBWBMAQMDoBAEDjU1MDM2NTMwMDAwMTgxoBcGBWBMAQMHoA4EDDAwMDAwMDAwMDAwMIEbaXNhYmVsQG1hZ2F6aW5lbHVpemEuY29tLmJyMAkGA1UdEwQCMAAwHwYDVR0jBBgwFoAUU31/nb7RYdAgutqf44mnE3NYzUIwfwYDVR0gBHgwdjB0BgZgTAECAQwwajBoBggrBgEFBQcCARZcaHR0cDovL2ljcC1icmFzaWwuY2VydGlzaWduLmNvbS5ici9yZXBvc2l0b3Jpby9kcGMvQUNfQ2VydGlzaWduX1JGQi9EUENfQUNfQ2VydGlzaWduX1JGQi5wZGYwgbwGA1UdHwSBtDCBsTBXoFWgU4ZRaHR0cDovL2ljcC1icmFzaWwuY2VydGlzaWduLmNvbS5ici9yZXBvc2l0b3Jpby9sY3IvQUNDZXJ0aXNpZ25SRkJHNS9MYXRlc3RDUkwuY3JsMFagVKBShlBodHRwOi8vaWNwLWJyYXNpbC5vdXRyYWxjci5jb20uYnIvcmVwb3NpdG9yaW8vbGNyL0FDQ2VydGlzaWduUkZCRzUvTGF0ZXN0Q1JMLmNybDAOBgNVHQ8BAf8EBAMCBeAwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMIGsBggrBgEFBQcBAQSBnzCBnDBfBggrBgEFBQcwAoZTaHR0cDovL2ljcC1icmFzaWwuY2VydGlzaWduLmNvbS5ici9yZXBvc2l0b3Jpby9jZXJ0aWZpY2Fkb3MvQUNfQ2VydGlzaWduX1JGQl9HNS5wN2MwOQYIKwYBBQUHMAGGLWh0dHA6Ly9vY3NwLWFjLWNlcnRpc2lnbi1yZmIuY2VydGlzaWduLmNvbS5icjANBgkqhkiG9w0BAQsFAAOCAgEAV3E3P9zWEms+h7aQOwNz5U/K4udGz0DEdzcZzoZBr3jFKBeArYxGvJVAeQ4qfrt1gM0F0n1yRX5rrwpzSK3lyVsIeQ/1SIQAk/PPz5iirF2SnZ0e/FJ7aQx65JudqakN/lVKVein/or6tlrsUFscqMkGVic7+DzsOrw3rRJTfy3qqKSrCX9k+YEYuzk5fjBlkbIdqk3qmhjlxQ5cqCeAsUic8rfhYutovot1TmES5xo3NS6HpzaLNd56PrTcQ8t/wG04erlzyItgJsIPDqqBzDr2SW9EqIJRsw1vYdMX1bm5MW55oXdG+ptECSGC6WyM1UCjZjrb9bGZkeA95pX7UH4pjd/KaGlO+xj32PBZtDcjr5bZ/DdmhYT5BbWQyKPdaEge+1MJ7OCyLDY5MJKlFyba8Db2ncuQj8+sAS9Gi9XEmRc2vm8rtjoB/xXFpptXfloXMUp4vzgmBSMgAo2cxnOulGxCuIn6l/jiz/ul6Vje+5GSkQQdvGjNNCEXUAW9BTb0lZ2uu1sCi1ky3Od093jMcyktaqMJm3XXd9zE/j3fQDRLRuYQRXL3xD27qo6WI9T6hJQPK+Ww04IddE4PBi88U+RnUj74ZLGDPIaoVhlVRRy9R/naGkVpsYzqYHgS1hQgJ9FtGhwXGa/TVEaYM5XhvKgkBPRlEJ2fCHPzMJc=</X509Certificate></X509Data></KeyInfo></Signature></DPS></infNFSe><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" /><SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" /><Reference URI="#NFS35489062255036530000181000000000653426072486424961"><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" /><DigestValue>QultRm4/MTQ2qvuym7QXxwOaMaYlxPjGcB66Gd3aOCQ=</DigestValue></Reference></SignedInfo><SignatureValue>Hk1UT4xCBkDNtNbWSC9lolUkWL3nHXPmjc1ADNq7N/LP4cj/aNg1NsXPiMAUYIKFgyQraw+5I9v0B0XuhupAo95yuz7+ZlBg5RjE0FnpRhMDZAem1MWliUxrn75NtaRN8XogNZK5W/VceVsAjltOJm4IalkORoJV4vk3h/GfH4KExmFMZMxlpNMmEUVQa0ql0be7BMn+SVGQ12/Vvuomt5oXbyn3AHbamXh4wnTezi9IyNlFpPsILKA42KoWrDQoIwTHnpPhfrpBtf+3TAMbKsU0s3vx0GtOsO6SmqaA1Mf1NguLAODPTSodAabh7s7qGcK6L1O/SGJ1TiO2lwDKmQ==</SignatureValue><KeyInfo><X509Data><X509Certificate>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</X509Certificate></X509Data></KeyInfo></Signature></NFSe>
+<?xml version="1.0" encoding="utf-8"?>
+<NFSe versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse">
+    <infNFSe Id="NFS35489062255036530000181000000000653426072486424961">
+        <xLocEmi>São Carlos</xLocEmi>
+        <xLocPrestacao>São Carlos</xLocPrestacao>
+        <nNFSe>6534</nNFSe>
+        <cLocIncid>3548906</cLocIncid>
+        <xLocIncid>São Carlos</xLocIncid>
+        <xTribNac>Processamento de dados, textos, imagens, vídeos, páginas eletrônicas, aplicativos
+            e sistemas de informação, entre outros formatos, e congêneres.</xTribNac>
+        <xNBS>Serviços de hospedagem e de disponibilização de infraestrutura em tecnologia da
+            informação (TI) não classificados em subposições anteriores</xNBS>
+        <verAplic>SefinNacional_1.6.0</verAplic>
+        <ambGer>2</ambGer>
+        <tpEmis>1</tpEmis>
+        <procEmi>1</procEmi>
+        <cStat>100</cStat>
+        <dhProc>2026-07-07T17:09:04-03:00</dhProc>
+        <nDFSe>2987172</nDFSe>
+        <emit>
+            <CNPJ>55036530000181</CNPJ>
+            <xNome>MAGALU CLOUD LTDA</xNome>
+            <enderNac>
+                <xLgr>PASSEIO DAS CASTANHEIRAS</xLgr>
+                <nro>431</nro>
+                <xBairro>PARQUE FABER CASTELL I</xBairro>
+                <cMun>3548906</cMun>
+                <UF>SP</UF>
+                <CEP>13561384</CEP>
+            </enderNac>
+            <fone>1135042011</fone>
+            <email>FISCAL.ESTADUAL@MAGAZINELUIZA.COM.BR</email>
+        </emit>
+        <valores>
+            <vBC>44.19</vBC>
+            <pAliqAplic>2.00</pAliqAplic>
+            <vISSQN>0.88</vISSQN>
+            <vLiq>44.19</vLiq>
+        </valores>
+        <IBSCBS>
+            <cLocalidadeIncid>4311809</cLocalidadeIncid>
+            <xLocalidadeIncid>Marau</xLocalidadeIncid>
+            <valores>
+                <vBC>39.22</vBC>
+                <vCalcReeRepRes>0.00</vCalcReeRepRes>
+                <uf>
+                    <pIBSUF>0.10</pIBSUF>
+                    <pAliqEfetUF>0.10</pAliqEfetUF>
+                </uf>
+                <mun>
+                    <pIBSMun>0.00</pIBSMun>
+                    <pAliqEfetMun>0.00</pAliqEfetMun>
+                </mun>
+                <fed>
+                    <pCBS>0.90</pCBS>
+                    <pAliqEfetCBS>0.90</pAliqEfetCBS>
+                </fed>
+            </valores>
+            <totCIBS>
+                <vTotNF>44.19</vTotNF>
+                <gIBS>
+                    <vIBSTot>0.04</vIBSTot>
+                    <gIBSUFTot>
+                        <vIBSUF>0.04</vIBSUF>
+                    </gIBSUFTot>
+                    <gIBSMunTot>
+                        <vIBSMun>0.00</vIBSMun>
+                    </gIBSMunTot>
+                </gIBS>
+                <gCBS>
+                    <vCBS>0.35</vCBS>
+                </gCBS>
+            </totCIBS>
+        </IBSCBS>
+        <DPS versao="1.01" xmlns="http://www.sped.fazenda.gov.br/nfse">
+            <infDPS Id="DPS354890625503653000018100001000000000017992">
+                <tpAmb>1</tpAmb>
+                <dhEmi>2026-07-07T14:06:12-03:00</dhEmi>
+                <verAplic>TSPD_1.0.1</verAplic>
+                <serie>1</serie>
+                <nDPS>17992</nDPS>
+                <dCompet>2026-07-07</dCompet>
+                <tpEmit>1</tpEmit>
+                <cLocEmi>3548906</cLocEmi>
+                <prest>
+                    <CNPJ>55036530000181</CNPJ>
+                    <fone>1637138150</fone>
+                    <email>cadastro.fiscal@magazineluiza.com.br</email>
+                    <regTrib>
+                        <opSimpNac>1</opSimpNac>
+                        <regEspTrib>0</regEspTrib>
+                    </regTrib>
+                </prest>
+                <toma>
+                    <CPF>02507593067</CPF>
+                    <xNome>ELSON CRISTIANO MOZENA</xNome>
+                    <end>
+                        <endNac>
+                            <cMun>4311809</cMun>
+                            <CEP>99150000</CEP>
+                        </endNac>
+                        <xLgr>RUA PAULO BORELLA BORGES</xLgr>
+                        <nro>56</nro>
+                        <xBairro>SANTA LUCIA</xBairro>
+                    </end>
+                    <fone>1637076409</fone>
+                    <email>cadastro.fiscal@magazineluiza.com.br</email>
+                </toma>
+                <serv>
+                    <locPrest>
+                        <cLocPrestacao>3548906</cLocPrestacao>
+                    </locPrest>
+                    <cServ>
+                        <cTribNac>010301</cTribNac>
+                        <xDescServ>MAGALU CLOUD - Processamento, armazenamento ou hospedagem de
+                            dados, textos, imagens, videos, paginas eletronicas, aplicativos e
+                            sistemas de informacao, entre outros formatos, e congeneres.</xDescServ>
+                        <cNBS>115069000</cNBS>
+                    </cServ>
+                </serv>
+                <valores>
+                    <vServPrest>
+                        <vServ>44.19</vServ>
+                    </vServPrest>
+                    <trib>
+                        <tribMun>
+                            <tribISSQN>1</tribISSQN>
+                            <tpRetISSQN>1</tpRetISSQN>
+                        </tribMun>
+                        <tribFed>
+                            <piscofins>
+                                <CST>01</CST>
+                                <vBCPisCofins>44.19</vBCPisCofins>
+                                <pAliqPis>1.65</pAliqPis>
+                                <pAliqCofins>7.60</pAliqCofins>
+                                <vPis>0.73</vPis>
+                                <vCofins>3.36</vCofins>
+                                <tpRetPisCofins>0</tpRetPisCofins>
+                            </piscofins>
+                        </tribFed>
+                        <totTrib>
+                            <vTotTrib>
+                                <vTotTribFed>0.00</vTotTribFed>
+                                <vTotTribEst>0.00</vTotTribEst>
+                                <vTotTribMun>0.00</vTotTribMun>
+                            </vTotTrib>
+                        </totTrib>
+                    </trib>
+                </valores>
+                <IBSCBS>
+                    <finNFSe>0</finNFSe>
+                    <indFinal>0</indFinal>
+                    <cIndOp>100301</cIndOp>
+                    <indDest>0</indDest>
+                    <valores>
+                        <trib>
+                            <gIBSCBS>
+                                <CST>000</CST>
+                                <cClassTrib>000001</cClassTrib>
+                            </gIBSCBS>
+                        </trib>
+                    </valores>
+                </IBSCBS>
+            </infDPS>
+            <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+                <SignedInfo>
+                    <CanonicalizationMethod
+                        Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+                    <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+                    <Reference URI="#DPS354890625503653000018100001000000000017992">
+                        <Transforms>
+                            <Transform
+                                Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+                            <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+                        </Transforms>
+                        <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+                        <DigestValue>JPyHvBxeh2lua2FT7bdRkMWirLs=</DigestValue>
+                    </Reference>
+                </SignedInfo>
+                <SignatureValue>
+                    MopuNIxLzZlYNt1ITI2raZ55RqezhjOb/NBy8dL/a2t7F1n7fY+3a+UD6PqK1V8Mf1mx8u2zTRSolNI+zOF2lowMh8f9Dii8r1lptPSd87sexE2uflwHzLbQ6WM+QGZqXc5tW7gbgFf2qNqwWHkvojsmshQrPZ0oQ+v374l4OPXvQ+2FMtrSphmR2UJNIEUszoKvwMGd/bKEianm2IeMYxRRUa8du1o6rtEDZ7ZJuqsEC/lIQQKB9Jeo3IsxptmdpTjgex5RKRQJhxLVJfj597spZUKoTE0+7RwvEI0FRgi6OpthaoBMesoMvNtcrVHguwPDlGPnrpg7pTqtpkWSKg==</SignatureValue>
+                <KeyInfo>
+                    <X509Data>
+                        <X509Certificate>
+                            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</X509Certificate>
+                    </X509Data>
+                </KeyInfo>
+            </Signature>
+        </DPS>
+    </infNFSe>
+    <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <SignedInfo>
+            <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" />
+            <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+            <Reference URI="#NFS35489062255036530000181000000000653426072486424961">
+                <Transforms>
+                    <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+                    <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" />
+                </Transforms>
+                <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+                <DigestValue>QultRm4/MTQ2qvuym7QXxwOaMaYlxPjGcB66Gd3aOCQ=</DigestValue>
+            </Reference>
+        </SignedInfo>
+        <SignatureValue>
+            Hk1UT4xCBkDNtNbWSC9lolUkWL3nHXPmjc1ADNq7N/LP4cj/aNg1NsXPiMAUYIKFgyQraw+5I9v0B0XuhupAo95yuz7+ZlBg5RjE0FnpRhMDZAem1MWliUxrn75NtaRN8XogNZK5W/VceVsAjltOJm4IalkORoJV4vk3h/GfH4KExmFMZMxlpNMmEUVQa0ql0be7BMn+SVGQ12/Vvuomt5oXbyn3AHbamXh4wnTezi9IyNlFpPsILKA42KoWrDQoIwTHnpPhfrpBtf+3TAMbKsU0s3vx0GtOsO6SmqaA1Mf1NguLAODPTSodAabh7s7qGcK6L1O/SGJ1TiO2lwDKmQ==</SignatureValue>
+        <KeyInfo>
+            <X509Data>
+                <X509Certificate>
+                    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</X509Certificate>
+            </X509Data>
+        </KeyInfo>
+    </Signature>
+</NFSe>
