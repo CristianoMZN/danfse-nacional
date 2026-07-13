@@ -16,7 +16,6 @@
         html {
             height: auto;
             width: 100%;
-            zoom: 80%;
             margin: 0;
             padding: 0;
         }
@@ -62,6 +61,7 @@
             border-top: 0;
             page-break-inside: avoid;
             break-inside: avoid;
+            margin-top:auto;
         }
         table > tbody > tr > td {
             padding-bottom: 3pt;
@@ -199,7 +199,7 @@
         }
 
         @media print {
-            html { font-size: 100%; }
+            html { font-size: 90%; }
             html, body {
                 height: 100%;
             }
@@ -209,6 +209,7 @@
                 padding: 4pt 7pt; /* espaço interno entre borda e conteúdo */
                 box-sizing: border-box;
                 min-height: calc(100vh - 14pt);    /* preenche a área imprimível (A4 - 7pt topo - 7pt base) */
+                display:flex;
             }
 
             /* Em impressão, o conteúdo flui naturalmente dentro da moldura;
@@ -226,19 +227,20 @@
                 border-top: 1pt dashed #000;
                 page-break-inside: avoid;
                 break-inside: avoid;
+                margin-top: auto;
             }
 
         }
         img.qr-code {
-                width: 96px !important; 
-                height: 96px !important; 
-                display: block; 
-                margin: 0 auto;
-            }
-            p.qr-code-text {
-                font-size: 0.58rem; 
-                margin-top: 2pt;
-            }
+            width: 96px !important; 
+            height: 96px !important; 
+            display: block; 
+            margin: 0 auto;
+        }
+        p.qr-code-text {
+            font-size: 0.58rem; 
+            margin-top: 2pt;
+        }
     </style>
 </head>
 <body>
@@ -926,12 +928,12 @@ chave de acesso no portal nacional da NFS-e.
     <div class="bordered-section">
         <table class="text-information">
             <tr>
-                <td class="section-header">
+                <td class="section-header text-information-title">
                   <span class="section-title">INFORMAÇÕES COMPLEMENTARES</span>
                 </td>
             </tr>
             <tr>
-                <td style="min-height: 30pt; padding: 5pt;">
+                <td class="text-information-value" style="min-height: 30pt; padding: 5pt;">
                     <span class="value"><?= $data['informacoes_complementares'] ?></span>
                 </td>
             </tr>
