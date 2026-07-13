@@ -40,6 +40,10 @@
         .text-information {
             width: 100%;
         }
+        .text-information-value {
+            min-height: 30pt;
+            padding: 5pt;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -201,7 +205,7 @@
         @media print {
             html { font-size: 90%; }
             html, body {
-                height: 100%;
+                min-height: 100%;
             }
             body {
                 border: 1pt #000 solid;  /* restaura a moldura do DANFSE na folha A4 */
@@ -933,7 +937,7 @@ chave de acesso no portal nacional da NFS-e.
                 </td>
             </tr>
             <tr>
-                <td class="text-information-value" style="min-height: 30pt; padding: 5pt;">
+                <td class="text-information-value">
                     <span class="value"><?= $data['informacoes_complementares'] ?></span>
                 </td>
             </tr>

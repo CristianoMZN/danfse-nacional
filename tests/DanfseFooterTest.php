@@ -288,4 +288,127 @@ class DanfseFooterTest extends TestCase
             'body deve ter box-sizing: border-box em @media print (evita que a borda cause overflow)'
         );
     }
+
+    public function test_body_does_not_have_fixed_height_in_print(): void
+    {
+        $printCss = $this->extractPrintCss();
+
+        $this->assertDoesNotMatchRegularExpression(
+            '/\bbody\s*\{[^}]*(?<!min-)height:\s*100%/s',
+            $printCss,
+            'body não deve ter height: 100% em @media print (forçaria o body a 1 página e travaria o canhoto na página 1 quando o conteúdo crescer)'
+        );
+    }
+
+    public function test_html_uses_min_height_in_print(): void
+    {
+        $printCss = $this->extractPrintCss();
+
+        $this->assertMatchesRegularExpression(
+            '/html,\s*body\s*\{[^}]*min-height:\s*100%/s',
+            $printCss,
+            'html, body devem ter min-height: 100% em @media print (permite o body crescer além de 1 página quando o conteúdo é longo)'
+        );
+    }
+
+    public function test_text_information_value_has_min_height_and_no_fixed_height(): void
+    {
+        preg_match('/<style[^>]*>(.*?)<\/style>/s', $this->html, $matches);
+        $this->assertNotEmpty($matches);
+        $css = $matches[1];
+
+        $this->assertMatchesRegularExpression(
+            '/\.text-information-value\s*\{[^}]*min-height:\s*30pt/s',
+            $css,
+            '.text-information-value deve ter min-height: 30pt (garante altura mínima quando o texto é curto)'
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/\.text-information-value\s*\{[^}]*padding:\s*5pt/s',
+            $css,
+            '.text-information-value deve ter padding: 5pt (movido do inline para o CSS)'
+        );
+
+        $this->assertDoesNotMatchRegularExpression(
+            '/\.text-information-value\s*\{[^}]*(?<!min-)height:\s*\d/s',
+            $css,
+            '.text-information-value não deve ter height fixo (precisa crescer com o número de linhas)'
+        );
+
+        $dom = $this->loadDom();
+        $xpath = new \DOMXPath($dom);
+        $cell = $xpath->query('//td[contains(@class, "text-information-value")]')->item(0);
+        $this->assertNotNull($cell, 'Célula .text-information-value deve existir no DOM');
+        $this->assertFalse(
+            $cell->hasAttribute('style'),
+            '.text-information-value não deve ter style inline (movido para o CSS)'
+        );
+    }
+
+    public function test_footer_appears_after_long_complementary_info(): void
+    {
+        $path = __DIR__ . '/../examples/35489062255036530000181000000000653426072486424961.xml';
+        $xml = file_get_contents($path);
+        $this->assertNotFalse($xml);
+
+        $nfse = (new DanfseGenerator())->parseXml($xml);
+
+        $paragrafo = trim(str_repeat(
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+            . 'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ',
+            40
+        ));
+
+        $reflection = new \ReflectionClass($nfse->infNFSe);
+        $original = $nfse->infNFSe;
+        $args = [];
+        foreach ($reflection->getProperties() as $prop) {
+            $prop->setAccessible(true);
+            $name = $prop->getName();
+            $args[$name] = $name === 'xOutInf' ? $paragrafo : $prop->getValue($original);
+        }
+        $newInfNFSe = $reflection->newInstanceArgs($args);
+
+        $nfseReflection = new \ReflectionClass($nfse);
+        $nfseArgs = [];
+        foreach ($nfseReflection->getProperties() as $prop) {
+            $prop->setAccessible(true);
+            $name = $prop->getName();
+            $nfseArgs[$name] = $name === 'infNFSe' ? $newInfNFSe : $prop->getValue($nfse);
+        }
+        $nfseLong = $nfseReflection->newInstanceArgs($nfseArgs);
+
+        $html = (new DanfseGenerator())->generateHtml($nfseLong);
+
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="UTF-8">' . $html);
+        libxml_clear_errors();
+
+        $body = $dom->getElementsByTagName('body')->item(0);
+        $this->assertNotNull($body);
+
+        $lastChild = $body->lastChild;
+        while ($lastChild !== null && $lastChild->nodeType !== XML_ELEMENT_NODE) {
+            $lastChild = $lastChild->previousSibling;
+        }
+        $this->assertNotNull($lastChild);
+        $this->assertSame('table', $lastChild->nodeName);
+        $this->assertSame('table-footer', $lastChild->getAttribute('class'));
+
+        $xpath = new \DOMXPath($dom);
+        $valueCell = $xpath->query('//td[contains(@class, "text-information-value")]')->item(0);
+        $this->assertNotNull($valueCell);
+
+        $this->assertStringContainsString(
+            'Lorem ipsum',
+            $valueCell->textContent,
+            'O texto longo das informações complementares deve permanecer no HTML gerado'
+        );
+        $this->assertStringContainsString(
+            'dolore magna aliqua',
+            $valueCell->textContent,
+            'O texto longo deve estar completo (não truncado)'
+        );
+    }
 }
