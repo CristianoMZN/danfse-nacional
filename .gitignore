@@ -5,5 +5,3 @@ composer.lock
 
 # Saídas geradas pelos testes
 tests/output/*
-
-anex
