@@ -234,6 +234,65 @@ class DanfseFooterTest extends TestCase
         $this->assertStringContainsString('Nº NFS-e / Chave NFS-e', $cells->item(2)->textContent);
     }
 
+    public function test_footer_cells_have_nt008_widths(): void
+    {
+        // NT 008/2026 §2.3.3 fixa as larguras dos cells do canhoto em:
+        //   Data Cientificação ............ 5,09 cm
+        //   Identificação e Assinatura .... 5,09 cm
+        //   Nº NFS-e / Chave NFS-e ........ 10,19 cm (acolhe até 66 chars:
+        //                                  "<nNFSe> / <chave 50 dígitos>")
+        // Sem a 3ª coluna em 10,19 cm, o conteúdo quebra em múltiplas linhas
+        // e a chave é clipada pela margem do papel A4, dando a impressão
+        // de que "a chave de acesso sumiu" do canhoto.
+        $dom = $this->loadDom();
+        $xpath = new \DOMXPath($dom);
+
+        $cells = $xpath->query('//table[contains(@class, "table-footer")]/tr/td[contains(@class, "footer-cell")]');
+        $this->assertSame(3, $cells->length, 'Canhoto deve ter 3 cells');
+
+        $expected = ['5.09cm', '5.09cm', '10.19cm'];
+        foreach ($cells as $i => $cell) {
+            $style = $cell->getAttribute('style');
+            $this->assertMatchesRegularExpression(
+                '/width:\s*' . preg_quote($expected[$i], '/') . '\s*;?/i',
+                $style,
+                sprintf(
+                    'Cell #%d do canhoto deve ter width: %s (NT 008 §2.3.3); style atual: "%s"',
+                    $i,
+                    $expected[$i],
+                    $style
+                )
+            );
+        }
+    }
+
+    public function test_footer_chave_fits_in_third_cell(): void
+    {
+        // Verifica indiretamente que a soma das larguras declaradas dos 3
+        // cells (5,09 + 5,09 + 10,19 = 20,37 cm) é compatível com a largura
+        // total do bloco (20,40 cm conforme NT 008) e que a 3ª coluna sozinha
+        // (10,19 cm) é maior que as duas primeiras (cada 5,09 cm). Isso
+        // garante que o conteúdo "<nNFSe> / <chave 50 dígitos>" cabe em uma
+        // linha em 7pt sem overflow vertical.
+        preg_match_all(
+            '/<td class="footer-cell" style="width:\s*([\d.]+)cm;">/',
+            $this->html,
+            $matches
+        );
+        $widths = array_map('floatval', $matches[1] ?? []);
+        $this->assertCount(3, $widths, 'Devem existir 3 cells footer-cell com width em cm');
+
+        $this->assertSame(5.09, $widths[0], '1ª coluna deve ser 5,09 cm (Data Cientificação)');
+        $this->assertSame(5.09, $widths[1], '2ª coluna deve ser 5,09 cm (Identificação e Assinatura)');
+        $this->assertSame(10.19, $widths[2], '3ª coluna deve ser 10,19 cm (Nº NFS-e / Chave NFS-e)');
+
+        $this->assertGreaterThan(
+            $widths[0],
+            $widths[2],
+            '3ª coluna precisa ser mais larga que as anteriores para acomodar a chave de 50 dígitos'
+        );
+    }
+
     public function test_footer_has_page_break_inside_avoid(): void
     {
         preg_match('/<style[^>]*>(.*?)<\/style>/s', $this->html, $matches);

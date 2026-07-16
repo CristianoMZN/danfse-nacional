@@ -55,6 +55,12 @@ Todas as mudanças notáveis neste projeto serão documentadas aqui.
 - Canhoto reescrito: rótulos em primeira maiúscula sem asteriscos
   (`Data Cientificação`, `Identificação e Assinatura`, `Nº NFS-e /
   Chave NFS-e`); fonte do valor elevada para 7pt.
+- Canhoto: cells ajustados para as larguras da NT 008/2026 §2.3.3
+  (5,09 / 5,09 / 10,19 cm). A 3ª coluna, que recebe
+  `<nNFSe> / <chave 50 dígitos>` (até 66 caracteres), estava com
+  ~5,14 cm em um layout de 3 colunas iguais; o conteúdo quebrava em
+  2–3 linhas e o que não cabia era clipado pela margem da página A4,
+  dando a impressão de que a chave de acesso havia sumido do canhoto.
 - `Formatter::cnpjCpf()` aplicado ao CNPJ alfanumérico com a máscara
   `nn.nnn.nnn/nnnn-nn` mesmo com letras (NT 009).
 - Cabeçalho do DANFSe sempre imprime "Município: ..." derivado do XML,
