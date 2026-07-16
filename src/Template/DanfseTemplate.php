@@ -9,16 +9,17 @@ use BaconQrCode\Writer;
 use DanfseNacional\Config\DanfseConfig;
 use DanfseNacional\Config\DefaultLogo;
 use DanfseNacional\Dto\NFSe;
+use DanfseNacional\Enums\AmbGer;
+use DanfseNacional\Enums\CStat;
 use DanfseNacional\Enums\FinNFSe;
 use DanfseNacional\Enums\OpSimpNac;
 use DanfseNacional\Enums\RegApTribSN;
 use DanfseNacional\Enums\RegEspTrib;
-use DanfseNacional\Enums\TpEmis;
+use DanfseNacional\Enums\TpAmb;
+use DanfseNacional\Enums\TpEmit;
 use DanfseNacional\Enums\TpRetISSQN;
 use DanfseNacional\Enums\TribISSQN;
-use DanfseNacional\Enums\AmbGer;
 use DanfseNacional\Data\Municipios;
-use DanfseNacional\Enums\TpAmb;
 use DanfseNacional\Formatter;
 
 /**
@@ -43,11 +44,11 @@ class DanfseTemplate
             'ambiente' => 1,
             'ibs_cbs' => [
                 'c_sigla_uf' => '-',
-                'p_red_aliq_ibs' => '-',
             ],
         ], $data);
         $logo = DefaultLogo::DATA_URI;
         $municipality = $config->municipality;
+        $mostrarCanhoto = $config->mostrarCanhoto;
         $qrCode = $this->generateQrCode($data['chave_acesso']);
         array_walk_recursive($data, fn(&$v) => $v = is_string($v) ? htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') : $v);
 
@@ -93,31 +94,34 @@ class DanfseTemplate
         $id = $inf?->Id ?? '';
         $chaveAcesso = str_starts_with($id, 'NFS') ? substr($id, 3) : $id;
 
-        // Endereço emitente
-        $enderecoEmit = implode(', ', array_filter([
+        // Endereço emitente (xLgr, nro, xCpl, xBairro conforme NT 008)
+        $enderecoEmit = $this->concatEndereco(
             $enderEmit?->xLgr ?? '',
             $enderEmit?->nro ?? '',
+            $enderEmit?->xCpl ?? '',
             $enderEmit?->xBairro ?? '',
-        ], fn($v) => $v !== ''));
+        );
 
-        $municipioEmit = Municipios::lookup($emit?->enderNac->cMun ?? '');
-        
+        $municipioEmit = Municipios::lookup($emit?->enderNac?->cMun ?? '');
 
         // Endereço tomador
-        $enderecoToma = implode(', ', array_filter([
+        $enderecoToma = $this->concatEndereco(
             $endToma?->xLgr ?? '',
             $endToma?->nro ?? '',
+            $endToma?->xCpl ?? '',
             $endToma?->xBairro ?? '',
-        ], fn($v) => $v !== ''));
+        );
 
         $cepToma = $endToma?->endNac?->CEP ?? '';
         $ibgeToma = $endToma?->endNac?->cMun ?? '';
+
         // Endereço intermediário
-        $enderecoInterm = implode(', ', array_filter([
+        $enderecoInterm = $this->concatEndereco(
             $endInterm?->xLgr ?? '',
             $endInterm?->nro ?? '',
+            $endInterm?->xCpl ?? '',
             $endInterm?->xBairro ?? '',
-        ], fn($v) => $v !== ''));
+        );
 
         $cepInterm = $endInterm?->endNac?->CEP ?? '';
 
@@ -131,14 +135,13 @@ class DanfseTemplate
         $ibsCbsDpsValores = $ibscbsDps?->valores?->trib?->gIBSCBS;
 
         // Totais aproximados de tributos
-        $totTribPercent = $totTrib?->pTotTrib;
         $totTribValores = [
             'federais' => $totTrib?->vTotTribFed ? $this->fmt->currency($totTrib->vTotTribFed) : '-',
             'estaduais' => $totTrib?->vTotTribEst ? $this->fmt->currency($totTrib->vTotTribEst) : '-',
             'municipais' => $totTrib?->vTotTribMun ? $this->fmt->currency($totTrib->vTotTribMun) : '-',
         ];
 
-        // Alíquotas IBS/CBS (do infNFSe/IBSCBS/valores)
+        // Alíquotas IBS/CBS efetivas (do infNFSe/IBSCBS/valores)
         $aliquotaIBSUF = $ibsCbsValores?->uf?->pAliqEfetUF ?? '';
         $aliquotaIBSMun = $ibsCbsValores?->mun?->pAliqEfetMun ?? '';
         $aliquotaCBS = $ibsCbsValores?->fed?->pAliqEfetCBS ?? '';
@@ -153,30 +156,39 @@ class DanfseTemplate
         $indDest = $ibscbsDps?->indDest ?? '';
         $endDest = $dest?->end;
 
-        $enderecoDest = implode(', ', array_filter([
+        $enderecoDest = $this->concatEndereco(
             $endDest?->xLgr ?? '',
             $endDest?->nro ?? '',
+            $endDest?->xCpl ?? '',
             $endDest?->xBairro ?? '',
-        ], fn($v) => $v !== ''));
+        );
 
         $cepDest = $endDest?->endNac?->CEP ?? '';
-
-        // Determina situação do destinatário
-        if ($indDest === '1' || $toma !== null) {
-            $destinatarioSituacao = 'mesmo_tomador';
-        } elseif ($dest === null || ($dest->CNPJ === '' && $dest->CPF === '' && $dest->NIF === '' && $dest->xNome === '')) {
-            $destinatarioSituacao = 'nao_identificado';
-        } else {
-            $destinatarioSituacao = 'identificado';
-        }
 
         // Determina se tomador está identificado
         $tomadorIdentificado = $toma !== null && ($toma->CNPJ !== '' || $toma->CPF !== '' || $toma->NIF !== '' || $toma->xNome !== '');
 
+        // Determina situação do destinatário (NT 008 §2.3.1 e §2.3.2):
+        //   - mesmo_tomador: indDest=1, OU documento coincide com o do tomador,
+        //     OU bloco dest ausente/vazio com tomador identificado (destinatário
+        //     implicitamente é o próprio tomador);
+        //   - nao_identificado: sem dados de destinatário e sem tomador identificado;
+        //   - identificado: bloco de destinatário preenchido com dados próprios.
+        $destDoc = $dest?->CNPJ ?: ($dest?->CPF ?: ($dest?->NIF ?: ''));
+        $tomaDoc = $toma?->CNPJ ?: ($toma?->CPF ?: ($toma?->NIF ?: ''));
+        $destVazio = $dest === null || ($dest->CNPJ === '' && $dest->CPF === '' && $dest->NIF === '' && $dest->xNome === '');
+        if ($indDest === '1' || ($destDoc !== '' && $tomaDoc !== '' && $destDoc === $tomaDoc)) {
+            $destinatarioSituacao = 'mesmo_tomador';
+        } elseif ($destVazio) {
+            $destinatarioSituacao = $tomadorIdentificado ? 'mesmo_tomador' : 'nao_identificado';
+        } else {
+            $destinatarioSituacao = 'identificado';
+        }
+
         // Verifica se a operação é sujeita ao ISSQN
         $isSujeitaISSQN = $tribMun !== null && $tribMun->tribISSQN !== '' && $tribMun->tribISSQN !== '4';
 
-        // Verifica se precisa ocultar PIS/COFINS (competência >= 2027)
+        // Verifica se precisa ocultar PIS/COFINS (Nota 6: apenas até 2026)
         $competenciaAno = $infDps?->dCompet ? (int) substr($infDps->dCompet, 0, 4) : 0;
         $hidePisCofins = $competenciaAno >= 2027;
 
@@ -198,48 +210,66 @@ class DanfseTemplate
         $vDescIncondTrib = $tribMun?->vDescIncond ? $this->fmt->currency($tribMun->vDescIncond) : '-';
         $linhaBeneficioVazia = $vBeneficio === '' && ($vCalcBM === '-' || $vCalcBM === '- / -') && $vTotalDeducoes === '-' && $vDescIncondTrib === '-';
 
+        // Situação da NFS-e (cStat) — nunca usar tpEmis
+        $cStatValue = $inf?->cStat ?? '';
+        $situacaoNfse = CStat::labelFor($cStatValue);
+        $isCancelada = CStat::isCancelada($cStatValue);
+        $isSubstituida = CStat::isSubstituida($cStatValue);
+
+        // Emitente da NFS-e — usar tpEmit conforme NT 008
+        $emitenteRotulo = TpEmit::labelFor($infDps?->tpEmit ?? '');
+
+        // Chave de acesso truncada mantém 50 dígitos; para "Situação"/"Finalidade" 37 chars.
+        $situacaoNfse = $this->fmt->limit($situacaoNfse, 37);
+        $finalidade = $this->fmt->limit(FinNFSe::labelFor($infDps?->finNFSe ?? ''), 37);
+
         return [
             // ===== Bloco 1: Cabeçalho e Identificação =====
             'chave_acesso' => $chaveAcesso,
-            'numero_nfse' => $inf?->nNFSe ?? '-',
+            'numero_nfse' => $inf?->nNFSe ?: '-',
             'competencia' => $this->fmt->date($infDps?->dCompet ?? ''),
             'emissao_nfse' => $this->fmt->dateTime($inf?->dhProc ?? ''),
-            'numero_dps' => $infDps?->nDPS ?? '-',
-            'serie_dps' => $infDps?->serie ?? '-',
+            'numero_dps' => $infDps?->nDPS ?: '-',
+            'serie_dps' => $infDps?->serie ?: '-',
             'emissao_dps' => $this->fmt->dateTime($infDps?->dhEmi ?? ''),
             'municipio_uf' => $municipioEmit ?: '-',
             'ambiente_gerador' => AmbGer::labelFor($inf?->ambGer ?? ''),
             'tipo_ambiente' => TpAmb::labelFor((int) ($infDps?->tpAmb ?? 1)),
-            'situacao_nfse' => TpEmis::labelFor($inf?->tpEmis ?? ''),
-            'finalidade' => FinNFSe::labelFor($infDps?->finNFSe ?? ''),
+            'situacao_nfse' => $situacaoNfse,
+            'finalidade' => $finalidade,
+            'emitente_rotulo' => $emitenteRotulo,
             'ambiente' => (int) ($infDps?->tpAmb ?? 1),
+
+            // Marca d'água NT 008 §2.5
+            'is_cancelada' => $isCancelada,
+            'is_substituida' => $isSubstituida,
 
             // ===== Bloco 2: Prestador / Fornecedor =====
             'emitente' => [
-                'nome' => $emit?->xNome ?? '-',
+                'nome' => $this->fmt->limit($emit?->xNome ?? '-', 77),
                 'cnpj_cpf' => $this->fmt->cnpjCpf($emit?->documento() ?? ''),
                 'nif' => $emit?->NIF ?: false,
-                'im' => $emit?->IM ?? false,
+                'im' => $emit?->IM ?: '-',
                 'telefone' => $this->fmt->phone($emit?->fone ?? ''),
                 'email' => strtolower($emit?->email ?? ''),
-                'endereco' => $enderecoEmit ?: '-',
+                'endereco' => $this->fmt->limit($enderecoEmit ?: '-', 77),
                 'municipio' => $municipioEmit ?: '-',
                 'codigo_ibge' => $enderEmit?->cMun ?: '-',
                 'cep' => $this->fmt->cep($enderEmit?->CEP ?? ''),
-                'simples_nacional' => OpSimpNac::labelFor($regTrib?->opSimpNac ?? ''),
-                'regime_sn' => RegApTribSN::labelFor($regTrib?->regApTribSN ?? ''),
+                'simples_nacional' => $this->fmt->limit(OpSimpNac::labelFor($regTrib?->opSimpNac ?? ''), 37),
+                'regime_sn' => $this->fmt->limit(RegApTribSN::labelFor($regTrib?->regApTribSN ?? ''), 77),
             ],
 
             // ===== Bloco 3: Tomador / Adquirente =====
             'tomador_identificado' => $tomadorIdentificado,
             'tomador' => [
-                'nome' => $toma?->xNome ?? '-',
+                'nome' => $this->fmt->limit($toma?->xNome ?? '-', 77),
                 'cnpj_cpf' => $this->fmt->cnpjCpf($toma?->documento() ?? ''),
                 'nif' => $toma?->NIF ?: '-',
                 'im' => $toma?->IM ?: '-',
                 'telefone' => $this->fmt->phone($toma?->fone ?? ''),
                 'email' => strtolower($toma?->email ?? ''),
-                'endereco' => $enderecoToma ?: '-',
+                'endereco' => $this->fmt->limit($enderecoToma ?: '-', 77),
                 'municipio' => $endToma?->endNac?->cMun ? Municipios::lookup($endToma->endNac->cMun) : '-',
                 'codigo_ibge' => $ibgeToma ?: '-',
                 'cep' => $this->fmt->cep($cepToma),
@@ -248,12 +278,12 @@ class DanfseTemplate
             // ===== Bloco 4: Destinatário da Operação =====
             'destinatario_situacao' => $destinatarioSituacao,
             'destinatario' => [
-                'nome' => $dest?->xNome ?? '-',
-                'cnpj_cpf' => $this->fmt->cnpjCpf($dest?->CNPJ ?: $dest?->CPF ?? ''),
+                'nome' => $this->fmt->limit($dest?->xNome ?? '-', 77),
+                'cnpj_cpf' => $this->fmt->cnpjCpf($dest?->CNPJ ?: ($dest?->CPF ?? '')),
                 'nif' => $dest?->NIF ?: '-',
                 'telefone' => $this->fmt->phone($dest?->fone ?? ''),
                 'email' => strtolower($dest?->email ?? ''),
-                'endereco' => $enderecoDest ?: '-',
+                'endereco' => $this->fmt->limit($enderecoDest ?: '-', 77),
                 'municipio' => $endDest?->endNac?->cMun ? Municipios::lookup($endDest->endNac->cMun) : '-',
                 'codigo_ibge' => $endDest?->endNac?->cMun ?: '-',
                 'cep' => $this->fmt->cep($cepDest),
@@ -261,49 +291,47 @@ class DanfseTemplate
 
             // ===== Bloco 5: Intermediário da Operação =====
             'intermediario' => $interm !== null ? [
-                'nome' => $interm->xNome ?: '-',
+                'nome' => $this->fmt->limit($interm->xNome ?: '-', 77),
                 'cnpj_cpf' => $this->fmt->cnpjCpf($interm->documento()),
                 'nif' => $interm->NIF ?: '-',
                 'im' => $interm->IM ?: '-',
                 'telefone' => $this->fmt->phone($interm->fone),
                 'email' => strtolower($interm->email),
-                'endereco' => $enderecoInterm ?: '-',
+                'endereco' => $this->fmt->limit($enderecoInterm ?: '-', 77),
                 'municipio' => $endInterm?->endNac?->cMun ? Municipios::lookup($endInterm->endNac->cMun) : '-',
                 'codigo_ibge' => $endInterm?->endNac?->cMun ?: '-',
                 'cep' => $this->fmt->cep($cepInterm),
             ] : null,
 
             // ===== Bloco 6: Serviço Prestado =====
-            
-
             'servico' => [
                 'codigo_trib_nacional' => $this->fmt->codTribNacional($cServ?->cTribNac ?? ''),
-                'desc_trib_nacional' => $this->fmt->limit(trim($inf?->xTribNac ?? ''), 60),
-                'codigo_trib_municipal' => $cServ?->cTribMun ?? '-',
-                'desc_trib_municipal' => $this->fmt->limit(trim($inf?->xTribMun ?? ''), 60),
+                'desc_trib_nacional' => $this->fmt->limit(trim($inf?->xTribNac ?? ''), 167),
+                'codigo_trib_municipal' => $cServ?->cTribMun ?: '-',
+                'desc_trib_municipal' => $this->fmt->limit(trim($inf?->xTribMun ?? ''), 167),
                 'codigo_nbs' => $cServ?->cNBS ?: '-',
-                'local_prestacao' => $locPrest->cLocPrestacao ? Municipios::lookup($locPrest->cLocPrestacao) : '-',
-                'pais_prestacao' => $locPrest?->cPaisPrestacao ?? '-',
-                'descricao' => $cServ?->xDescServ ?? '-',
+                'local_prestacao' => $locPrest?->cLocPrestacao ? Municipios::lookup($locPrest->cLocPrestacao) : '-',
+                'pais_prestacao' => $locPrest?->cPaisPrestacao ?: '-',
+                'descricao' => $this->fmt->limit($cServ?->xDescServ ?? '-', 1297),
             ],
 
             // ===== Bloco 7: Tributação Municipal (ISSQN) =====
             'is_sujeita_issqn' => $isSujeitaISSQN,
             'tributacao_municipal' => [
                 'tributacao_issqn' => TribISSQN::labelFor($tribMun?->tribISSQN ?? ''),
-                'municipio_incidencia' => $inf?->xLocIncid ?? '-',
-                'regime_especial' => $vRegime,
+                'municipio_incidencia' => $inf?->xLocIncid ?: '-',
+                'regime_especial' => $this->fmt->limit($vRegime, 27),
                 'tipo_tributacao_issqn' => $tribMun?->tpTribISSQN ?? '-',
-                'tipo_imunidade' => $vTipoImunidade ?: '-',
-                'suspensao_exigibilidade' => $vSuspensao ?: '-',
+                'tipo_imunidade' => $this->fmt->limit($vTipoImunidade ?: '-', 37),
+                'suspensao_exigibilidade' => $this->fmt->limit($vSuspensao ?: '-', 37),
                 'num_processo_suspensao' => $vProcesso ?: '-',
-                'beneficio_municipal' => $vBeneficio ?: '-',
+                'beneficio_municipal' => $this->fmt->limit($vBeneficio ?: '-', 37),
                 'calculo_bm' => $vCalcBM,
                 'total_deducoes' => $vTotalDeducoes,
                 'desconto_incondicionado' => $vDescIncondTrib,
                 'valor_servico' => $this->fmt->currency($vServPrest?->vServ ?? ''),
                 'bc_issqn' => $tribMun?->vBC ? $this->fmt->currency($tribMun->vBC) : '-',
-                'aliquota' => $tribMun?->pAliq ? $tribMun->pAliq . '%' : '-',
+                'aliquota' => $tribMun?->pAliq !== null && $tribMun->pAliq !== '' ? $this->fmt->percent($tribMun->pAliq) : '-',
                 'retencao_issqn' => TpRetISSQN::labelFor($tribMun?->tpRetISSQN ?? ''),
                 'issqn_apurado' => $tribMun?->vISSQN ? $this->fmt->currency($tribMun->vISSQN) : '-',
             ],
@@ -328,15 +356,20 @@ class DanfseTemplate
             // ===== Bloco 9: Tributação IBS / CBS =====
             'ibscbs_has_data' => $ibscbsNfse !== null || $ibscbsDps !== null,
             'ibs_cbs' => [
-                // Dados do DPS (Bloco 9)
                 'cst' => $ibsCbsDpsValores?->CST ?: '-',
                 'c_class_trib' => $ibsCbsDpsValores?->cClassTrib ?: '-',
                 'c_ind_op' => $ibscbsDps?->cIndOp ?: '-',
                 'c_localidade_incid' => $ibscbsNfse?->cLocalidadeIncid ?: '-',
                 'x_localidade_incid' => $ibscbsNfse?->xLocalidadeIncid ?: '-',
                 'c_sigla_uf' => Municipios::uf($ibscbsNfse?->cLocalidadeIncid ?? ''),
-                'p_red_aliq_ibs' => '-',
-                // Exclusões e reduções
+
+                // Exclusões e Reduções da BC — somatório de valores em R$
+                'exclusoes_reducoes' => $this->sumCurrency(
+                    $ibsCbsValores?->vCalcAjusteBCIBSCBS ?? '',
+                    $ibsCbsValores?->vCalcAjusteBCLocImoveis ?? '',
+                ),
+
+                // Percentuais de redução da alíquota
                 'p_red_aliq_uf' => ($ibsCbsValores?->uf?->pRedAliqUF ?? '') !== '' ? $this->fmt->percent($ibsCbsValores->uf->pRedAliqUF) : '-',
                 'p_red_aliq_mun' => ($ibsCbsValores?->mun?->pRedAliqMun ?? '') !== '' ? $this->fmt->percent($ibsCbsValores->mun->pRedAliqMun) : '-',
                 'p_red_aliq_cbs' => ($ibsCbsValores?->fed?->pRedAliqCBS ?? '') !== '' ? $this->fmt->percent($ibsCbsValores->fed->pRedAliqCBS) : '-',
@@ -388,36 +421,64 @@ class DanfseTemplate
                 $serv?->infoCompl?->xInfComp ?? '',
                 $inf?->xOutInf ?? '',
                 $totTribValores,
+                $infDps?->subst?->chSubstda ?? '',
+                $isSubstituida,
             ),
         ];
     }
 
     /**
-     * Constrói o texto unificado de Informações Complementares
-     * União dos campos textuais separados por pipes |,
-     * contendo a linha fixa dos Totais Aproximados dos Tributos (Lei nº 12.741/2012).
+     * Concatena as partes de endereço (xLgr, nro, xCpl, xBairro) descartando vazios.
      */
-    private function buildInfoComplementares(string $xInfComp, string $xOutInf, array $totaisTributos): string
+    private function concatEndereco(string $xLgr, string $nro, string $xCpl, string $xBairro): string
     {
-        $partes = array_filter([
-            $xInfComp,
-            $xOutInf,
-        ], fn($v) => $v !== '');
+        return implode(', ', array_filter(
+            [$xLgr, $nro, $xCpl, $xBairro],
+            fn($v) => $v !== ''
+        ));
+    }
 
-        $texto = $partes ? implode(' | ', $partes) : '';
-
-        $totaisLine = 'Totais Aproximados dos Tributos (Lei nº 12.741/2012): '
-            . 'Federal: ' . ($totaisTributos['federais'] ?? '-') . ' / '
-            . 'Estadual: ' . ($totaisTributos['estaduais'] ?? '-') . ' / '
-            . 'Municipal: ' . ($totaisTributos['municipais'] ?? '-');
-
-        if ($texto !== '') {
-            $texto .= ' | ' . $totaisLine;
-        } else {
-            $texto = $totaisLine;
+    /**
+     * Constrói o texto unificado de Informações Complementares na ordem oficial
+     * definida pela NT 008/2026 (Nota 12 da tabela de campos), separados por " | ".
+     * A linha de "Totais Aproximados dos Tributos cfe. Lei nº 12.741/2012" é
+     * obrigatória e vai sempre por último. O texto total é truncado em 1997
+     * caracteres preservando a linha final de totais.
+     */
+    private function buildInfoComplementares(
+        string $xInfComp,
+        string $xOutInf,
+        array $totaisTributos,
+        string $chSubstda,
+        bool $isSubstituida,
+    ): string {
+        $partes = [];
+        if ($xInfComp !== '') {
+            $partes[] = 'Inf. Cont.: ' . $xInfComp;
+        }
+        if ($isSubstituida && $chSubstda !== '') {
+            $partes[] = 'NFS-e Subst.: ' . $chSubstda;
+        }
+        if ($xOutInf !== '') {
+            $partes[] = 'Inf. A. T. Mun.: ' . $xOutInf;
         }
 
-        return $texto;
+        $totaisLine = 'Totais Aproximados dos Tributos cfe. Lei nº 12.741/2012: '
+            . 'Federais: ' . ($totaisTributos['federais'] ?? '-') . ' ; '
+            . 'Estaduais: ' . ($totaisTributos['estaduais'] ?? '-') . ' ; '
+            . 'Municipais: ' . ($totaisTributos['municipais'] ?? '-');
+
+        // Trunca o corpo (sem a linha de totais) preservando a linha final.
+        $body = $partes ? implode(' | ', $partes) : '';
+        $bodyBudget = 1997 - mb_strlen($totaisLine) - ($body !== '' ? 3 : 0); // 3 chars do separador " | "
+        if ($bodyBudget < 0) {
+            $bodyBudget = 0;
+        }
+        if ($body !== '' && mb_strlen($body) > $bodyBudget) {
+            $body = mb_substr($body, 0, max(0, $bodyBudget - 3)) . '...';
+        }
+
+        return $body !== '' ? $body . ' | ' . $totaisLine : $totaisLine;
     }
 
     /**
@@ -437,7 +498,7 @@ class DanfseTemplate
     }
 
     /**
-     * Gera QR Code como data URI PNG
+     * Gera QR Code como data URI SVG apontando para a consulta pública nacional.
      */
     private function generateQrCode(string $chaveAcesso): string
     {
@@ -450,7 +511,6 @@ class DanfseTemplate
         $writer = new Writer($renderer);
         $svg = $writer->writeString($url);
 
-        // Retorna como SVG embutido em data URI
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 }

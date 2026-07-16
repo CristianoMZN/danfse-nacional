@@ -50,6 +50,42 @@ fonte/referência para regenerar a constante, não é lido em runtime. O
 único logo configurável é o do ente emitente (empresa ou brasão), via
 `MunicipalityBranding::logoDataUri` ou `::logoPath`.
 
+As fontes exigidas pela NT 008/2026 §2.4 (Arial e Microsoft Sans Serif)
+são fontes proprietárias. A lib distribui **Liberation Sans** (equivalente
+métrico do Arial) em `src/Template/fonts/` e usa a **DejaVu Sans**
+embutida no Dompdf como equivalente do Microsoft Sans Serif. Ambas são
+registradas automaticamente pelo `DanfseGenerator::registerFonts()`. Não
+adicionar fallback silencioso para outras famílias — se necessário mudar
+a família tipográfica, ela deve continuar métrica-compatível com Arial /
+MS Sans Serif e o README precisa registrar a mudança.
+
+A "Situação da NFS-e" lida no DANFSe vem de `NFSe/infNFSe/cStat`
+(enums em `src/Enums/CStat.php`), não de `tpEmis`; "Emitente da NFS-e"
+vem de `NFSe/infNFSe/DPS/infDPS/tpEmit` (enums em `src/Enums/TpEmit.php`).
+A marca d'água diagonal "CANCELADA" / "SUBSTITUÍDA" (NT 008 §2.5) é
+acionada por esses mesmos enums. A informação "NFS-e Subst.:" vai para
+o fim da linha de Informações Complementares quando aplicável.
+
+A flag `DanfseConfig::mostrarCanhoto` (padrão `true`) controla a presença
+do bloco de canhoto (NT 008 §2.3.3, Nota 11). Quando desligada, o CSS
+`flex-grow: 1` da última `bordered-section` realoca a área antes ocupada
+para "Descrição do Serviço" e "Informações Complementares". O rótulo
+"Data de Competência" da DPS é usado para decidir se PIS/COFINS aparece
+no bloco 8 (oculto a partir de 2027).
+
+O bloco de canhoto é opcional (NT 008 §2.3.3, Nota 11). A flag
+`DanfseConfig::mostrarCanhoto` (padrão `true`) controla a exibição.
+Quando desligada, o espaço deve continuar sendo redistribuído para
+"Descrição do Serviço" / "Informações Complementares" (garantido pelo CSS
+`flex-grow: 1` da última `bordered-section`).
+
+`DanfseGenerator::generatePdf()` lança `RuntimeException` se o Dompdf
+gerar mais de uma página; a NT 008 §2.2 exige impressão em página única.
+Testes que aumentem artificialmente o conteúdo (Descrição do Serviço,
+Informações Complementares) precisam respeitar os limites de caracteres
+da tabela em `references/field_specification.md` da skill
+`danfse-pdf-generator`.
+
 ## Convenções
 - **Sem comentários no código** salvo pedido explícito. A descrição da
   mudança vai na mensagem do commit.

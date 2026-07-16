@@ -206,10 +206,10 @@ class DanfseFooterTest extends TestCase
         $cells = $firstRow->getElementsByTagName('td');
         $this->assertSame(3, $cells->length, 'Canhoto deve ter 3 colunas');
 
-        // Verifica os rótulos
-        $this->assertStringContainsString('DATA CIENTIFICAÇÃO', $cells->item(0)->textContent);
-        $this->assertStringContainsString('IDENTIFICAÇÃO E ASSINATURA', $cells->item(1)->textContent);
-        $this->assertStringContainsString('Nº NFS-e / CHAVE NFS-e', $cells->item(2)->textContent);
+        // Rótulos do canhoto conforme NT 008 §2.4.5 (primeira maiúscula, não caixa alta).
+        $this->assertStringContainsString('Data Cientificação', $cells->item(0)->textContent);
+        $this->assertStringContainsString('Identificação e Assinatura', $cells->item(1)->textContent);
+        $this->assertStringContainsString('Nº NFS-e / Chave NFS-e', $cells->item(2)->textContent);
     }
 
     public function test_footer_has_page_break_inside_avoid(): void

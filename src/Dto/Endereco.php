@@ -8,6 +8,7 @@ readonly class Endereco
         public ?EnderecoNacional $endNac = null,
         public string $xLgr = '',
         public string $nro = '',
+        public string $xCpl = '',
         public string $xBairro = '',
     ) {}
 }

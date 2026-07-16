@@ -66,8 +66,11 @@ class DanfseTemplateTest extends TestCase
         $nfse = $generator->parseXml($xml);
         $html = $generator->generateHtml($nfse);
 
-        $this->assertStringContainsString('HOMOLOGAÇÃO', $html);
-        $this->assertStringContainsString('SEM VALIDADE JURÍDICA', $html);
+        // NT 008 §2.4.3: em homologação, o aviso obrigatório é o texto
+        // "NFS-e SEM VALIDADE JURÍDICA" no cabeçalho — não há marca d'água
+        // "HOMOLOGAÇÃO" prevista na norma (marca d'água só existe para
+        // NFS-e CANCELADA ou SUBSTITUÍDA, §2.5).
+        $this->assertStringContainsString('NFS-e SEM VALIDADE JURÍDICA', $html);
     }
 
     public function test_ambiente_1_does_not_render_homologacao_watermark(): void
@@ -78,7 +81,6 @@ class DanfseTemplateTest extends TestCase
         $nfse = $generator->parseXml($xml);
         $html = $generator->generateHtml($nfse);
 
-        $this->assertStringNotContainsString('HOMOLOGAÇÃO', $html);
         $this->assertStringNotContainsString('SEM VALIDADE JURÍDICA', $html);
     }
 
@@ -107,8 +109,11 @@ class DanfseTemplateTest extends TestCase
         $this->assertStringNotContainsString('Prefeitura de Niterói', $html);
     }
 
-    public function test_header_with_branding_replaces_municipio_line(): void
+    public function test_header_with_branding_is_additive_to_municipio_line(): void
     {
+        // NT 008 §2.4.3 e tabela do cabeçalho: o Município do emitente é campo
+        // obrigatório do cabeçalho — o branding customizável do ente emitente é
+        // aditivo (nunca substitui a identificação normativa).
         $config = new \DanfseNacional\Config\DanfseConfig(
             municipality: new \DanfseNacional\Config\MunicipalityBranding(
                 name: 'Prefeitura de Niterói',
@@ -120,11 +125,9 @@ class DanfseTemplateTest extends TestCase
         $nfse = $generator->parseXml($this->xml);
         $html = $generator->generateHtml($nfse);
 
+        $this->assertStringContainsString('Município: São Carlos / SP', $html);
         $this->assertStringContainsString('Prefeitura de Niterói', $html);
         $this->assertStringContainsString('Secretaria Municipal de Fazenda', $html);
-        $this->assertStringContainsString('iss@fazenda.niteroi.rj.gov.br', $html);
-        $this->assertStringNotContainsString('Município: São Carlos / SP', $html);
-        $this->assertStringNotContainsString('Município:', $html);
         $this->assertStringContainsString('Ambiente Gerador:', $html);
         $this->assertStringContainsString('Tipo de Ambiente:', $html);
     }

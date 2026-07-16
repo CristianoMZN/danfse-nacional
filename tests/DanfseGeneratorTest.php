@@ -124,7 +124,7 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('São Carlos / SP', $data['municipio_uf']);
         $this->assertSame('Sefin Nacional NFS-e', $data['ambiente_gerador']);
         $this->assertSame('Produção', $data['tipo_ambiente']);
-        $this->assertSame('NFS-e regular (Autorizada)', $data['situacao_nfse']);
+        $this->assertSame('NFS-e Autorizada', $data['situacao_nfse']);
         $this->assertSame('-', $data['finalidade']);
 
         $this->assertFalse($data['emitente']['nif']);
@@ -148,8 +148,15 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('R$ 44,19', $data['totais']['total_ibs_cbs']);
         $this->assertSame('R$ 44,19', $data['totais']['valor_liquido_ibs_cbs']);
 
-        $this->assertStringContainsString('Totais Aproximados dos Tributos', $data['informacoes_complementares']);
-        $this->assertStringContainsString('Federal:', $data['informacoes_complementares']);
+        // Formato oficial (NT 008 Nota 10): "Totais Aproximados dos Tributos cfe.
+        // Lei nº 12.741/2012: Federais: ...; Estaduais: ...; Municipais: ..."
+        $this->assertStringContainsString(
+            'Totais Aproximados dos Tributos cfe. Lei nº 12.741/2012',
+            $data['informacoes_complementares']
+        );
+        $this->assertStringContainsString('Federais:', $data['informacoes_complementares']);
+        $this->assertStringContainsString('Estaduais:', $data['informacoes_complementares']);
+        $this->assertStringContainsString('Municipais:', $data['informacoes_complementares']);
     }
 
     public function test_homologacao_environment_flag(): void

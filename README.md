@@ -17,9 +17,40 @@ Oferece três entregáveis de mesmo nível:
 Sem dependência de framework: funciona em PHP puro, Laravel, Symfony, Cake ou
 qualquer outro projeto PHP. PSR-4; namespace `DanfseNacional\`.
 
-Nas NFS-e do ambiente de Homologação, o PDF apresenta a mesma mensagem do
-documento original, "NFS-e SEM VALIDADE JURÍDICA", além de uma marca d'água
-adicional para diferenciar os PDFs de teste dos emitidos em Produção.
+Nas NFS-e do ambiente de Homologação, o PDF apresenta o aviso obrigatório
+"NFS-e SEM VALIDADE JURÍDICA" (Arial, 9pt, negrito, vermelho) no cabeçalho,
+conforme NT 008/2026 §2.4.3. Quando a NFS-e está **cancelada** ou
+**substituída** (`cStat = 101` ou `102`), o PDF traz a marca d'água
+obrigatória "CANCELADA" ou "SUBSTITUÍDA" (Arial, 50pt+, cinza K35, na
+diagonal — NT 008/2026 §2.5).
+
+A "Situação da NFS-e" é lida a partir de `NFSe/infNFSe/cStat` (não `tpEmis`)
+e o rótulo "Emitente da NFS-e" reflete o `tpEmit` da DPS (Prestador /
+Tomador & Intermediário), evitando informação divergente da tag XML
+correspondente. O texto fixo de "Totais Aproximados dos Tributos" segue o
+formato oficial NT 008 Nota 10:
+`Totais Aproximados dos Tributos cfe. Lei nº 12.741/2012: Federais: R$ X ; Estaduais: R$ Y ; Municipais: R$ Z`.
+
+## Conformidade com a NT 008/2026
+
+O layout do DANFSe segue o modelo do Anexo I da NT 008/2026 (SE/CGNFS-e):
+
+- Impressão em página única, A4 retrato, margens 0,15–0,20cm.
+- Fontes: Arial para títulos/labels e Microsoft Sans Serif para conteúdo,
+  com os tamanhos mínimos da norma (9pt cabeçalho, 8pt município, 7pt
+  conteúdo, 6pt labels e rodapé do QR). Como Arial e Microsoft Sans Serif
+  são fontes proprietárias, a biblioteca distribui **Liberation Sans** como
+  equivalente métrico do Arial e utiliza **DejaVu Sans** (embutida no
+  Dompdf) como equivalente do Microsoft Sans Serif. As TTFs de Liberation
+  Sans ficam em `src/Template/fonts/` e são registradas automaticamente no
+  Dompdf.
+- Sombreamento cinza K5 (~#F2F2F2) no cabeçalho, títulos de bloco e nos
+  campos "Emitente da NFS-e" e "Valor Líquido da NFS-e + IBS/CBS".
+- Linhas divisórias 0,5pt; borda da página 1pt.
+- QR Code de consulta pública apontando para
+  `https://www.nfse.gov.br/ConsultaPublica/?tpc=1&chave=<chave>` com o
+  texto de autenticidade abaixo.
+- Rejeição automática (via exceção) se o conteúdo estourar 1 página.
 
 ## Compatibilidade
 
@@ -158,19 +189,11 @@ opta por ela, o caminho precisa existir).
 
 ## Identificação do município
 
-O cabeçalho do DANFSe possui um espaço para a identificação do ente municipal
-emissor. **Sem configuração**, esse espaço mostra apenas a linha
-"Município: &lt;cidade / UF&gt;", derivada do próprio XML
-(`InfNFSe->xLocEmi` ou `Municipios::lookup(emit->enderNac->cMun)`).
-
-Quando `MunicipalityBranding` é informado, o conteúdo dele **substitui** a
-linha "Município:" (caso contrário o nome do município apareceria duplicado).
-As demais linhas do header — "Ambiente Gerador" e "Tipo de Ambiente" —
-continuam refletindo o XML, pois não são responsabilidade do branding.
-
-Use o `MunicipalityBranding` para customizar apenas a identificação
-institucional: nome, secretaria, e-mail e brasão (caminho de arquivo ou
-data URI).
+O cabeçalho do DANFSe exibe **sempre** a linha "Município: &lt;cidade / UF&gt;"
+derivada do XML (`Municipios::lookup(emit->enderNac->cMun)`), pois é campo
+obrigatório da NT 008/2026 §2.4.3. Quando `MunicipalityBranding` é informado,
+o nome do ente, departamento e brasão aparecem **em adição** à linha
+"Município:", nunca a substituindo.
 
 ```php
 use DanfseNacional\DanfseGenerator;
@@ -178,7 +201,6 @@ use DanfseNacional\Config\DanfseConfig;
 use DanfseNacional\Config\MunicipalityBranding;
 
 $config = new DanfseConfig(
-    logoPath: '/caminho/para/logo-empresa.png',
     municipality: new MunicipalityBranding(
         name: 'Prefeitura de Niterói',
         department: 'Secretaria Municipal de Fazenda',
@@ -189,6 +211,17 @@ $config = new DanfseConfig(
 
 $generator = new DanfseGenerator($config);
 $pdf = $generator->generateFromXml($xml);
+```
+
+## Canhoto (opcional)
+
+O bloco de canhoto é opcional (NT 008/2026 §2.3.3, Nota 11). Pode ser
+desligado via `DanfseConfig`, redistribuindo o espaço para "Descrição do
+Serviço" e "Informações Complementares":
+
+```php
+$config = new DanfseConfig(mostrarCanhoto: false);
+$generator = new DanfseGenerator($config);
 ```
 
 ## Geração em dois passos
@@ -367,25 +400,32 @@ presente no XML).
 
 # 4. Customização do template
 
-O template do DANFSe usa unidades `rem` em todas as regras de `font-size`,
-tanto no bloco `<style>` quanto nos estilos inline do HTML. A base do `rem`
-é o `font-size` do elemento `<html>`.
+Os tamanhos de fonte, cores, espessuras de linha e sombreamentos do template
+seguem os mínimos normativos da NT 008/2026 §2.4 e são fixados em `pt` no
+`<style>` de `src/Template/danfse.php`. **Não reduza esses valores** — usar
+uma fonte menor que os mínimos (7pt conteúdo, 6pt labels, 9pt cabeçalho)
+descaracteriza o layout do Anexo I e pode causar rejeição do documento.
 
-Para ajustar o tamanho de **todas** as fontes do PDF gerado, edite a regra
-`html { font-size: ...; }` dentro do bloco `@media print` em
-`src/Template/danfse.php`. Por exemplo, `font-size: 90%` reduz todas as
-fontes em ~10% apenas na impressão, sem alterar a visualização em tela:
+Ampliar tamanhos, ao contrário, é permitido desde que o modelo/ordem dos
+blocos seja preservado.
 
-```css
-@media print {
-    html { font-size: 90%; }
-    /* ... */
-}
-```
+## Fontes proprietárias e equivalentes métricos
 
-O valor padrão é `100%` (equivalente a 16px na maioria dos navegadores),
-que preserva o tamanho visual original. Paddings, margens, bordas e
-larguras permanecem em `pt`/`px` e não escalam junto com o `rem`.
+A NT 008/2026 §2.4 exige Arial (títulos/labels) e Microsoft Sans Serif
+(conteúdo). Ambas são proprietárias. Para garantir renderização em qualquer
+ambiente PHP/Docker sem dependência de fontes instaladas no SO, a biblioteca
+distribui:
+
+- `src/Template/fonts/LiberationSans-{Regular,Bold,Italic,BoldItalic}.ttf`
+  (equivalente métrico do Arial) — registrado automaticamente no Dompdf via
+  `DanfseGenerator::registerFonts()` e usado como `defaultFont
+  'liberationsans'`.
+- `DejaVu Sans` (embutido no Dompdf) registrado como `microsoftsansserif`,
+  equivalente do Microsoft Sans Serif.
+
+Se precisar trocar a família tipográfica por uma terceira, **ela deve continuar
+métrica-compatível com Arial / MS Sans Serif** e a mudança deve ser
+documentada aqui.
 
 ---
 

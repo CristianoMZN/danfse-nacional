@@ -13,22 +13,27 @@ class Formatter
             return '-';
         }
 
-        // CNPJ alfanumérico (NT 009): se contiver letras, retorna sem formatação
-        if (preg_match('/[a-zA-Z]/', $value)) {
-            return $value;
+        // Aceita CNPJ alfanumérico (NT 009): mantém letras nas posições onde antes
+        // havia apenas dígitos, aplicando a máscara nn.nnn.nnn/nnnn-nn / nnn.nnn.nnn-nn.
+        $onlyAlnum = preg_replace('/[^0-9A-Za-z]/', '', $value);
+
+        $len = strlen($onlyAlnum);
+        if ($len === 14) {
+            return substr($onlyAlnum, 0, 2) . '.'
+                . substr($onlyAlnum, 2, 3) . '.'
+                . substr($onlyAlnum, 5, 3) . '/'
+                . substr($onlyAlnum, 8, 4) . '-'
+                . substr($onlyAlnum, 12, 2);
         }
 
-        $value = preg_replace('/\D/', '', $value);
-
-        if (strlen($value) === 14) {
-            return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $value);
+        if ($len === 11) {
+            return substr($onlyAlnum, 0, 3) . '.'
+                . substr($onlyAlnum, 3, 3) . '.'
+                . substr($onlyAlnum, 6, 3) . '-'
+                . substr($onlyAlnum, 9, 2);
         }
 
-        if (strlen($value) === 11) {
-            return preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $value);
-        }
-
-        return $value;
+        return $onlyAlnum !== '' ? $onlyAlnum : $value;
     }
 
     public function phone(string $value): string
