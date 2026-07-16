@@ -30,13 +30,14 @@ class DanfseFooterTest extends TestCase
         return $dom;
     }
 
-    public function test_footer_is_last_child_of_body(): void
+    public function test_footer_is_last_child_of_page_wrapper(): void
     {
         $dom = $this->loadDom();
-        $body = $dom->getElementsByTagName('body')->item(0);
-        $this->assertNotNull($body);
+        $page = $dom->getElementsByTagName('body')->item(0)?->getElementsByTagName('div')->item(0);
+        $this->assertNotNull($page, 'Deve existir o wrapper .page dentro de body');
+        $this->assertStringContainsString('page', $page->getAttribute('class'));
 
-        $lastChild = $body->lastChild;
+        $lastChild = $page->lastChild;
         $this->assertNotNull($lastChild);
 
         // Pula nós vazios (espaços/quebras) até achar um elemento
@@ -72,9 +73,12 @@ class DanfseFooterTest extends TestCase
             'O canhoto não deve estar dentro da última bordered-section'
         );
 
-        // Verifica que table-footer existe como filho direto de body
-        $footerInBody = $xpath->query('./table[contains(@class, "table-footer")]', $xpath->query('//body')->item(0));
-        $this->assertSame(1, $footerInBody->length, 'Deve haver exatamente um table-footer filho direto de body');
+        // Verifica que table-footer existe dentro do wrapper .page (uma ocorrência)
+        $footerInPage = $xpath->query(
+            './table[contains(@class, "table-footer")]',
+            $xpath->query('//div[contains(@class, "page")]')->item(0)
+        );
+        $this->assertSame(1, $footerInPage->length, 'Deve haver exatamente um table-footer dentro do wrapper .page');
     }
 
     public function test_footer_default_css_has_no_absolute_positioning(): void
@@ -125,20 +129,38 @@ class DanfseFooterTest extends TestCase
     {
         $printCss = $this->extractPrintCss();
 
-        // O body precisa de min-height que cubra a área imprimível do A4.
-        // Aceita a forma com calc() (preferida) ou o valor fixo 828pt (fallback).
+        // O wrapper .page (que recebe position: relative para ancorar o canhoto
+        // via position: absolute — body em Dompdf não honra position: relative)
+        // precisa de altura que cubra a área imprimível do A4. Em Dompdf,
+        // `height` é a forma confiável (min-height não é totalmente honrado
+        // quando position: relative está envolvido), então aceitamos qualquer
+        // declaração de altura/min-height em .page.
         $hasCalc = (bool) preg_match(
-            '/\bbody\s*\{[^}]*min-height:\s*calc\s*\(\s*100vh\s*-\s*14pt\s*\)/s',
+            '/\.page\s*\{[^}]*(min-)?height:\s*calc\s*\(\s*100vh\s*-\s*14pt\s*\)/s',
             $printCss
         );
         $hasFixed = (bool) preg_match(
-            '/\bbody\s*\{[^}]*min-height:\s*828pt/s',
+            '/\.page\s*\{[^}]*(min-)?height:\s*8(1|2)8pt/s',
             $printCss
         );
 
         $this->assertTrue(
             $hasCalc || $hasFixed,
-            'body deve ter min-height: calc(100vh - 14pt) (ou 828pt como fallback) em @media print'
+            '.page deve ter altura (height/min-height) cobrindo a área imprimível do A4 em @media print'
+        );
+    }
+
+    public function test_page_wrapper_is_position_relative_in_print(): void
+    {
+        $printCss = $this->extractPrintCss();
+
+        // O wrapper .page precisa de position: relative em @media print para
+        // que o canhoto (.table-footer, position: absolute) seja ancorado a ele
+        // e não à página inteira (Dompdf ignora position: relative no <body>).
+        $this->assertMatchesRegularExpression(
+            '/\.page\s*\{[^}]*position:\s*relative/s',
+            $printCss,
+            '.page deve ter position: relative em @media print (ancorar o canhoto)'
         );
     }
 
@@ -196,7 +218,7 @@ class DanfseFooterTest extends TestCase
         $dom = $this->loadDom();
         $xpath = new \DOMXPath($dom);
 
-        $footer = $xpath->query('//body/table[contains(@class, "table-footer")]')->item(0);
+        $footer = $xpath->query('//body//table[contains(@class, "table-footer")]')->item(0);
         $this->assertNotNull($footer);
 
         // Pega a primeira linha
@@ -388,10 +410,14 @@ class DanfseFooterTest extends TestCase
         $body = $dom->getElementsByTagName('body')->item(0);
         $this->assertNotNull($body);
 
-        $lastChild = $body->lastChild;
+        $page = $body->getElementsByTagName('div')->item(0);
+        $this->assertNotNull($page, 'Deve existir o wrapper .page dentro de body');
+
+        $lastChild = $page->lastChild;
         while ($lastChild !== null && $lastChild->nodeType !== XML_ELEMENT_NODE) {
             $lastChild = $lastChild->previousSibling;
         }
+
         $this->assertNotNull($lastChild);
         $this->assertSame('table', $lastChild->nodeName);
         $this->assertSame('table-footer', $lastChild->getAttribute('class'));
