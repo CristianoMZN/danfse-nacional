@@ -95,6 +95,9 @@
             margin-bottom: 1pt;
             border-bottom: 0.5pt solid #000000;
         }
+        .bordered-section.none{
+            border-bottom: none;
+        }
         .bordered-section:last-of-type { border-bottom: none; }
         .bordered-section:last-of-type > table { flex-grow: 1; }
         .bordered-section:last-of-type > table > tbody > tr:last-child > td { height: 100%; }
@@ -850,7 +853,7 @@
     </div>
 
     <!-- Bloco 11: Informações Complementares (inclui Totais Aproximados Lei 12.741/2012) -->
-    <div class="bordered-section">
+    <div class="bordered-section none">
         <table class="text-information">
             <tr>
                 <td class="section-header text-information-title">
