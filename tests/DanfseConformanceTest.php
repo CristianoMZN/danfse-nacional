@@ -396,10 +396,21 @@ class DanfseConformanceTest extends TestCase
         $nfse = $generator->parseXml($this->xml);
         $data = (new DanfseTemplate())->buildData($nfse);
 
-        $this->assertMatchesRegularExpression(
-            '#^.+\s/\s\w{2}\s/\s\w{2}$#',
-            $data['servico']['local_prestacao']
-        );
+        $this->assertSame('São Carlos / SP / BR', $data['servico']['local_prestacao']);
+    }
+
+    public function test_local_prestacao_marau_formato_correto_sem_uf_duplicada(): void
+    {
+        $path = __DIR__ . '/../examples/43118092261508808000179000000000025926020142727080.xml';
+        $xml = (string) file_get_contents($path);
+        $this->assertNotFalse($xml, "Fixture Marau não encontrada em {$path}");
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xml);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        $this->assertSame('Marau / RS / BR', $data['servico']['local_prestacao']);
+        $this->assertStringNotContainsString(' / RS / RS / ', $data['servico']['local_prestacao']);
     }
 
     public function test_incidencia_issqn_inclui_uf_e_pais(): void

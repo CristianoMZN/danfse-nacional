@@ -151,11 +151,21 @@ class Formatter
     /**
      * Concatena Município / Sigla UF para os blocos do DANFSe
      * (Tomador, Destinatário, Intermediário). Quando faltam ambos, retorna '-'.
+     * Usa `Municipios::nome()` para não duplicar a UF quando o chamador já
+     * fornece a UF (vinda do XML) — evita "Cidade / UF / UF". Se a UF do XML
+     * vier vazia mas o cMun existir, recai na UF da tabela IBGE para não
+     * perder informação (era o comportamento histórico via `lookup()`).
      */
     public function concatMunicipioUf(string $cMun, string $uf): string
     {
-        $municipio = $cMun !== '' ? Municipios::lookup($cMun) : '';
-        $partes = array_filter([$municipio, $uf], static fn(string $v): bool => $v !== '');
+        $municipio = $cMun !== '' ? Municipios::nome($cMun) : '';
+        if ($uf === '' && $cMun !== '') {
+            $uf = Municipios::uf($cMun);
+        }
+        $partes = array_filter(
+            [$municipio, $uf],
+            static fn(string $v): bool => $v !== '' && $v !== '-'
+        );
         if ($partes === []) {
             return '-';
         }
@@ -166,14 +176,19 @@ class Formatter
      * Concatena Local da Prestação / Sigla UF / País (ISO-2).
      * NT 008/2026 §2.4.5: bloco "Serviço Prestado" → "Local da Prestação /
      * Sigla UF / País". Default de país é "BR" quando o XML omite (operação
-     * nacional sem cPaisPrestacao explícito).
+     * nacional sem cPaisPrestacao explícito). Para prestação internacional
+     * (cPaisPrestacao ≠ 'BR') em que o código IBGE não existe na tabela,
+     * a UF ausente ("-") é descartada para não poluir a linha.
      */
     public function concatLocalPrestacao(string $cLocPrestacao, string $cPais): string
     {
-        $municipio = $cLocPrestacao !== '' ? Municipios::lookup($cLocPrestacao) : '';
+        $municipio = $cLocPrestacao !== '' ? Municipios::nome($cLocPrestacao) : '';
         $uf = $cLocPrestacao !== '' ? Municipios::uf($cLocPrestacao) : '';
         $pais = $cPais !== '' ? $cPais : 'BR';
-        $partes = array_filter([$municipio, $uf, $pais], static fn(string $v): bool => $v !== '');
+        $partes = array_filter(
+            [$municipio, $uf, $pais],
+            static fn(string $v): bool => $v !== '' && $v !== '-'
+        );
         if ($partes === []) {
             return '-';
         }

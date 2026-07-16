@@ -2,6 +2,7 @@
 
 namespace DanfseNacional\Tests;
 
+use DanfseNacional\Data\Municipios;
 use DanfseNacional\Formatter;
 use PHPUnit\Framework\TestCase;
 
@@ -14,6 +15,17 @@ class FormatterTest extends TestCase
         $this->fmt = new Formatter();
     }
 
+    public function test_municipios_nome_retorna_apenas_nome(): void
+    {
+        $this->assertSame('Marau', Municipios::nome('4311809'));
+        $this->assertSame('São Paulo', Municipios::nome('3550308'));
+    }
+
+    public function test_municipios_nome_fallback_para_codigo(): void
+    {
+        $this->assertSame('9999999', Municipios::nome('9999999'));
+        $this->assertSame('', Municipios::nome(''));
+    }
     public function test_cnpj_formatting(): void
     {
         $this->assertSame('18.587.777/0001-60', $this->fmt->cnpjCpf('18587777000160'));
@@ -82,5 +94,57 @@ class FormatterTest extends TestCase
         $this->assertSame('-', $this->fmt->dateTime(''));
         $this->assertSame('-', $this->fmt->currency(''));
         $this->assertSame('-', $this->fmt->codTribNacional(''));
+    }
+
+    public function test_concat_local_prestacao_nacional_sem_pais_explicito(): void
+    {
+        $this->assertSame('Marau / RS / BR', $this->fmt->concatLocalPrestacao('4311809', ''));
+        $this->assertSame('Marau / RS / BR', $this->fmt->concatLocalPrestacao('4311809', 'BR'));
+    }
+
+    public function test_concat_local_prestacao_internacional_sem_match_ibge(): void
+    {
+        $this->assertSame('99999999 / AR', $this->fmt->concatLocalPrestacao('99999999', 'AR'));
+        $this->assertSame('99999999 / US', $this->fmt->concatLocalPrestacao('99999999', 'US'));
+    }
+
+    public function test_concat_local_prestacao_internacional_sem_cidade(): void
+    {
+        $this->assertSame('AR', $this->fmt->concatLocalPrestacao('', 'AR'));
+    }
+
+    public function test_concat_local_prestacao_sem_cidade_sem_pais_default_br(): void
+    {
+        $this->assertSame('BR', $this->fmt->concatLocalPrestacao('', ''));
+    }
+
+    public function test_concat_local_prestacao_ibge_inexistente_sem_pais_usapais_default(): void
+    {
+        $this->assertSame('9999999 / BR', $this->fmt->concatLocalPrestacao('9999999', ''));
+    }
+
+    public function test_concat_municipio_uf_com_ambos_preenchidos_nao_duplica_uf(): void
+    {
+        $this->assertSame('Marau / RS', $this->fmt->concatMunicipioUf('4311809', 'RS'));
+    }
+
+    public function test_concat_municipio_uf_apenas_cmun_cai_na_uf_do_ibge(): void
+    {
+        $this->assertSame('Marau / RS', $this->fmt->concatMunicipioUf('4311809', ''));
+    }
+
+    public function test_concat_municipio_uf_apenas_uf(): void
+    {
+        $this->assertSame('RS', $this->fmt->concatMunicipioUf('', 'RS'));
+    }
+
+    public function test_concat_municipio_uf_vazio_total(): void
+    {
+        $this->assertSame('-', $this->fmt->concatMunicipioUf('', ''));
+    }
+
+    public function test_concat_municipio_uf_ibge_inexistente_sem_uf(): void
+    {
+        $this->assertSame('9999999', $this->fmt->concatMunicipioUf('9999999', ''));
     }
 }

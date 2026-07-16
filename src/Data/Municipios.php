@@ -5593,6 +5593,18 @@ final class Municipios
     }
 
     /**
+     * Retorna apenas o nome do município (sem UF) para o código IBGE
+     * informado, ou o próprio código se não encontrado. Use quando a UF
+     * for controlada separadamente pelo chamador (ex.: Local da Prestação,
+     * Tomador), evitando a duplicação "Nome / UF / UF / País" no DANFSe.
+     */
+    public static function nome(string|int $cMun): string
+    {
+        $code = (int) $cMun;
+        return self::MAP[$code]['nome'] ?? (string) $cMun;
+    }
+
+    /**
      * Retorna a sigla da UF (ex.: "RS") para o código IBGE informado, ou '-' se não encontrado.
      */
     public static function uf(string|int $cMun): string
