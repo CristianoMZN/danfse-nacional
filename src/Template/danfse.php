@@ -212,6 +212,7 @@
         }
 
         @media print {
+            html { margin: 5pt; }
             html, body { min-height: 100%; }
             body {
                 border: 1pt #000 solid;
@@ -228,7 +229,7 @@
             .bordered-section:last-of-type > table { flex-grow: 1; }
             .table-footer {
                 position: absolute;
-                bottom: 0;
+                bottom: 12pt;
                 left: 0;
                 right: 0;
                 width: 100%;
@@ -876,7 +877,7 @@
                 <span class="label">Identificação e Assinatura</span>
                 <span class="value">&nbsp;</span>
             </td>
-            <td class="footer-cell" style="width: 10.19cm;">
+            <td class="footer-cell " style="width: 9cm;">
                 <span class="label">Nº NFS-e / Chave NFS-e</span>
                 <span class="value">
                     <?= $data['numero_nfse'] ?> / <?= $data['chave_acesso'] ?>
