@@ -11,9 +11,9 @@ enum TpEmit: int
     public function label(): string
     {
         return match ($this) {
-            self::PRESTADOR => 'Prestador do Serviço',
-            self::TOMADOR => 'Tomador do Serviço',
-            self::INTERMEDIARIO => 'Intermediário do Serviço',
+            self::PRESTADOR => 'Prestador',
+            self::TOMADOR => 'Tomador',
+            self::INTERMEDIARIO => 'Intermediário',
         };
     }
 

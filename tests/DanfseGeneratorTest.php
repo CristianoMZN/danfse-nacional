@@ -117,7 +117,7 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('Operação Tributável', $data['tributacao_municipal']['tributacao_issqn']);
         $this->assertSame('Não Retido', $data['tributacao_municipal']['retencao_issqn']);
         $this->assertSame('Nenhum', $data['tributacao_municipal']['regime_especial']);
-        $this->assertSame('São Carlos', $data['tributacao_municipal']['municipio_incidencia']);
+        $this->assertSame('São Carlos / SP / BR', $data['tributacao_municipal']['municipio_incidencia']);
 
         $this->assertSame('Não Optante', $data['emitente']['simples_nacional']);
 
@@ -127,7 +127,7 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('NFS-e Autorizada', $data['situacao_nfse']);
         $this->assertSame('-', $data['finalidade']);
 
-        $this->assertFalse($data['emitente']['nif']);
+        $this->assertSame('-', $data['emitente']['nif']);
         $this->assertSame('3548906', $data['emitente']['codigo_ibge']);
 
         $this->assertTrue($data['tomador_identificado']);

@@ -29,7 +29,7 @@
             font-size: 7pt;
             color: #000000;
             margin: 5pt;
-            padding: 4pt 7pt;
+            padding: 5pt 7pt;
             border: 1pt #000 solid;
             box-sizing: border-box;
             display: flex;
@@ -155,8 +155,8 @@
 
         /* QR Code (§2.4.3) */
         img.qr-code {
-            width: 60pt !important;   /* ~2,12cm — acima do mínimo 1,52cm */
-            height: 60pt !important;
+            width: 51pt !important;   /* ~1,80cm — acima do mínimo 1,52cm */
+            height: 51pt !important;
             display: block;
             margin: 0 auto;
         }
@@ -717,7 +717,8 @@
         </table>
     </div>
 
-    <!-- Bloco 9: Tributação IBS / CBS -->
+    <!-- Bloco 9: Tributação IBS / CBS (condicional — NT 008 §2.2.4 e §2.4) -->
+    <?php if (!empty($data['ibscbs_has_data'])): ?>
     <div class="bordered-section">
         <table>
             <tr>
@@ -797,6 +798,7 @@
             </tr>
         </table>
     </div>
+    <?php endif; ?>
 
     <!-- Bloco 10: Valor Total da NFS-e -->
     <div class="bordered-section">

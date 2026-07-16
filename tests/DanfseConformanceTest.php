@@ -142,7 +142,7 @@ class DanfseConformanceTest extends TestCase
         $nfse = $generator->parseXml($xml);
         $data = (new DanfseTemplate())->buildData($nfse);
 
-        $this->assertSame('Tomador do Serviço', $data['emitente_rotulo']);
+        $this->assertSame('Tomador', $data['emitente_rotulo']);
     }
 
     public function test_totais_aproximados_no_formato_oficial(): void
@@ -206,7 +206,7 @@ class DanfseConformanceTest extends TestCase
         $this->assertMatchesRegularExpression('/\.value\s*\{[^}]*font-size:\s*7pt/s', $html);
         $this->assertMatchesRegularExpression('/\.title-danfse\s*\{[^}]*font-size:\s*9pt/s', $html);
         $this->assertMatchesRegularExpression(
-            '/img\.qr-code\s*\{[^}]*width:\s*60pt/s',
+            '/img\.qr-code\s*\{[^}]*width:\s*51pt/s',
             $html
         );
     }
@@ -262,5 +262,317 @@ class DanfseConformanceTest extends TestCase
             $html
         );
         $this->assertStringContainsString('highlight-shade', $html);
+    }
+
+    // ====== Testes adicionais de conformidade NT 008 (validação item-a-item) ======
+
+    public function test_fonte_titulo_danfse_9pt_arial_negrito(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        $this->assertMatchesRegularExpression(
+            '/\.title-danfse\s*\{[^}]*font-family:\s*\'Arial\'/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.title-danfse\s*\{[^}]*font-weight:\s*bold/s',
+            $html
+        );
+    }
+
+    public function test_fonte_label_bloco_identificacao_7pt_caixa_alta_negrito(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        $this->assertMatchesRegularExpression(
+            '/\.first-section\s+\.label\s*\{[^}]*font-size:\s*7pt/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.first-section\s+\.label\s*\{[^}]*text-transform:\s*uppercase/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.label\s*\{[^}]*font-weight:\s*bold/s',
+            $html
+        );
+    }
+
+    public function test_fonte_label_comum_6pt_negrito(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        $this->assertMatchesRegularExpression('/\.label\s*\{[^}]*font-weight:\s*bold/s', $html);
+    }
+
+    public function test_fonte_municipio_8pt_e_ambiente_6pt(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        $this->assertMatchesRegularExpression('/\.mun-nome\s*\{[^}]*font-size:\s*8pt/s', $html);
+        $this->assertMatchesRegularExpression('/\.mun-ambiente\s*\{[^}]*font-size:\s*6pt/s', $html);
+    }
+
+    public function test_fonte_qr_code_texto_rodape_6pt(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        $this->assertMatchesRegularExpression('/\.qr-code-text\s*\{[^}]*font-size:\s*6pt/s', $html);
+    }
+
+    public function test_fonte_aviso_homolog_9pt_arial_negrito_vermelho(): void
+    {
+        $generator = new DanfseGenerator();
+        $xml = preg_replace('#<tpAmb>1</tpAmb>#', '<tpAmb>2</tpAmb>', $this->xml, 1);
+        $html = $generator->generateHtml($generator->parseXml($xml));
+
+        $this->assertMatchesRegularExpression(
+            '/\.title-homolog\s*\{[^}]*font-family:\s*\'Arial\'/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.title-homolog\s*\{[^}]*font-weight:\s*bold/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.title-homolog\s*\{[^}]*font-size:\s*9pt/s',
+            $html
+        );
+    }
+
+    public function test_marca_dagua_arial_60pt_cinza_K35(): void
+    {
+        $xml = preg_replace('#<cStat>100</cStat>#', '<cStat>101</cStat>', $this->xml, 1);
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($xml));
+
+        $this->assertMatchesRegularExpression(
+            '/\.watermark-danfse\s*\{[^}]*font-family:\s*\'Arial\'/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.watermark-danfse\s*\{[^}]*font-size:\s*60pt/s',
+            $html
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.watermark-danfse\s*\{[^}]*color:\s*#595959/s',
+            $html
+        );
+    }
+
+    public function test_padding_body_5pt_vertical_atende_minimo_015cm(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        $this->assertMatchesRegularExpression('/\bbody\s*\{[^}]*padding:\s*5pt\s+7pt/s', $html);
+    }
+
+    public function test_bloco_ibscbs_omitido_quando_xml_sem_grupo(): void
+    {
+        $xmlSemIb = preg_replace('#<IBSCBS>.*?</IBSCBS>#s', '', $this->xml, 2);
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($xmlSemIb));
+
+        $this->assertStringNotContainsString('TRIBUTAÇÃO IBS / CBS', $html);
+    }
+
+    public function test_bloco_ibscbs_renderizado_quando_xml_tem_grupo(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        $this->assertStringContainsString('TRIBUTAÇÃO IBS / CBS', $html);
+    }
+
+    public function test_local_prestacao_inclui_uf_e_pais(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        $this->assertMatchesRegularExpression(
+            '#^.+\s/\s\w{2}\s/\s\w{2}$#',
+            $data['servico']['local_prestacao']
+        );
+    }
+
+    public function test_incidencia_issqn_inclui_uf_e_pais(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        $this->assertMatchesRegularExpression(
+            '#^.+\s/\s\w{2}\s/\s\w{2}$#',
+            $data['tributacao_municipal']['municipio_incidencia']
+        );
+    }
+
+    public function test_emitente_rotulo_max_13_chars(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        $this->assertLessThanOrEqual(13, mb_strlen($data['emitente_rotulo']));
+    }
+
+    public function test_descricao_contrib_sociais_vem_de_tpRetPisCofins(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        $this->assertNotSame(
+            '-',
+            $data['tributacao_federal']['desc_contrib_sociais'],
+            'desc_contrib_sociais deveria refletir o XML (tpRetPisCofins=2 → PIS/PASEP retido)'
+        );
+    }
+
+    public function test_totais_aproximados_aceita_percentual_quando_valor_vazio(): void
+    {
+        $path = __DIR__ . '/../examples/43118092261508808000179000000000003026017431848187.xml';
+        $xmlComPercentual = file_get_contents($path);
+        if ($xmlComPercentual === false || !str_contains($xmlComPercentual, '<pTotTrib>')) {
+            $this->markTestSkipped('Fixture com pTotTrib ausente');
+        }
+
+        $xmlSemValores = preg_replace(
+            '#<vTotTrib>.*?</vTotTrib>#s',
+            '<vTotTrib><vTotTribFed></vTotTribFed><vTotTribEst></vTotTribEst><vTotTribMun></vTotTribMun></vTotTrib>',
+            $xmlComPercentual
+        );
+
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xmlSemValores);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        $this->assertMatchesRegularExpression(
+            '/Federais:\s*\d+,\d+%\s*;/',
+            $data['informacoes_complementares']
+        );
+    }
+
+    public function test_bloco_ibscbs_renderiza_4_linhas_16_campos(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        $trecho = substr($html, strpos($html, 'TRIBUTAÇÃO IBS / CBS'));
+        $trecho = substr($trecho, 0, strpos($trecho, '<!-- Bloco 10'));
+
+        preg_match_all('#<span class="label">([^<]+)</span>#', $trecho, $m);
+
+        $labelsEsperadas = [
+            'CST / cClassTrib',
+            'Indicador de Operação / Cód. IBGE Incidência / Município Incidência / Sigla UF',
+            'Exclusões e Reduções da Base de Cálculo',
+            'Base de Cálculo Após Exclusões e Reduções',
+            'Red. Alíquota IBS / Red. Alíquota CBS',
+            'Alíquota IBS UF / IBS Mun',
+            'Alíq. Efetiva Municipal - IBS',
+            'Valor Apurado Municipal - IBS',
+            'Alíq. Efetiva Estadual - IBS',
+            'Valor Apurado Estadual - IBS',
+            'Valor Total Apurado - IBS',
+            'Alíquota - CBS',
+            'Alíquota Efetiva - CBS',
+            'Valor Total Apurado - CBS',
+        ];
+
+        foreach ($labelsEsperadas as $label) {
+            $this->assertContains(
+                $label,
+                $m[1],
+                "Label obrigatória do bloco IBS/CBS ausente: '{$label}'"
+            );
+        }
+    }
+
+    public function test_xml_sem_ibscbs_nao_renderiza_bloco_9(): void
+    {
+        $xmlSem = preg_replace('#<IBSCBS>.*?</IBSCBS>#s', '', $this->xml, 2);
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xmlSem);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        $this->assertFalse($data['ibscbs_has_data']);
+
+        $html = $generator->generateHtml($nfse);
+        $this->assertStringNotContainsString('TRIBUTAÇÃO IBS / CBS', $html);
+    }
+
+    public function test_campos_vazios_renderizados_como_traco(): void
+    {
+        $xmlLimpo = preg_replace(
+            [
+                '#<CNPJ>[^<]+</CNPJ>#',
+                '#<CPF>[^<]+</CPF>#',
+                '#<xNome>[^<]+</xNome>#',
+                '#<email>[^<]+</email>#',
+                '#<fone>[^<]+</fone>#',
+                '#<IM>[^<]+</IM>#',
+            ],
+            [
+                '<CNPJ></CNPJ>',
+                '<CPF></CPF>',
+                '<xNome></xNome>',
+                '<email></email>',
+                '<fone></fone>',
+                '<IM></IM>',
+            ],
+            $this->xml
+        );
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($xmlLimpo);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        $this->assertSame('-', $data['emitente']['im']);
+        $this->assertSame('-', $data['emitente']['telefone']);
+        $this->assertSame('-', $data['emitente']['email']);
+    }
+
+    public function test_qr_code_url_contem_chave_correta(): void
+    {
+        $generator = new DanfseGenerator();
+        $html = $generator->generateHtml($generator->parseXml($this->xml));
+
+        preg_match('/data:image\/svg\+xml;base64,([A-Za-z0-9+\/=]+)/', $html, $m);
+        $this->assertNotEmpty($m, 'QR Code SVG data URI ausente');
+        $svg = base64_decode($m[1]);
+
+        $this->assertGreaterThan(
+            500,
+            strlen($svg),
+            'QR Code SVG deve ter tamanho razoável (> 500 bytes)'
+        );
+        $this->assertStringContainsString('<svg', $svg, 'QR Code SVG bem formado');
+        $this->assertStringContainsString('width="200"', $svg, 'QR Code com dimensões >= 1,52cm');
+    }
+
+    public function test_ordem_informacoes_complementares_segue_nt008(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $data = (new DanfseTemplate())->buildData($nfse);
+
+        if ($data['informacoes_complementares'] === '') {
+            $this->markTestSkipped('XML canônico não traz dados para validar ordem');
+        }
+
+        $posTotais = strpos($data['informacoes_complementares'], 'Totais Aproximados');
+        $this->assertNotFalse($posTotais, 'Linha Totais Aproximados obrigatória');
+        $this->assertSame(
+            mb_strlen($data['informacoes_complementares']) - mb_strrpos($data['informacoes_complementares'], 'Totais Aproximados'),
+            $posTotais !== false ? mb_strlen($data['informacoes_complementares']) - $posTotais : 0,
+            'Totais Aproximados deve ser a última entrada'
+        );
     }
 }

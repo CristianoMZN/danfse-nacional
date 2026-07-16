@@ -19,6 +19,6 @@ readonly class Intermediario
 
     public function documento(): string
     {
-        return $this->CNPJ ?: $this->CPF;
+        return $this->CNPJ ?: ($this->CPF ?: $this->NIF);
     }
 }

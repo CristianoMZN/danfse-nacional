@@ -2,6 +2,8 @@
 
 namespace DanfseNacional;
 
+use DanfseNacional\Data\Municipios;
+
 /**
  * Formatadores para padrões brasileiros (CNPJ, CPF, telefone, CEP, moeda, datas)
  */
@@ -144,5 +146,52 @@ class Formatter
         }
 
         return number_format((float) $value, 2, ',', '.') . '%';
+    }
+
+    /**
+     * Concatena Município / Sigla UF para os blocos do DANFSe
+     * (Tomador, Destinatário, Intermediário). Quando faltam ambos, retorna '-'.
+     */
+    public function concatMunicipioUf(string $cMun, string $uf): string
+    {
+        $municipio = $cMun !== '' ? Municipios::lookup($cMun) : '';
+        $partes = array_filter([$municipio, $uf], static fn(string $v): bool => $v !== '');
+        if ($partes === []) {
+            return '-';
+        }
+        return implode(' / ', $partes);
+    }
+
+    /**
+     * Concatena Local da Prestação / Sigla UF / País (ISO-2).
+     * NT 008/2026 §2.4.5: bloco "Serviço Prestado" → "Local da Prestação /
+     * Sigla UF / País". Default de país é "BR" quando o XML omite (operação
+     * nacional sem cPaisPrestacao explícito).
+     */
+    public function concatLocalPrestacao(string $cLocPrestacao, string $cPais): string
+    {
+        $municipio = $cLocPrestacao !== '' ? Municipios::lookup($cLocPrestacao) : '';
+        $uf = $cLocPrestacao !== '' ? Municipios::uf($cLocPrestacao) : '';
+        $pais = $cPais !== '' ? $cPais : 'BR';
+        $partes = array_filter([$municipio, $uf, $pais], static fn(string $v): bool => $v !== '');
+        if ($partes === []) {
+            return '-';
+        }
+        return implode(' / ', $partes);
+    }
+
+    /**
+     * Concatena Município / Sigla UF / País para o campo "Município/UF/País
+     * de Incidência do ISSQN" do bloco 7. País defaulta em 'BR'.
+     */
+    public function concatLocalIncidencia(string $xLocIncid, string $cLocIncid): string
+    {
+        $uf = $cLocIncid !== '' ? Municipios::uf($cLocIncid) : '';
+        $pais = 'BR';
+        $partes = array_filter([$xLocIncid, $uf, $pais], static fn(string $v): bool => $v !== '');
+        if ($partes === []) {
+            return '-';
+        }
+        return implode(' / ', $partes);
     }
 }

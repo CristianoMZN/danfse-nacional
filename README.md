@@ -51,6 +51,30 @@ O layout do DANFSe segue o modelo do Anexo I da NT 008/2026 (SE/CGNFS-e):
   `https://www.nfse.gov.br/ConsultaPublica/?tpc=1&chave=<chave>` com o
   texto de autenticidade abaixo.
 - Rejeição automática (via exceção) se o conteúdo estourar 1 página.
+- **Layout flexbox seguindo o Anexo I:** o item 2.1 da NT 008 explicita que
+  os tamanhos descritos no item 2.4.5 (X/Y em cm) **não são obrigatórios**,
+  mas o **modelo do Anexo I é obrigatório** (ordem/disposição dos blocos).
+  A lib usa flexbox/table com larguras aproximadas equivalentes à tabela
+  2.4.5, garantindo o modelo/ordem normativo. Se o consumidor quiser
+  posicionamento absoluto em cm, basta editar o CSS em
+  `src/Template/danfse.php` (1cm = 28,3465pt).
+- **Bloco Tributação IBS/CBS condicional:** suprimido automaticamente quando
+  o XML não traz o grupo `IBSCBS` (NFS-e v1.0 sem reforma tributária).
+- **Campos vazios preenchidos com "-"** (Nota 12 da NT 008) — nunca em
+  branco nem omitidos.
+- **Tamanhos e concatenações conforme tabela 2.4.5:** "Local da Prestação /
+  Sigla UF / País", "Município/UF/País de Incidência do ISSQN", "Emitente"
+  (≤ 13 chars), truncamento com reticências em Nome/Endereço/Descrição do
+  Serviço/Situação/Finalidade.
+- **Ordem oficial em Informações Complementares** (Nota 12): `Inf. Cont.:`,
+  `NFS-e Subst.:`, `Doc. Ref.:`, `Cod. Obra:` / `Insc. Imob.:`, `Cod. Evt.:`,
+  `Inf. A. T. Mun.:`, e a linha obrigatória `Totais Aproximados dos
+  Tributos cfe. Lei nº 12.741/2012`. Truncamento em 1997 chars preservando
+  a linha final.
+- **Renomeações da NT 009/2026 aplicadas:** `vCalcAjusteBCIBSCBS`,
+  `vCalcAjusteBCISSQN`, `vCalcAjusteBCLocImoveis`, `gAjusteBCLocImoveis`.
+  Campos novos (`regApIBSCBSSN`, `indFinal`, `gPgtoVinc`) ficam disponíveis
+  via DTO, mas não são impressos por não terem posição fixa no Anexo I.
 
 ## Compatibilidade
 
