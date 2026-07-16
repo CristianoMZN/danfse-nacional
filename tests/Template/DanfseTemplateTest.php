@@ -205,6 +205,71 @@ class DanfseTemplateTest extends TestCase
         $this->assertStringContainsString('COFINS - Débito Apuração Própria', $html);
     }
 
+    public function test_pdf_page_margin_dentro_da_faixa_nt_008_2_2(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $html = $generator->generateHtml($nfse);
+
+        preg_match('/@page\s*\{[^}]*margin:\s*([\d.]+)pt/u', $html, $m);
+        $this->assertNotEmpty($m, '@page { margin: ... } não encontrado no CSS gerado');
+
+        $pageMarginPt = (float) $m[1];
+        $this->assertGreaterThanOrEqual(4.25, $pageMarginPt,
+            '@page margin (' . $pageMarginPt . 'pt) abaixo do mínimo NT 008 §2.2 (0,15cm = 4.25pt)');
+        $this->assertLessThanOrEqual(5.67, $pageMarginPt,
+            '@page margin (' . $pageMarginPt . 'pt) acima do máximo NT 008 §2.2 (0,20cm = 5.67pt)');
+    }
+
+    public function test_pdf_body_no_print_sem_margin_e_padding_para_nao_estourar_nt_008(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $html = $generator->generateHtml($nfse);
+
+        $this->assertMatchesRegularExpression(
+            '/@media\s+print\s*\{[^@]*body\s*\{[^}]*margin:\s*0[^}]*padding:\s*0/s',
+            $html,
+            'No @media print, body deve ter margin:0 e padding:0 — '
+            . 'caso contrário, somam-se ao @page margin e estouram o máximo de 0,20cm da NT 008 §2.2.'
+        );
+    }
+
+    public function test_pdf_body_no_print_preserva_borda_1pt_da_pagina(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $html = $generator->generateHtml($nfse);
+
+        $this->assertMatchesRegularExpression(
+            '/@media\s+print\s*\{[^@]*body\s*\{[^}]*border:\s*(1pt|1px)[^;]*\bsolid\b/s',
+            $html,
+            'No @media print, body deve manter border 1pt (exigência NT 008 §2.2 — "Borda da página: 1pt").'
+        );
+    }
+
+    public function test_pdf_renderiza_em_pagina_unica_nt_008_2_2(): void
+    {
+        $generator = new DanfseGenerator();
+        $nfse = $generator->parseXml($this->xml);
+        $html = $generator->generateHtml($nfse);
+
+        $options = new \Dompdf\Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', false);
+        $options->set('defaultFont', 'liberationsans');
+        $options->set('defaultMediaType', 'print');
+        $options->set('dpi', 96);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $this->assertSame(1, $dompdf->getCanvas()->get_page_count(),
+            'DANFSe deve caber em uma única página (NT 008 §2.2).');
+    }
+
     private function xmlWithAmbiente(int $ambiente): string
     {
         return str_replace(

@@ -293,10 +293,14 @@ class DanfseFooterTest extends TestCase
     {
         $printCss = $this->extractPrintCss();
 
+        // O body NÃO deve ter padding no @media print — qualquer padding somaria
+        // ao @page margin (5pt) e à borda do body (1pt), totalizando mais que o
+        // máximo de 0,20cm permitido pela NT 008/2026 §2.2 para a margem entre
+        // o corpo impresso e o final do formulário.
         $this->assertMatchesRegularExpression(
-            '/\bbody\s*\{[^}]*padding:\s*4pt\s+7pt/s',
+            '/\bbody\s*\{[^}]*padding:\s*0\s*[;}]/s',
             $printCss,
-            'body deve ter padding: 4pt 7pt em @media print (espaço interno entre borda e conteúdo)'
+            'body deve ter padding: 0 em @media print (NT 008/2026 §2.2: margem máx. 0,20cm)'
         );
     }
 
