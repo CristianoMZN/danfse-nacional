@@ -381,6 +381,7 @@ NFSe
 │           │   └── atvEvento [v2.0]
 │           ├── valores (Valores)
 │           │   ├── vServPrest (VServPrest)
+│           │   ├── vDescCondIncond (VDescCondIncond) — vDescIncond, vDescCond
 │           │   └── trib (Tributacao)
 │           │       ├── tribMun (TribMunicipal)
 │           │       ├── tribFed (TribFederal)

@@ -406,8 +406,14 @@ class DanfseTemplate
             // ===== Bloco 10: Valor Total da NFS-e =====
             'totais' => [
                 'valor_servico' => $this->fmt->currency($vServPrest?->vServ ?? ''),
-                'desconto_condicionado' => $tribMun?->vDescCond ? $this->fmt->currency($tribMun->vDescCond) : '-',
-                'desconto_incondicionado' => $tribMun?->vDescIncond ? $this->fmt->currency($tribMun->vDescIncond) : '-',
+                'desconto_condicionado' => $this->pickDesconto(
+                    $valores?->vDescCondIncond?->vDescCond ?? '',
+                    $tribMun?->vDescCond ?? '',
+                ),
+                'desconto_incondicionado' => $this->pickDesconto(
+                    $valores?->vDescCondIncond?->vDescIncond ?? '',
+                    $tribMun?->vDescIncond ?? '',
+                ),
                 'issqn_retido' => ($tribMun?->vISSQN && ($tribMun?->tpRetISSQN ?? '1') !== '1')
                     ? $this->fmt->currency($tribMun->vISSQN)
                     : '-',
@@ -532,6 +538,23 @@ class DanfseTemplate
             }
         }
         return $hasValue ? $this->fmt->currency((string) $sum) : '-';
+    }
+
+    /**
+     * Escolhe o primeiro valor monetário não vazio e devolve formatado.
+     * Usado para os rótulos "Desconto Incondicionado" / "Desconto Condicionado"
+     * do Bloco 10, que conforme NT 008 §2.3.3 têm como fonte primária o grupo
+     * `valores/vDescCondIncond/` (vDescIncond/vDescCond). Aceita fallback para
+     * `tribMun/vDescIncond/vDescCond` quando a fonte primária estiver vazia.
+     */
+    private function pickDesconto(string ...$values): string
+    {
+        foreach ($values as $v) {
+            if ($v !== '') {
+                return $this->fmt->currency($v);
+            }
+        }
+        return '-';
     }
 
     /**

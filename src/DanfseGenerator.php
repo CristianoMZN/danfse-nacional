@@ -52,12 +52,58 @@ class DanfseGenerator
         $converter = new XmlToArray();
         $array = $converter->convert($xml);
 
+        $array = $this->nullifyEmptyGroups($array, NFSe::class);
+
         $mapper = (new MapperBuilder())
             ->allowSuperfluousKeys()
             ->allowPermissiveTypes()
             ->mapper();
 
         return $mapper->map(NFSe::class, $array);
+    }
+
+    /**
+     * Converte strings vazias em null nas posições do array cuja chave, no
+     * DTO alvo, é uma propriedade nullable de tipo objeto/grupo. Sem isso,
+     * elementos XML vazios como `<tribFed/>` ou `<vDescCondIncond/>` seriam
+     * mapeados como string vazia e rejeitados pelo Valinor quando o campo
+     * correspondente é `?Objeto`. Strings vazias em campos `string $foo = ''`
+     * permanecem intocadas — a passagem para null ocorre apenas quando o
+     * tipo de destino é objeto nullable.
+     */
+    private function nullifyEmptyGroups(array $data, string $dtoClass): array
+    {
+        $ref = new \ReflectionClass($dtoClass);
+        $ctor = $ref->getConstructor();
+        if ($ctor === null) {
+            return $data;
+        }
+
+        foreach ($ctor->getParameters() as $param) {
+            $name = $param->getName();
+            if (!array_key_exists($name, $data)) {
+                continue;
+            }
+
+            $type = $param->getType();
+
+            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin() && $type->allowsNull()) {
+                if ($data[$name] === '' || $data[$name] === []) {
+                    $data[$name] = null;
+                }
+            }
+
+            if (
+                $type instanceof \ReflectionNamedType
+                && !$type->isBuiltin()
+                && is_array($data[$name])
+                && $data[$name] !== []
+            ) {
+                $data[$name] = $this->nullifyEmptyGroups($data[$name], $type->getName());
+            }
+        }
+
+        return $data;
     }
 
     /**
