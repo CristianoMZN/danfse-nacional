@@ -132,6 +132,70 @@ class RealXmlTest extends TestCase
         $this->assertStringStartsWith('%PDF-', $pdf);
     }
 
+    public function test_xml_without_tomador_generates_pdf_without_warnings(): void
+    {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'
+            . '<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.01">'
+            . '<infNFSe Id="NFS43118092228252000000106000000000065326063370231116">'
+            . '<xLocEmi>Marau</xLocEmi><xLocPrestacao>Marau</xLocPrestacao>'
+            . '<nNFSe>653</nNFSe><cLocIncid>4311809</cLocIncid><xLocIncid>Marau</xLocIncid>'
+            . '<xTribNac>Barbearia, cabeleireiros, manicuros, pedicuros e congêneres.</xTribNac>'
+            . '<verAplic>EmissorWeb_1.6.0.0</verAplic><ambGer>2</ambGer><tpEmis>1</tpEmis>'
+            . '<procEmi>2</procEmi><cStat>100</cStat>'
+            . '<dhProc>2026-06-19T16:13:26-03:00</dhProc><nDFSe>496970</nDFSe>'
+            . '<emit><CNPJ>28252000000106</CNPJ>'
+            . '<xNome>ANGELA CRISTINA COLUSSI DOS SANTOS</xNome>'
+            . '<enderNac><xLgr>RUA ANTONIO PORTO</xLgr><nro>54</nro>'
+            . '<xBairro>JOSE PRIMO BERNARDI</xBairro><cMun>4311809</cMun><UF>RS</UF>'
+            . '<CEP>99150000</CEP></enderNac>'
+            . '<fone>5492690438</fone></emit>'
+            . '<valores><vLiq>239.90</vLiq></valores>'
+            . '<DPS versao="1.01">'
+            . '<infDPS Id="DPS431180922825200000010670000000000000000544">'
+            . '<tpAmb>1</tpAmb><dhEmi>2026-06-19T16:13:26-03:00</dhEmi>'
+            . '<verAplic>EmissorWeb_1.6.0.0</verAplic><serie>70000</serie><nDPS>544</nDPS>'
+            . '<dCompet>2026-06-19</dCompet><tpEmit>1</tpEmit><cLocEmi>4311809</cLocEmi>'
+            . '<prest><CNPJ>28252000000106</CNPJ><fone>5492690438</fone>'
+            . '<regTrib><opSimpNac>3</opSimpNac><regApTribSN>1</regApTribSN>'
+            . '<regEspTrib>0</regEspTrib></regTrib></prest>'
+            . '<serv><locPrest><cLocPrestacao>4311809</cLocPrestacao></locPrest>'
+            . '<cServ><cTribNac>060101</cTribNac><xDescServ>Hidratação</xDescServ>'
+            . '</cServ></serv>'
+            . '<valores><vServPrest><vServ>239.90</vServ></vServPrest><trib>'
+            . '<tribMun><tribISSQN>1</tribISSQN><tpRetISSQN>1</tpRetISSQN></tribMun>'
+            . '<tribFed><piscofins><CST>00</CST></piscofins></tribFed>'
+            . '<totTrib><pTotTribSN>9.67</pTotTribSN></totTrib>'
+            . '</trib></valores>'
+            . '</infDPS></DPS>'
+            . '</infNFSe></NFSe>';
+
+        $generator = new DanfseGenerator();
+
+        $errors = [];
+        set_error_handler(function (int $errno, string $errstr) use (&$errors) {
+            $errors[] = $errstr;
+            return true;
+        });
+
+        try {
+            $pdf = $generator->generateFromXml($xml);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertStringStartsWith('%PDF-', $pdf);
+        $this->assertNotEmpty($pdf);
+        $this->assertSame([], $errors, 'Nenhum warning deve ser emitido: ' . implode(' | ', $errors));
+
+        $nfse = $generator->parseXml($xml);
+        $template = new DanfseTemplate();
+        $data = $template->buildData($nfse);
+
+        $this->assertFalse($data['tomador_identificado']);
+        $this->assertSame('-', $data['tomador']['email']);
+        $this->assertSame('-', $data['tomador']['nome']);
+    }
+
     public function test_schema_xml_generates_valid_pdf(): void
     {
         $xmlPath = __DIR__ . '/../schemas/208_DALTEC_601.xml';

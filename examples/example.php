@@ -44,7 +44,7 @@ foreach ($xmlFiles as $xmlPath) {
     echo "  NFS-e número : " . $inf->nNFSe . "\n";
     echo "  Emitente     : " . $inf->emit->xNome . "\n";
     echo "  CNPJ         : " . $inf->emit->CNPJ . "\n";
-    echo "  Tomador      : " . $inf->DPS->infDPS->toma->xNome . "\n";
+    echo "  Tomador      : " . ($inf->DPS->infDPS->toma?->xNome ?? '') . "\n";
     echo "  Valor líquido: R$ " . $inf->valores->vLiq . "\n";
     echo "  Competência  : " . $inf->DPS->infDPS->dCompet . "\n";
     echo "  Ambiente     : " . ($inf->DPS->infDPS->tpAmb === '1' ? 'Produção' : 'Homologação') . "\n";
