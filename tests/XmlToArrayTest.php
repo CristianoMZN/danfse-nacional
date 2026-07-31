@@ -72,4 +72,70 @@ class XmlToArrayTest extends TestCase
         $this->assertArrayNotHasKey('CNPJ', $inf['DPS']['infDPS']['toma']);
         $this->assertSame('02507593067', $inf['DPS']['infDPS']['toma']['CPF']);
     }
+
+    public function test_repeatable_xItemPed_preserves_all_occurrences(): void
+    {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'
+            . '<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse">'
+            . '<DPS><infDPS><serv><infoCompl><gItemPed>'
+            . '<xItemPed>Umbler:A</xItemPed>'
+            . '<xItemPed>Umbler:B</xItemPed>'
+            . '<xItemPed>Umbler:C</xItemPed>'
+            . '</gItemPed></infoCompl></serv></infDPS></DPS>'
+            . '</NFSe>';
+
+        $result = $this->converter->convert($xml);
+
+        $this->assertSame(
+            ['Umbler:A', 'Umbler:B', 'Umbler:C'],
+            $result['DPS']['infDPS']['serv']['infoCompl']['gItemPed']['xItemPed']
+        );
+    }
+
+    public function test_repeatable_xItemPed_single_occurrence_is_also_list(): void
+    {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'
+            . '<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse">'
+            . '<DPS><infDPS><serv><infoCompl><gItemPed>'
+            . '<xItemPed>Umbler:only</xItemPed>'
+            . '</gItemPed></infoCompl></serv></infDPS></DPS>'
+            . '</NFSe>';
+
+        $result = $this->converter->convert($xml);
+
+        $this->assertSame(
+            ['Umbler:only'],
+            $result['DPS']['infDPS']['serv']['infoCompl']['gItemPed']['xItemPed']
+        );
+    }
+
+    public function test_non_repeatable_element_keeps_scalar_even_with_multiple_occurrences(): void
+    {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'
+            . '<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse">'
+            . '<infNFSe><nNFSe>1</nNFSe><nNFSe>2</nNFSe></infNFSe>'
+            . '</NFSe>';
+
+        $result = $this->converter->convert($xml);
+
+        $this->assertSame('2', $result['infNFSe']['nNFSe']);
+    }
+
+    public function test_repeatable_refNFSe_in_gRefNFSe(): void
+    {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'
+            . '<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse">'
+            . '<DPS><infDPS><IBSCBS><gRefNFSe>'
+            . '<refNFSe>CHAVE-001</refNFSe>'
+            . '<refNFSe>CHAVE-002</refNFSe>'
+            . '</gRefNFSe></IBSCBS></infDPS></DPS>'
+            . '</NFSe>';
+
+        $result = $this->converter->convert($xml);
+
+        $this->assertSame(
+            ['CHAVE-001', 'CHAVE-002'],
+            $result['DPS']['infDPS']['IBSCBS']['gRefNFSe']['refNFSe']
+        );
+    }
 }

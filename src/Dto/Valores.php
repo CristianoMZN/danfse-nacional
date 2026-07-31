@@ -7,6 +7,7 @@ readonly class Valores
     public function __construct(
         public ?VServPrest $vServPrest = null,
         public ?VDescCondIncond $vDescCondIncond = null,
+        public ?VAjusteBC $vAjusteBC = null,
         public ?Tributacao $trib = null,
     ) {}
 }

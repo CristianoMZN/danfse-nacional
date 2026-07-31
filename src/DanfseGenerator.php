@@ -52,6 +52,7 @@ class DanfseGenerator
         $converter = new XmlToArray();
         $array = $converter->convert($xml);
 
+        $array = $this->normalizeLegacySchema($array);
         $array = $this->nullifyEmptyGroups($array, NFSe::class);
 
         $mapper = (new MapperBuilder())
@@ -60,6 +61,29 @@ class DanfseGenerator
             ->mapper();
 
         return $mapper->map(NFSe::class, $array);
+    }
+
+    /**
+     * Normaliza campos renomeados entre NT 008 e NT 009 para que o DTO
+     * único `Valores::vAjusteBC` (modelo NT 009) receba também os dados do
+     * grupo `vDedRed` (modelo NT 008). Sem isso, NFS-e legadas
+     * (DPS versao="1.00") perderiam `pDR`/`vDR` silenciosamente.
+     */
+    private function normalizeLegacySchema(array $data): array
+    {
+        $valores = $data['infNFSe']['DPS']['infDPS']['valores'] ?? null;
+        if (!is_array($valores) || !isset($valores['vDedRed']) || !is_array($valores['vDedRed'])) {
+            return $data;
+        }
+
+        $dedRed = $valores['vDedRed'];
+        $valores['vAjusteBC'] = array_merge(
+            $valores['vAjusteBC'] ?? [],
+            array_intersect_key($dedRed, array_flip(['pDR', 'vDR']))
+        );
+        $data['infNFSe']['DPS']['infDPS']['valores'] = $valores;
+
+        return $data;
     }
 
     /**

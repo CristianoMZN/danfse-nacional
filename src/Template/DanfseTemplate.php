@@ -200,7 +200,7 @@ class DanfseTemplate
 
         // Flags de supressão para linhas do ISSQN (Nota 5)
         $vRegime = RegEspTrib::labelFor($regTrib?->regEspTrib ?? '');
-        $vTipoImunidade = TpImunidadeISSQN::labelFor($tribMun?->tipoImunidade ?? '');
+        $vTipoImunidade = TpImunidadeISSQN::labelFor($tribMun?->tpImunidade ?? '');
         $vSuspensao = TpSuspensaoISSQN::labelFor($tribMun?->suspExigibilidade ?? '');
         $vProcesso = $tribMun?->nProcessoSuspensao ?? '';
         $linhaRegimeVazia = $vRegime === '-' && ($vTipoImunidade === '' || $vTipoImunidade === '-') && ($vSuspensao === '' || $vSuspensao === '-') && $vProcesso === '';
@@ -321,7 +321,10 @@ class DanfseTemplate
                     $locPrest?->cPaisPrestacao ?? '',
                 ),
                 'pais_prestacao' => $locPrest?->cPaisPrestacao ?: '-',
-                'descricao' => $this->fmt->limit($cServ?->xDescServ ?? '-', 1297),
+                'descricao' => $this->fmt->limit(
+                    $cServ?->xDescServ ?? '-',
+                    $this->descricaoCap(mb_strlen($serv?->infoCompl?->xInfComp ?? ''))
+                ),
             ],
 
             // ===== Bloco 7: Tributação Municipal (ISSQN) =====
@@ -437,16 +440,47 @@ class DanfseTemplate
             // ===== Bloco 11: Informações Complementares =====
             'informacoes_complementares' => $this->buildInfoComplementares(
                 $serv?->infoCompl?->xInfComp ?? '',
-                $inf?->xOutInf ?? '',
+                $serv?->infoCompl?->docRef ?? '',
+                $serv?->infoCompl?->idDocTec ?? '',
+                $serv?->infoCompl?->xPed ?? '',
+                $serv?->infoCompl?->gItemPed?->xItemPed ?? [],
+                $this->resolveXOutInf($inf?->xOutInf ?? '', $valoresNfse?->xOutInf ?? ''),
                 $totTribValores,
                 $infDps?->subst?->chSubstda ?? '',
                 $isSubstituida,
-                $ibscbsDps?->gRefNFSe?->refNFSe ?? '',
                 $serv?->obra?->cObra ?? '',
                 $serv?->obra?->inscImobFisc ?? '',
                 $serv?->atvEvento?->idAtvEvt ?? '',
+                mb_strlen($cServ?->xDescServ ?? ''),
+                mb_strlen($serv?->infoCompl?->xInfComp ?? ''),
             ),
         ];
+    }
+
+    /**
+     * Resolve `xOutInf` considerando tanto o caminho oficial
+     * (`NFSe/infNFSe/xOutInf`, NT 008) quanto o caminho alternativo usado por
+     * alguns emissores que aninham em `valores/xOutInf`. Mantém o valor
+     * do caminho oficial quando ele existe; cai para o alternativo apenas
+     * se o oficial estiver vazio.
+     */
+    private function resolveXOutInf(string $canonical, string $fallback): string
+    {
+        return $canonical !== '' ? $canonical : $fallback;
+    }
+
+    /**
+     * Teto efetivo da Descrição do Serviço (xDescServ) para a página.
+     * NT 008 §2.4.5 fixa o limite do campo em 1297 chars; aqui aplicamos
+     * truncamento visual coordenado com `xInfComp` para garantir página
+     * única (NT 008 §2.2). Quando o emitente preenche os dois campos com
+     * textos longos (cenário típico de prestadores que repetem a base legal
+     * em ambos), reduzimos o teto para caber na altura disponível do
+     * bloco 6 — a perda fica visível com reticências.
+     */
+    private function descricaoCap(int $xInfCompLength): int
+    {
+        return $xInfCompLength > 500 ? 400 : 1297;
     }
 
     /**
@@ -471,17 +505,29 @@ class DanfseTemplate
      *   Inf. Cont.: | NFS-e Subst.: | Doc. Ref.: | Cod. Obra: / Insc. Imob.:
      *   | Cod. Evt.: | Doc. Tec.: | Núm. Ped.: | Item Ped.: | Inf. A. T. Mun.:
      *   | Totais Aproximados ...
+     *
+     * O truncamento é coordenado com o tamanho da Descrição do Serviço
+     * (xDescServ) para garantir página única (NT 008 §2.2): quando o emitente
+     * preenche tanto xDescServ quanto xInfComp com textos longos (cenário
+     * típico dos prestadores com base legal repetida em ambos os campos),
+     * o orçamento do corpo é reduzido para que a soma visual não estoure
+     * a altura disponível do bloco 11.
      */
     private function buildInfoComplementares(
         string $xInfComp,
+        string $docRef,
+        string $idDocTec,
+        string $xPed,
+        array $xItemPed,
         string $xOutInf,
         array $totaisTributos,
         string $chSubstda,
         bool $isSubstituida,
-        string $docRef,
         string $codObra,
         string $inscImob,
         string $codEvt,
+        int $xDescServLength,
+        int $xInfCompLength,
     ): string {
         $partes = [];
         if ($xInfComp !== '') {
@@ -502,6 +548,15 @@ class DanfseTemplate
         if ($codEvt !== '') {
             $partes[] = 'Cod. Evt.: ' . $codEvt;
         }
+        if ($idDocTec !== '') {
+            $partes[] = 'Doc. Tec.: ' . $idDocTec;
+        }
+        if ($xPed !== '') {
+            $partes[] = 'Núm. Ped.: ' . $xPed;
+        }
+        if ($xItemPed !== []) {
+            $partes[] = 'Item Ped.: ' . implode(', ', $xItemPed);
+        }
         if ($xOutInf !== '') {
             $partes[] = 'Inf. A. T. Mun.: ' . $xOutInf;
         }
@@ -513,10 +568,20 @@ class DanfseTemplate
 
         // Trunca o corpo (sem a linha de totais) preservando a linha final.
         $body = $partes ? implode(' | ', $partes) : '';
-        $bodyBudget = 1997 - mb_strlen($totaisLine) - ($body !== '' ? 3 : 0); // 3 chars do separador " | "
-        if ($bodyBudget < 0) {
-            $bodyBudget = 0;
+        $nt008Cap = 1997 - mb_strlen($totaisLine) - ($body !== '' ? 3 : 0);
+        if ($nt008Cap < 0) {
+            $nt008Cap = 0;
         }
+        // Truncamento coordenado com xDescServ: quando ambos os campos
+        // (Descrição do Serviço e Inf. Complementares) trazem textos longos
+        // — cenário típico de prestadores com base legal repetida em ambos
+        // os campos — reduzimos o orçamento do corpo para preservar página
+        // única (NT 008 §2.2). A perda fica visível com reticências.
+        $coordinatedCap = $nt008Cap;
+        if ($xDescServLength > 500 && $xInfCompLength > 500) {
+            $coordinatedCap = min($coordinatedCap, 500);
+        }
+        $bodyBudget = max(0, $coordinatedCap);
         if ($body !== '' && mb_strlen($body) > $bodyBudget) {
             $body = mb_substr($body, 0, max(0, $bodyBudget - 3)) . '...';
         }

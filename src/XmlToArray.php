@@ -7,11 +7,32 @@ namespace DanfseNacional;
  *
  * Trata namespaces automaticamente e exclui elementos de assinatura digital.
  * Atributos XML (como Id) são incluídos como chaves regulares do array.
+ *
+ * Elementos com cardinalidade repetível (1-N ou 0-N no leiaute NT 008/009)
+ * são sempre materializados como array indexado, mesmo quando há uma única
+ * ocorrência — assim o mapeamento para `list<Foo>` no DTO é estável.
  */
 class XmlToArray
 {
     private const NFSE_NS = 'http://www.sped.fazenda.gov.br/nfse';
     private const SIG_NS = 'http://www.w3.org/2000/09/xmldsig#';
+
+    /**
+     * Elementos repetíveis do leiaute. Para esses nomes, o parser retorna
+     * sempre uma lista numericamente indexada, mesmo que só exista um
+     * elemento — o consumidor (Valinor + DTOs `list<Foo>`) exige esse
+     * formato estável. Mantido como set local para evitar acoplar o
+     * conversor a todos os DTOs.
+     */
+    private const REPEATABLE_ELEMENTS = [
+        'xItemPed',
+        'refNFSe',
+        'docAjusteBC',
+        'docDedRed',
+        'bensMoveis',
+        'gUnidImob',
+        'gAjusteBCLocImoveis',
+    ];
 
     public function convert(string $xml): array
     {
@@ -40,14 +61,26 @@ class XmlToArray
             $attrCount++;
         }
 
-        // Processa filhos no namespace NFS-e
+        // Processa filhos no namespace NFS-e, agrupando por nome para
+        // identificar elementos repetíveis sem perder ocorrências.
         $childCount = 0;
+        $byName = [];
         foreach ($node->children(self::NFSE_NS) as $name => $child) {
-            $result[(string) $name] = $this->nodeToArray($child);
+            $name = (string) $name;
+            $byName[$name][] = $this->nodeToArray($child);
             $childCount++;
         }
 
-        // Fallback: tenta filhos sem namespace (compatibilidade com XMLs alternativos)
+        foreach ($byName as $name => $values) {
+            if (in_array($name, self::REPEATABLE_ELEMENTS, true)) {
+                $result[$name] = array_values($values);
+            } else {
+                $result[$name] = $values[count($values) - 1];
+            }
+        }
+
+        // Fallback: tenta filhos sem namespace (compatibilidade com XMLs
+        // alternativos). Mantém comportamento histórico: primeira ocorrência.
         if ($childCount === 0) {
             foreach ($node->children() as $name => $child) {
                 $name = (string) $name;

@@ -351,7 +351,7 @@ NFSe
 │   ├── emit (Emitente)
 │   │   └── enderNac (EnderecoEmitente)
 │   ├── valores (ValoresNFSe)
-│   │   ├── vBC, vISSQN, vLiq ...
+│   │   ├── vBC, vISSQN, vLiq, vCalcDR, xOutInf
 │   │   └── (v2.0) vCalcAjusteBCISSQN, tpBM, vCalcBM
 │   ├── IBSCBS [v2.0] (IBSCBS)
 │   │   ├── valores (IBSCBSValores)
@@ -376,14 +376,20 @@ NFSe
 │           │   ├── locPrest (LocPrest)
 │           │   ├── cServ (CServ)
 │           │   │   └── cAtvSN [v2.0]
+│           │   ├── infoCompl (InfoCompl)
+│           │   │   ├── xInfComp, docRef, idDocTec, xPed
+│           │   │   └── gItemPed (GItemPed) — list<string> xItemPed
 │           │   ├── comExt [v2.0]
 │           │   ├── obra [v2.0]
 │           │   └── atvEvento [v2.0]
 │           ├── valores (Valores)
 │           │   ├── vServPrest (VServPrest)
 │           │   ├── vDescCondIncond (VDescCondIncond) — vDescIncond, vDescCond
+│           │   ├── vAjusteBC (VAjusteBC)
+│           │   │   ├── pAjusteBCISSQN, vAjusteBCISSQN [NT 009]
+│           │   │   └── pDR, vDR [NT 008 retrocompat]
 │           │   └── trib (Tributacao)
-│           │       ├── tribMun (TribMunicipal)
+│           │       ├── tribMun (TribMunicipal) — tpImunidade
 │           │       ├── tribFed (TribFederal)
 │           │       │   └── piscofins (PisCofins)
 │           │       └── totTrib (TotTrib)
@@ -399,6 +405,45 @@ NFSe
 Todos os campos opcionais no esquema da NFS-e são representados como
 propriedades `nullable` ou com valor padrão de string vazia, portanto o acesso
 nunca lança exceções por campo ausente.
+
+### Compatibilidade entre versões do leiaute
+
+A lib parseia tanto XMLs NT 008 (`DPS versao="1.00"`) quanto NT 009
+(`DPS versao="1.01"`). As renomeações da Reforma Tributária são absorvidas
+em um único DTO:
+
+- `vDedRed` (NT 008) é espelhado em `Valores::vAjusteBC::$pDR/$vDR`
+- `vAjusteBC` (NT 009) é exposto em `Valores::vAjusteBC::$pAjusteBCISSQN/$vAjusteBCISSQN`
+- `xOutInf` no caminho `infNFSe/valores/xOutInf` (variante encontrada em
+  alguns emissores) é lido como fallback do caminho canônico
+  `infNFSe/xOutInf`
+
+> **Limitação conhecida — `documentos/docDedRed` e `documentos/docAjusteBC`**
+> ainda não são parseados na 2.0.0: o leiaute permite 1-1000 ocorrências com
+> choice groups internos (chNFSe, chNFe, NFSeMun, NFNFS, nDocFisc, nDoc,
+> tpDedRed etc.), e nenhum XML real testado até o momento traz esse grupo.
+> Quando uma NFS-e real trouxer `vDedRed/documentos` ou
+> `vAjusteBC/documentos`, o grupo será adicionado sem breaking change.
+
+### Breaking change 2.0.0
+
+- `DanfseNacional\Dto\TribMunicipal::$tipoImunidade` foi renomeada para
+  `$tpImunidade` para casar com o nome XML oficial (`.../tribMun/tpImunidade`,
+  NT 008 §2.4.5). Migração:
+
+  ```php
+  // Antes (1.x)
+  $imunidade = $tribMun->tipoImunidade;
+
+  // Depois (2.0.0)
+  $imunidade = $tribMun->tpImunidade;
+  ```
+
+  O valor era descartado silenciosamente antes da correção (a chave XML
+  não casava com o nome da propriedade, e `allowSuperfluousKeys` ignorava);
+  nenhum consumidor estava acoplado ao nome antigo em condições normais.
+  NFS-e com `tpImunidade` informado agora passam a renderizar corretamente
+  o rótulo "Tipo de Imunidade do ISSQN" no bloco 7.
 
 ---
 

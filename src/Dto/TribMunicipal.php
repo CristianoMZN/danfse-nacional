@@ -14,7 +14,7 @@ readonly class TribMunicipal
         public string $vDescIncond = '',
         public string $vDeducao = '',
         public string $vOutDed = '',
-        public string $tipoImunidade = '',
+        public string $tpImunidade = '',
         public string $suspExigibilidade = '',
         public string $nProcessoSuspensao = '',
         public string $beneficioMunicipal = '',
