@@ -6,4 +6,10 @@ composer.lock
 # Saídas geradas pelos testes
 tests/output/*
 
+# Fixtures locais de teste (XMLs cujo prestador/tomador não autorizou divulgação
+# no repo público). Cada desenvolvedor pode colocar aqui seus próprios XMLs;
+# o realXmlProvider() e o test_batch_generation_all_xmls varrem o diretório
+# em paralelo a tests/xmls/ (com override por basename).
+tests/xmls.local/
+
 .docs

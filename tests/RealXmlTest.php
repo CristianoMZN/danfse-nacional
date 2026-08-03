@@ -22,13 +22,19 @@ class RealXmlTest extends TestCase
 
     public static function realXmlProvider(): array
     {
-        $dir = __DIR__ . '/xmls';
-        $files = glob($dir . '/*.xml');
-
         $cases = [];
-        foreach ($files as $file) {
-            $basename = basename($file, '.xml');
-            $cases[$basename] = [$file];
+        $dirs = [
+            __DIR__ . '/xmls',
+            __DIR__ . '/xmls.local',
+        ];
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                continue;
+            }
+            foreach (glob($dir . '/*.xml') as $file) {
+                $basename = basename($file, '.xml');
+                $cases[$basename] = [$file];
+            }
         }
 
         return $cases;
@@ -238,6 +244,7 @@ class RealXmlTest extends TestCase
     {
         $dirs = [
             __DIR__ . '/xmls',
+            __DIR__ . '/xmls.local',
             __DIR__ . '/../schemas',
             __DIR__ . '/../examples',
         ];

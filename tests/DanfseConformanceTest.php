@@ -589,57 +589,58 @@ class DanfseConformanceTest extends TestCase
 
     public function test_info_compl_doc_ref_renderizado_em_informacoes_complementares(): void
     {
-        $xmlPath = __DIR__ . '/xmls/33045572266693944000108000000000000426055425179219.xml';
-        $xml = (string) file_get_contents($xmlPath);
-        $this->assertNotFalse($xml, "Fixture com docRef não encontrada em {$xmlPath}");
+        $xml = $this->syntheticInfoComplXml('<docRef>CHAVE-DOC-REF-001</docRef>');
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xml);
         $data = (new DanfseTemplate())->buildData($nfse);
 
         $this->assertNotNull($nfse->infNFSe->DPS->infDPS->serv->infoCompl);
-        $this->assertNotEmpty($nfse->infNFSe->DPS->infDPS->serv->infoCompl->docRef);
-        $this->assertStringContainsString('Doc. Ref.:', $data['informacoes_complementares']);
+        $this->assertSame('CHAVE-DOC-REF-001', $nfse->infNFSe->DPS->infDPS->serv->infoCompl->docRef);
+        $this->assertStringContainsString('Doc. Ref.: CHAVE-DOC-REF-001', $data['informacoes_complementares']);
     }
 
     public function test_info_compl_id_doc_tec_renderizado_em_informacoes_complementares(): void
     {
-        $xmlPath = __DIR__ . '/xmls/43118092208078940000105000000000039326030573772545.xml';
-        $xml = (string) file_get_contents($xmlPath);
-        $this->assertNotFalse($xml);
+        $xml = $this->syntheticInfoComplXml('<idDocTec>ART-12345</idDocTec>');
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xml);
         $data = (new DanfseTemplate())->buildData($nfse);
 
-        $this->assertNotEmpty($nfse->infNFSe->DPS->infDPS->serv->infoCompl->idDocTec);
-        $this->assertStringContainsString('Doc. Tec.:', $data['informacoes_complementares']);
+        $this->assertSame('ART-12345', $nfse->infNFSe->DPS->infDPS->serv->infoCompl->idDocTec);
+        $this->assertStringContainsString('Doc. Tec.: ART-12345', $data['informacoes_complementares']);
     }
 
     public function test_info_compl_x_ped_e_g_item_ped_renderizados(): void
     {
-        $xmlPath = __DIR__ . '/xmls/43118092213517831000187000000000001826017799558070.xml';
-        $xml = (string) file_get_contents($xmlPath);
-        $this->assertNotFalse($xml);
+        $xml = $this->syntheticInfoComplXml(
+            '<xPed>PED-2026-001</xPed>'
+            . '<gItemPed><xItemPed>ITEM-A</xItemPed></gItemPed>'
+        );
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xml);
         $data = (new DanfseTemplate())->buildData($nfse);
 
-        $this->assertNotEmpty($nfse->infNFSe->DPS->infDPS->serv->infoCompl->xPed);
-        $this->assertStringContainsString('Núm. Ped.:', $data['informacoes_complementares']);
+        $this->assertSame('PED-2026-001', $nfse->infNFSe->DPS->infDPS->serv->infoCompl->xPed);
+        $this->assertStringContainsString('Núm. Ped.: PED-2026-001', $data['informacoes_complementares']);
 
         $gItemPed = $nfse->infNFSe->DPS->infDPS->serv->infoCompl->gItemPed;
         $this->assertNotNull($gItemPed);
-        $this->assertNotEmpty($gItemPed->xItemPed);
-        $this->assertStringContainsString('Item Ped.:', $data['informacoes_complementares']);
+        $this->assertSame(['ITEM-A'], $gItemPed->xItemPed);
+        $this->assertStringContainsString('Item Ped.: ITEM-A', $data['informacoes_complementares']);
     }
 
     public function test_x_item_ped_multiplos_preservados_e_concatenados(): void
     {
-        $xmlPath = __DIR__ . '/xmls/42054072230655874000148000000009628626068637470613.xml';
-        $xml = (string) file_get_contents($xmlPath);
-        $this->assertNotFalse($xml);
+        $xml = $this->syntheticInfoComplXml(
+            '<gItemPed>'
+            . '<xItemPed>Umbler:AAAA</xItemPed>'
+            . '<xItemPed>Umbler:BBBB</xItemPed>'
+            . '<xItemPed>Umbler:CCCC</xItemPed>'
+            . '</gItemPed>'
+        );
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xml);
@@ -647,7 +648,7 @@ class DanfseConformanceTest extends TestCase
 
         $gItemPed = $nfse->infNFSe->DPS->infDPS->serv->infoCompl->gItemPed;
         $this->assertNotNull($gItemPed);
-        $this->assertCount(3, $gItemPed->xItemPed);
+        $this->assertSame(['Umbler:AAAA', 'Umbler:BBBB', 'Umbler:CCCC'], $gItemPed->xItemPed);
 
         $posItem = strpos($data['informacoes_complementares'], 'Item Ped.:');
         $this->assertNotFalse($posItem, 'Item Ped. deve estar presente');
@@ -661,9 +662,22 @@ class DanfseConformanceTest extends TestCase
 
     public function test_tp_imunidade_renderizado_a_partir_do_xml(): void
     {
-        $xmlPath = __DIR__ . '/xmls/43149022287112736000130000000001723826076032970176.xml';
-        $xml = (string) file_get_contents($xmlPath);
-        $this->assertNotFalse($xml);
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'
+            . '<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.01">'
+            . '<infNFSe Id="NFS43149022222222222000179000000000000026010000000001">'
+            . '<nNFSe>1</nNFSe>'
+            . '<DPS versao="1.01"><infDPS Id="DPS43149022222222222000179000000000000000001">'
+            . '<tpAmb>1</tpAmb><dhEmi>2026-08-01T10:00:00-03:00</dhEmi><verAplic>Test</verAplic>'
+            . '<serie>1</serie><nDPS>1</nDPS><dCompet>2026-08-01</dCompet><tpEmit>1</tpEmit><cLocEmi>4314902</cLocEmi>'
+            . '<prest><CNPJ>22222222000179</CNPJ></prest>'
+            . '<serv><locPrest><cLocPrestacao>4314902</cLocPrestacao></locPrest>'
+            . '<cServ><cTribNac>010101</cTribNac><xDescServ>Servico</xDescServ></cServ></serv>'
+            . '<valores><vServPrest><vServ>100.00</vServ></vServPrest>'
+            . '<trib><tribMun>'
+            . '<tribISSQN>2</tribISSQN><tpRetISSQN>1</tpRetISSQN>'
+            . '<tpImunidade>3</tpImunidade>'
+            . '</tribMun></trib>'
+            . '</valores></infDPS></DPS></infNFSe></NFSe>';
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xml);
@@ -683,12 +697,10 @@ class DanfseConformanceTest extends TestCase
 
     public function test_pagina_unica_para_xml_com_xinfcomp_longo(): void
     {
-        $xmlPath = __DIR__ . '/xmls/43149022287112736000130000000001282026051811631760.xml';
-        $xml = (string) file_get_contents($xmlPath);
-        $this->assertNotFalse($xml);
+        $longText = str_repeat('PRESTACAO DE SERVICOS COM BASE LEGAL REPETIDA ', 30);
+        $xml = $this->syntheticInfoComplXml("<xInfComp>{$longText}</xInfComp>");
 
         $generator = new DanfseGenerator();
-
         $pdf = $generator->generateFromXml($xml);
         $this->assertStringStartsWith('%PDF-', $pdf);
 
@@ -704,15 +716,52 @@ class DanfseConformanceTest extends TestCase
 
     public function test_v_ded_red_grupo_parseado_para_retrocompat_nt008(): void
     {
-        $xmlPath = __DIR__ . '/xmls/31062001214422279000106220000003714622126210907650.xml';
-        $xml = (string) file_get_contents($xmlPath);
-        $this->assertNotFalse($xml);
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'
+            . '<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.00">'
+            . '<infNFSe Id="NFS31062001222222222000179000000000000026010000000001">'
+            . '<nNFSe>1</nNFSe>'
+            . '<DPS versao="1.00"><infDPS Id="DPS31062001222222222000179000000000000000001">'
+            . '<tpAmb>1</tpAmb><dhEmi>2026-08-01T10:00:00-03:00</dhEmi><verAplic>Test</verAplic>'
+            . '<serie>1</serie><nDPS>1</nDPS><dCompet>2026-08-01</dCompet><tpEmit>1</tpEmit><cLocEmi>3106200</cLocEmi>'
+            . '<prest><CNPJ>22222222000179</CNPJ></prest>'
+            . '<serv><locPrest><cLocPrestacao>3106200</cLocPrestacao></locPrest>'
+            . '<cServ><cTribNac>010101</cTribNac><xDescServ>Servico</xDescServ></cServ></serv>'
+            . '<valores>'
+            . '<vServPrest><vServ>500.00</vServ></vServPrest>'
+            . '<vDedRed><pDR>10.00</pDR><vDR>50.00</vDR></vDedRed>'
+            . '<trib><tribMun><tribISSQN>1</tribISSQN><tpRetISSQN>1</tpRetISSQN></tribMun></trib>'
+            . '</valores></infDPS></DPS></infNFSe></NFSe>';
 
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xml);
 
         $vAjusteBC = $nfse->infNFSe->DPS->infDPS->valores->vAjusteBC;
         $this->assertNotNull($vAjusteBC, 'vDedRed (NT 008) deve ser parseado em vAjusteBC (NT 009)');
-        $this->assertSame('0.00', $vAjusteBC->vDR, 'vDR (NT 008) deve ser espelhado no DTO');
+        $this->assertSame('10.00', $vAjusteBC->pDR, 'pDR (NT 008) deve ser espelhado no DTO');
+        $this->assertSame('50.00', $vAjusteBC->vDR, 'vDR (NT 008) deve ser espelhado no DTO');
+    }
+
+    /**
+     * Constrói um XML sintético mínimo com o bloco `<infoCompl>` contendo
+     * o conteúdo passado. Usado pelos testes de regressão das sub-tags
+     * do leiaute NT 008 que não dependem de fixtures reais.
+     */
+    private function syntheticInfoComplXml(string $infoComplInner): string
+    {
+        return '<?xml version="1.0" encoding="utf-8"?>'
+            . '<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.01">'
+            . '<infNFSe Id="NFS43149022222222222000179000000000000026010000000001">'
+            . '<nNFSe>1</nNFSe>'
+            . '<DPS versao="1.01"><infDPS Id="DPS43149022222222222000179000000000000000001">'
+            . '<tpAmb>1</tpAmb><dhEmi>2026-08-01T10:00:00-03:00</dhEmi><verAplic>Test</verAplic>'
+            . '<serie>1</serie><nDPS>1</nDPS><dCompet>2026-08-01</dCompet><tpEmit>1</tpEmit><cLocEmi>4314902</cLocEmi>'
+            . '<prest><CNPJ>22222222000179</CNPJ></prest>'
+            . '<serv><locPrest><cLocPrestacao>4314902</cLocPrestacao></locPrest>'
+            . '<cServ><cTribNac>010101</cTribNac><xDescServ>Servico</xDescServ></cServ>'
+            . '<infoCompl>' . $infoComplInner . '</infoCompl>'
+            . '</serv>'
+            . '<valores><vServPrest><vServ>100.00</vServ></vServPrest>'
+            . '<trib><tribMun><tribISSQN>1</tribISSQN><tpRetISSQN>1</tpRetISSQN></tribMun></trib>'
+            . '</valores></infDPS></DPS></infNFSe></NFSe>';
     }
 }

@@ -513,3 +513,17 @@ para a geração do QR Code de consulta pública.
 composer install
 ./vendor/bin/phpunit
 ```
+
+### Fixtures de teste
+
+A `realXmlProvider()` e o teste `test_batch_generation_all_xmls` varrem
+dois diretórios:
+
+- `tests/xmls/` — fixtures **públicas** (NFS-e reais cujo emissor/tomador
+  autorizou divulgação; versionadas no repo).
+- `tests/xmls.local/` — fixtures **privadas** (gitignored; cada
+  desenvolvedor pode colocar aqui XMLs reais cujo conteúdo não deve
+  ir para o repo público).
+
+Quando o basename coincide, a versão em `xmls.local/` **sobrescreve** a
+de `xmls/`. Detalhes e exemplos em `tests/xmls.local/README.md`.

@@ -99,6 +99,12 @@ da tabela em `references/field_specification.md` da skill
 Respeitar o `.gitignore` (risco real de vazar ou poluir o repo):
 - `vendor/`, `composer.lock`
 - `tests/output/*` — PDFs gerados pelos testes
+- `tests/xmls.local/` — fixtures de teste **privadas** (XMLs reais cujo
+  prestador/tomador não autorizou divulgação no repo público). Cada
+  desenvolvedor pode popular este diretório localmente; ele é varido em
+  paralelo a `tests/xmls/` tanto pelo `realXmlProvider()` quanto pelo
+  `test_batch_generation_all_xmls` (override por basename). Detalhes em
+  `tests/xmls.local/README.md`.
 - `anex` — item solto no `.gitignore`
 
 Os XMLs de exemplo em `examples/` e os fixtures em `tests/xmls/`
