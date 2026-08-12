@@ -12,7 +12,7 @@ A biblioteca segue o modelo do **Anexo I da NT 008/2026** (SE/CGNFS-e) e absorve
 ## Layout do DANFSe
 
 - Impressão em página única, A4 retrato, margens 0,15–0,20 cm.
-- Fontes: Arial para títulos/labels e Microsoft Sans Serif para conteúdo, com os tamanhos mínimos da norma (9pt cabeçalho, 8pt município, 7pt conteúdo, 6pt labels e rodapé do QR). Arial e Microsoft Sans Serif são proprietárias; a biblioteca distribui [Liberation Sans e DejaVu Sans](templates-fontes.html) como equivalentes métricos.
+- Fontes: Arial para títulos/labels e Microsoft Sans Serif para conteúdo, com os tamanhos mínimos da norma (9pt cabeçalho, 8pt município, 7pt conteúdo, 6pt labels e rodapé do QR). Arial e Microsoft Sans Serif são proprietárias; a biblioteca distribui [Liberation Sans e DejaVu Sans]({{ '/templates-fontes.html' | relative_url }}) como equivalentes métricos.
 - Sombreamento cinza K5 (~`#F2F2F2`) no cabeçalho, títulos de bloco e nos campos "Emitente da NFS-e" e "Valor Líquido da NFS-e + IBS/CBS".
 - Linhas divisórias 0,5 pt; borda da página 1 pt.
 - QR Code de consulta pública apontando para
@@ -71,5 +71,5 @@ O XML v1.01 pode ou não trazer o grupo `IBSCBS`. Quando presente, a biblioteca 
 
 ## Próximos passos
 
-- [Templates, fontes e limites normativos](templates-fontes.html)
-- [Breaking changes entre versões](breaking-changes.html)
+- [Templates, fontes e limites normativos]({{ '/templates-fontes.html' | relative_url }})
+- [Breaking changes entre versões]({{ '/breaking-changes.html' | relative_url }})

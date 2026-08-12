@@ -19,16 +19,16 @@ Sem dependência de framework: PHP puro, Laravel, Symfony, Cake ou qualquer outr
 
 ## Próximos passos
 
-- [Instalação e requisitos](instalacao.html)
-- [Uso rápido — o primeiro PDF em 30 segundos](uso-rapido.html)
-- [Conformidade com NT 008/2026 e NT 009/2026](conformidade.html)
-- [Parser XML — `XmlToArray` e `parseXml`](parser-xml.html)
-- [Referência completa de DTOs](dtos.html)
-- [Customização — logos, `DanfseConfig`, `MunicipalityBranding`, canhoto](customizacao.html)
-- [Visualizador HTML](visualizador-html.html)
-- [Templates, fontes e limites normativos](templates-fontes.html)
-- [Breaking changes entre versões](breaking-changes.html)
-- [Testes e fixtures](testes.html)
+- [Instalação e requisitos]({{ '/instalacao.html' | relative_url }})
+- [Uso rápido — o primeiro PDF em 30 segundos]({{ '/uso-rapido.html' | relative_url }})
+- [Conformidade com NT 008/2026 e NT 009/2026]({{ '/conformidade.html' | relative_url }})
+- [Parser XML — `XmlToArray` e `parseXml`]({{ '/parser-xml.html' | relative_url }})
+- [Referência completa de DTOs]({{ '/dtos.html' | relative_url }})
+- [Customização — logos, `DanfseConfig`, `MunicipalityBranding`, canhoto]({{ '/customizacao.html' | relative_url }})
+- [Visualizador HTML]({{ '/visualizador-html.html' | relative_url }})
+- [Templates, fontes e limites normativos]({{ '/templates-fontes.html' | relative_url }})
+- [Breaking changes entre versões]({{ '/breaking-changes.html' | relative_url }})
+- [Testes e fixtures]({{ '/testes.html' | relative_url }})
 
 ## Repositório e issues
 

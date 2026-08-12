@@ -40,4 +40,4 @@ A saída deve listar o pacote, a versão instalada e a relação de dependência
 
 ## Próximos passos
 
-- [Uso rápido — gerar o primeiro PDF](uso-rapido.html)
+- [Uso rápido — gerar o primeiro PDF]({{ '/uso-rapido.html' | relative_url }})

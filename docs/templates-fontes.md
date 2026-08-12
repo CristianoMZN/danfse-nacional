@@ -46,5 +46,5 @@ Truncamentos aplicados conforme tabela 2.4.5, preservando reticências quando o 
 
 ## Próximos passos
 
-- [Conformidade com NT 008/2026 e NT 009/2026](conformidade.html)
-- [Visualizador HTML](visualizador-html.html)
+- [Conformidade com NT 008/2026 e NT 009/2026]({{ '/conformidade.html' | relative_url }})
+- [Visualizador HTML]({{ '/visualizador-html.html' | relative_url }})

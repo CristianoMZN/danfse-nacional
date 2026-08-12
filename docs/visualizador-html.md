@@ -42,5 +42,5 @@ Abra `http://localhost:8000/?key=<basename-do-xml-em-schemas>` para ver o DANFSe
 
 ## Próximos passos
 
-- [Customização — logos, `DanfseConfig`, `MunicipalityBranding`, canhoto](customizacao.html)
-- [Testes e fixtures](testes.html)
+- [Customização — logos, `DanfseConfig`, `MunicipalityBranding`, canhoto]({{ '/customizacao.html' | relative_url }})
+- [Testes e fixtures]({{ '/testes.html' | relative_url }})

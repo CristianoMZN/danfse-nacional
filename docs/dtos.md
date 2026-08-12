@@ -309,5 +309,5 @@ final readonly class DPS_IBSCBS {
 
 ## Próximos passos
 
-- [Breaking changes entre versões](breaking-changes.html)
-- [Parser XML — origens dos campos](parser-xml.html)
+- [Breaking changes entre versões]({{ '/breaking-changes.html' | relative_url }})
+- [Parser XML — origens dos campos]({{ '/parser-xml.html' | relative_url }})

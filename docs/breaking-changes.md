@@ -35,5 +35,5 @@ O único logo configurável continua sendo o do **ente emitente** (empresa ou br
 
 ## Próximos passos
 
-- [Conformidade com NT 008/2026 e NT 009/2026](conformidade.html)
-- [Customização — logos, `DanfseConfig`, `MunicipalityBranding`, canhoto](customizacao.html)
+- [Conformidade com NT 008/2026 e NT 009/2026]({{ '/conformidade.html' | relative_url }})
+- [Customização — logos, `DanfseConfig`, `MunicipalityBranding`, canhoto]({{ '/customizacao.html' | relative_url }})

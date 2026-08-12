@@ -98,4 +98,4 @@ Quando uma NFS-e real trouxer `vDedRed/documentos` ou `vAjusteBC/documentos`, o 
 
 ## Próximos passos
 
-- [Referência completa de DTOs](dtos.html)
+- [Referência completa de DTOs]({{ '/dtos.html' | relative_url }})

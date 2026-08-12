@@ -119,5 +119,5 @@ final readonly class MunicipalityBranding {
 
 ## Próximos passos
 
-- [Templates, fontes e limites normativos](templates-fontes.html)
-- [Visualizador HTML](visualizador-html.html)
+- [Templates, fontes e limites normativos]({{ '/templates-fontes.html' | relative_url }})
+- [Visualizador HTML]({{ '/visualizador-html.html' | relative_url }})

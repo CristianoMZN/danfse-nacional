@@ -69,7 +69,7 @@ $aliqCBS   = $ibsCbs->valores?->fed?->pAliqEfetCBS;
 $vTotalCBS = $ibsCbs->totCIBS?->gCBS?->vCBS;
 ```
 
-> Veja a [referência completa de DTOs](dtos.html) para a árvore de objetos e tipos.
+> Veja a [referência completa de DTOs]({{ '/dtos.html' | relative_url }}) para a árvore de objetos e tipos.
 
 ## Resposta HTTP direta (PHP puro / Laravel)
 
@@ -90,5 +90,5 @@ return response($pdf, 200, [
 
 ## Próximos passos
 
-- [Customização — logos, canhoto, identificação da prefeitura](customizacao.html)
-- [Parser XML — `XmlToArray` e `parseXml`](parser-xml.html)
+- [Customização — logos, canhoto, identificação da prefeitura]({{ '/customizacao.html' | relative_url }})
+- [Parser XML — `XmlToArray` e `parseXml`]({{ '/parser-xml.html' | relative_url }})
