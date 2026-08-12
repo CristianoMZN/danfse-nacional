@@ -175,18 +175,19 @@ class DanfseTemplate
         $tomadorIdentificado = $toma !== null && ($toma->CNPJ !== '' || $toma->CPF !== '' || $toma->NIF !== '' || $toma->xNome !== '');
 
         // Determina situação do destinatário (NT 008 §2.3.1 e §2.3.2):
-        //   - mesmo_tomador: indDest=1, OU documento coincide com o do tomador,
-        //     OU bloco dest ausente/vazio com tomador identificado (destinatário
-        //     implicitamente é o próprio tomador);
-        //   - nao_identificado: sem dados de destinatário e sem tomador identificado;
+        //   - mesmo_tomador: indDest=0 (declarado na DPS) OU documento do dest
+        //     coincide com o do tomador;
+        //   - nao_identificado: bloco dest ausente/vazio no XML — sem
+        //     indicação explícita no arquivo, a NT 008 §2.1 proíbe afirmar
+        //     que o destinatário é o próprio tomador;
         //   - identificado: bloco de destinatário preenchido com dados próprios.
         $destDoc = $dest?->CNPJ ?: ($dest?->CPF ?: ($dest?->NIF ?: ''));
         $tomaDoc = $toma?->CNPJ ?: ($toma?->CPF ?: ($toma?->NIF ?: ''));
         $destVazio = $dest === null || ($dest->CNPJ === '' && $dest->CPF === '' && $dest->NIF === '' && $dest->xNome === '');
-        if ($indDest === '1' || ($destDoc !== '' && $tomaDoc !== '' && $destDoc === $tomaDoc)) {
+        if ($indDest === '0' || ($destDoc !== '' && $tomaDoc !== '' && $destDoc === $tomaDoc)) {
             $destinatarioSituacao = 'mesmo_tomador';
         } elseif ($destVazio) {
-            $destinatarioSituacao = $tomadorIdentificado ? 'mesmo_tomador' : 'nao_identificado';
+            $destinatarioSituacao = 'nao_identificado';
         } else {
             $destinatarioSituacao = 'identificado';
         }
@@ -205,16 +206,16 @@ class DanfseTemplate
         $vProcesso = $tribMun?->nProcessoSuspensao ?? '';
         $linhaRegimeVazia = $vRegime === '-' && ($vTipoImunidade === '' || $vTipoImunidade === '-') && ($vSuspensao === '' || $vSuspensao === '-') && $vProcesso === '';
 
-        $vBeneficio = $tribMun?->beneficioMunicipal ?? '';
-        $vCalcBM = ($valoresNfse?->tpBM ?? '') !== '' || ($valoresNfse?->vCalcBM ?? '') !== ''
-            ? ($valoresNfse->tpBM ?: '-') . ' / ' . ($valoresNfse->vCalcBM ? $this->fmt->currency($valoresNfse->vCalcBM) : '-')
+        $vBeneficio = $valoresNfse?->tpBM ?? '';
+        $vCalcBM = $valoresNfse?->vCalcBM !== null && $valoresNfse->vCalcBM !== ''
+            ? $this->fmt->currency($valoresNfse->vCalcBM)
             : '-';
         $vTotalDeducoes = $this->sumCurrency(
             $tribMun?->vDeducao ?? '',
             $tribMun?->vOutDed ?? '',
         );
         $vDescIncondTrib = $tribMun?->vDescIncond ? $this->fmt->currency($tribMun->vDescIncond) : '-';
-        $linhaBeneficioVazia = $vBeneficio === '' && ($vCalcBM === '-' || $vCalcBM === '- / -') && $vTotalDeducoes === '-' && $vDescIncondTrib === '-';
+        $linhaBeneficioVazia = $vBeneficio === '' && $vCalcBM === '-' && $vTotalDeducoes === '-' && $vDescIncondTrib === '-';
 
         // Situação da NFS-e (cStat) — nunca usar tpEmis
         $cStatValue = $inf?->cStat ?? '';
@@ -336,7 +337,6 @@ class DanfseTemplate
                     $inf?->cLocIncid ?? '',
                 ),
                 'regime_especial' => $this->fmt->limit($vRegime, 27),
-                'tipo_tributacao_issqn' => $tribMun?->tpTribISSQN ?? '-',
                 'tipo_imunidade' => $this->fmt->limit($vTipoImunidade ?: '-', 37),
                 'suspensao_exigibilidade' => $this->fmt->limit($vSuspensao ?: '-', 37),
                 'num_processo_suspensao' => $vProcesso ?: '-',
@@ -345,10 +345,10 @@ class DanfseTemplate
                 'total_deducoes' => $vTotalDeducoes,
                 'desconto_incondicionado' => $vDescIncondTrib,
                 'valor_servico' => $this->fmt->currency($vServPrest?->vServ ?? ''),
-                'bc_issqn' => $tribMun?->vBC ? $this->fmt->currency($tribMun->vBC) : '-',
-                'aliquota' => $tribMun?->pAliq !== null && $tribMun->pAliq !== '' ? $this->fmt->percent($tribMun->pAliq) : '-',
+                'bc_issqn' => $valoresNfse?->vBC ? $this->fmt->currency($valoresNfse->vBC) : '-',
+                'aliquota' => $valoresNfse?->pAliqAplic !== null && $valoresNfse->pAliqAplic !== '' ? $this->fmt->percent($valoresNfse->pAliqAplic) : '-',
                 'retencao_issqn' => TpRetISSQN::labelFor($tribMun?->tpRetISSQN ?? ''),
-                'issqn_apurado' => $tribMun?->vISSQN ? $this->fmt->currency($tribMun->vISSQN) : '-',
+                'issqn_apurado' => $valoresNfse?->vISSQN ? $this->fmt->currency($valoresNfse->vISSQN) : '-',
             ],
             'suppress_regime_line' => $linhaRegimeVazia,
             'suppress_beneficio_line' => $linhaBeneficioVazia,
@@ -359,17 +359,18 @@ class DanfseTemplate
                 'irrf' => $tribFed?->vRetIRRF ? $this->fmt->currency($tribFed->vRetIRRF) : '-',
                 'cp' => $tribFed?->vRetCP ? $this->fmt->currency($tribFed->vRetCP) : '-',
                 'csll' => $tribFed?->vRetCSLL ? $this->fmt->currency($tribFed->vRetCSLL) : '-',
-                'contrib_sociais' => $this->sumCurrency(
-                    $tribFed?->vRetCSLL ?? '',
-                    $tribFed?->vRetCP ?? '',
-                ),
+                'contrib_sociais' => $tribFed?->vRetCSLL !== null && $tribFed->vRetCSLL !== ''
+                    ? $this->fmt->currency($tribFed->vRetCSLL)
+                    : '-',
                 'desc_contrib_sociais' => TpRetPisCofins::labelFor($tribFed?->piscofins?->tpRetPisCofins ?? ''),
                 'pis' => $tribFed?->piscofins?->vPis ? $this->fmt->currency($tribFed->piscofins->vPis) : '-',
                 'cofins' => $tribFed?->piscofins?->vCofins ? $this->fmt->currency($tribFed->piscofins->vCofins) : '-',
             ],
 
             // ===== Bloco 9: Tributação IBS / CBS =====
-            'ibscbs_has_data' => $ibscbsNfse !== null || $ibscbsDps !== null,
+            // O bloco sempre é renderizado (NT 008 §2.4.5; lista de supressões
+            // permitidas em suppression_rules.md não inclui este bloco);
+            // campos sem informação no XML recebem '-' (Nota 12 §2.4.5).
             'ibs_cbs' => [
                 'cst' => $ibsCbsDpsValores?->CST ?: '-',
                 'c_class_trib' => $ibsCbsDpsValores?->cClassTrib ?: '-',
@@ -378,10 +379,21 @@ class DanfseTemplate
                 'x_localidade_incid' => $ibscbsNfse?->xLocalidadeIncid ?: '-',
                 'c_sigla_uf' => Municipios::uf($ibscbsNfse?->cLocalidadeIncid ?? ''),
 
-                // Exclusões e Reduções da BC — somatório de valores em R$
+                // Exclusões e Reduções da BC — somatório dos termos subtraídos
+                // da BC do IBS/CBS conforme NT 008 §2.4.5 e fórmula da NT 009:
+                //   vBC = vServ - descIncond - vCalcAjusteBCIBSCBS/LocImoveis
+                //         - vISSQN - vPIS - vCOFINS (até 2026)
+                // Os termos subtraídos são exatamente o que entra neste somatório.
+                // PIS/COFINS só compõem até fim de 2026 (Nota 6 §2.4.5).
                 'exclusoes_reducoes' => $this->sumCurrency(
                     $ibsCbsValores?->vCalcAjusteBCIBSCBS ?? '',
                     $ibsCbsValores?->vCalcAjusteBCLocImoveis ?? '',
+                    $valores?->vDescCondIncond?->vDescIncond ?? '',
+                    $valoresNfse?->vISSQN ?? '',
+                    ...($hidePisCofins ? [] : [
+                        $tribFed?->piscofins?->vPis ?? '',
+                        $tribFed?->piscofins?->vCofins ?? '',
+                    ]),
                 ),
 
                 // Percentuais de redução da alíquota
@@ -403,7 +415,12 @@ class DanfseTemplate
                 'valor_ibs_mun' => $vIBSMun !== '' ? $this->fmt->currency($vIBSMun) : '-',
                 'v_ibs_tot' => ($ibsCbsGIBS?->vIBSTot ?? '') !== '' ? $this->fmt->currency($ibsCbsGIBS->vIBSTot) : '-',
                 'valor_cbs' => $vCBS !== '' ? $this->fmt->currency($vCBS) : '-',
-                'total_ibs_cbs' => $ibsCbsTotCIBS?->vTotNF ? $this->fmt->currency($ibsCbsTotCIBS->vTotNF) : '-',
+                // Total do IBS / CBS = vIBSTot + vCBS (NT 008 §2.4.5).
+                // Não confundir com vTotNF (Valor Líquido da NFS-e + IBS/CBS).
+                'total_ibs_cbs' => $this->sumCurrency(
+                    $ibsCbsGIBS?->vIBSTot ?? '',
+                    $ibsCbsGCBS?->vCBS ?? '',
+                ),
             ],
 
             // ===== Bloco 10: Valor Total da NFS-e =====
@@ -417,19 +434,20 @@ class DanfseTemplate
                     $valores?->vDescCondIncond?->vDescIncond ?? '',
                     $tribMun?->vDescIncond ?? '',
                 ),
-                'issqn_retido' => ($tribMun?->vISSQN && ($tribMun?->tpRetISSQN ?? '1') !== '1')
-                    ? $this->fmt->currency($tribMun->vISSQN)
+                'issqn_retido' => ($valoresNfse?->vISSQN && ($tribMun?->tpRetISSQN ?? '1') !== '1')
+                    ? $this->fmt->currency($valoresNfse->vISSQN)
                     : '-',
-                'retencoes_federais' => $this->sumCurrency(
-                    $tribFed?->vRetIRRF ?? '',
-                    $tribFed?->vRetCP ?? '',
-                    $tribFed?->vRetCSLL ?? '',
-                ),
+                'retencoes_federais' => $valoresNfse?->vTotalRet
+                    ? $this->fmt->currency($valoresNfse->vTotalRet)
+                    : '-',
                 'pis_cofins' => $this->sumCurrency(
                     $tribFed?->piscofins?->vPis ?? '',
                     $tribFed?->piscofins?->vCofins ?? '',
                 ),
-                'total_ibs_cbs' => $ibsCbsTotCIBS?->vTotNF ? $this->fmt->currency($ibsCbsTotCIBS->vTotNF) : '-',
+                'total_ibs_cbs' => $this->sumCurrency(
+                    $ibsCbsGIBS?->vIBSTot ?? '',
+                    $ibsCbsGCBS?->vCBS ?? '',
+                ),
                 'valor_liquido' => $this->fmt->currency($valoresNfse?->vLiq ?? ''),
                 'valor_liquido_ibs_cbs' => $ibsCbsTotCIBS?->vTotNF ? $this->fmt->currency($ibsCbsTotCIBS->vTotNF) : $this->fmt->currency($valoresNfse?->vLiq ?? ''),
             ],

@@ -728,8 +728,9 @@
         </table>
     </div>
 
-    <!-- Bloco 9: Tributação IBS / CBS (condicional — NT 008 §2.2.4 e §2.4) -->
-    <?php if (!empty($data['ibscbs_has_data'])): ?>
+    <!-- Bloco 9: Tributação IBS / CBS (sempre renderizado — NT 008 §2.4.5;
+         este bloco não está na lista de supressões permitidas de
+         suppression_rules.md; campos sem dado no XML exibem '-' via Nota 12) -->
     <div class="bordered-section">
         <table>
             <tr>
@@ -809,7 +810,6 @@
             </tr>
         </table>
     </div>
-    <?php endif; ?>
 
     <!-- Bloco 10: Valor Total da NFS-e -->
     <div class="bordered-section">
