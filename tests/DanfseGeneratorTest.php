@@ -145,7 +145,7 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('R$ 0,73', $data['tributacao_federal']['pis']);
         $this->assertSame('R$ 3,36', $data['tributacao_federal']['cofins']);
 
-        $this->assertSame('R$ 44,19', $data['totais']['total_ibs_cbs']);
+        $this->assertSame('R$ 0,39', $data['totais']['total_ibs_cbs']);
         $this->assertSame('R$ 44,19', $data['totais']['valor_liquido_ibs_cbs']);
 
         // Formato oficial (NT 008 Nota 10): "Totais Aproximados dos Tributos cfe.
@@ -253,7 +253,7 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('R$ 0,04', $data['ibs_cbs']['valor_ibs_uf']);
         $this->assertSame('R$ 0,00', $data['ibs_cbs']['valor_ibs_mun']);
         $this->assertSame('R$ 0,35', $data['ibs_cbs']['valor_cbs']);
-        $this->assertSame('R$ 44,19', $data['ibs_cbs']['total_ibs_cbs']);
+        $this->assertSame('R$ 0,39', $data['ibs_cbs']['total_ibs_cbs']);
         $this->assertSame('0,10%', $data['ibs_cbs']['aliquota_ibs_uf']);
         $this->assertSame('0,00%', $data['ibs_cbs']['aliquota_ibs_mun']);
         $this->assertSame('0,90%', $data['ibs_cbs']['aliquota_cbs']);
@@ -273,7 +273,7 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('-', $data['ibs_cbs']['p_red_aliq_cbs']);
         $this->assertSame('R$ 0,04', $data['ibs_cbs']['v_ibs_tot']);
 
-        $this->assertSame('R$ 44,19', $data['totais']['total_ibs_cbs']);
+        $this->assertSame('R$ 0,39', $data['totais']['total_ibs_cbs']);
         $this->assertSame('R$ 44,19', $data['totais']['valor_liquido_ibs_cbs']);
     }
 

@@ -417,7 +417,12 @@ class DanfseTemplate
                 'valor_ibs_mun' => $vIBSMun !== '' ? $this->fmt->currency($vIBSMun) : '-',
                 'v_ibs_tot' => ($ibsCbsGIBS?->vIBSTot ?? '') !== '' ? $this->fmt->currency($ibsCbsGIBS->vIBSTot) : '-',
                 'valor_cbs' => $vCBS !== '' ? $this->fmt->currency($vCBS) : '-',
-                'total_ibs_cbs' => $ibsCbsTotCIBS?->vTotNF ? $this->fmt->currency($ibsCbsTotCIBS->vTotNF) : '-',
+                // Total do IBS / CBS = vIBSTot + vCBS (NT 008 §2.4.5).
+                // Não confundir com vTotNF (Valor Líquido da NFS-e + IBS/CBS).
+                'total_ibs_cbs' => $this->sumCurrency(
+                    $ibsCbsGIBS?->vIBSTot ?? '',
+                    $ibsCbsGCBS?->vCBS ?? '',
+                ),
             ],
 
             // ===== Bloco 10: Valor Total da NFS-e =====
@@ -441,7 +446,10 @@ class DanfseTemplate
                     $tribFed?->piscofins?->vPis ?? '',
                     $tribFed?->piscofins?->vCofins ?? '',
                 ),
-                'total_ibs_cbs' => $ibsCbsTotCIBS?->vTotNF ? $this->fmt->currency($ibsCbsTotCIBS->vTotNF) : '-',
+                'total_ibs_cbs' => $this->sumCurrency(
+                    $ibsCbsGIBS?->vIBSTot ?? '',
+                    $ibsCbsGCBS?->vCBS ?? '',
+                ),
                 'valor_liquido' => $this->fmt->currency($valoresNfse?->vLiq ?? ''),
                 'valor_liquido_ibs_cbs' => $ibsCbsTotCIBS?->vTotNF ? $this->fmt->currency($ibsCbsTotCIBS->vTotNF) : $this->fmt->currency($valoresNfse?->vLiq ?? ''),
             ],
