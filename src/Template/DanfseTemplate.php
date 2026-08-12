@@ -347,7 +347,7 @@ class DanfseTemplate
                 'desconto_incondicionado' => $vDescIncondTrib,
                 'valor_servico' => $this->fmt->currency($vServPrest?->vServ ?? ''),
                 'bc_issqn' => $valoresNfse?->vBC ? $this->fmt->currency($valoresNfse->vBC) : '-',
-                'aliquota' => $tribMun?->pAliq !== null && $tribMun->pAliq !== '' ? $this->fmt->percent($tribMun->pAliq) : '-',
+                'aliquota' => $valoresNfse?->pAliqAplic !== null && $valoresNfse->pAliqAplic !== '' ? $this->fmt->percent($valoresNfse->pAliqAplic) : '-',
                 'retencao_issqn' => TpRetISSQN::labelFor($tribMun?->tpRetISSQN ?? ''),
                 'issqn_apurado' => $valoresNfse?->vISSQN ? $this->fmt->currency($valoresNfse->vISSQN) : '-',
             ],
