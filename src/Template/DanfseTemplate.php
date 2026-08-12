@@ -337,7 +337,6 @@ class DanfseTemplate
                     $inf?->cLocIncid ?? '',
                 ),
                 'regime_especial' => $this->fmt->limit($vRegime, 27),
-                'tipo_tributacao_issqn' => $tribMun?->tpTribISSQN ?? '-',
                 'tipo_imunidade' => $this->fmt->limit($vTipoImunidade ?: '-', 37),
                 'suspensao_exigibilidade' => $this->fmt->limit($vSuspensao ?: '-', 37),
                 'num_processo_suspensao' => $vProcesso ?: '-',
