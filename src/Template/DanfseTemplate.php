@@ -345,10 +345,10 @@ class DanfseTemplate
                 'total_deducoes' => $vTotalDeducoes,
                 'desconto_incondicionado' => $vDescIncondTrib,
                 'valor_servico' => $this->fmt->currency($vServPrest?->vServ ?? ''),
-                'bc_issqn' => $tribMun?->vBC ? $this->fmt->currency($tribMun->vBC) : '-',
+                'bc_issqn' => $valoresNfse?->vBC ? $this->fmt->currency($valoresNfse->vBC) : '-',
                 'aliquota' => $tribMun?->pAliq !== null && $tribMun->pAliq !== '' ? $this->fmt->percent($tribMun->pAliq) : '-',
                 'retencao_issqn' => TpRetISSQN::labelFor($tribMun?->tpRetISSQN ?? ''),
-                'issqn_apurado' => $tribMun?->vISSQN ? $this->fmt->currency($tribMun->vISSQN) : '-',
+                'issqn_apurado' => $valoresNfse?->vISSQN ? $this->fmt->currency($valoresNfse->vISSQN) : '-',
             ],
             'suppress_regime_line' => $linhaRegimeVazia,
             'suppress_beneficio_line' => $linhaBeneficioVazia,
@@ -417,14 +417,12 @@ class DanfseTemplate
                     $valores?->vDescCondIncond?->vDescIncond ?? '',
                     $tribMun?->vDescIncond ?? '',
                 ),
-                'issqn_retido' => ($tribMun?->vISSQN && ($tribMun?->tpRetISSQN ?? '1') !== '1')
-                    ? $this->fmt->currency($tribMun->vISSQN)
+                'issqn_retido' => ($valoresNfse?->vISSQN && ($tribMun?->tpRetISSQN ?? '1') !== '1')
+                    ? $this->fmt->currency($valoresNfse->vISSQN)
                     : '-',
-                'retencoes_federais' => $this->sumCurrency(
-                    $tribFed?->vRetIRRF ?? '',
-                    $tribFed?->vRetCP ?? '',
-                    $tribFed?->vRetCSLL ?? '',
-                ),
+                'retencoes_federais' => $valoresNfse?->vTotalRet
+                    ? $this->fmt->currency($valoresNfse->vTotalRet)
+                    : '-',
                 'pis_cofins' => $this->sumCurrency(
                     $tribFed?->piscofins?->vPis ?? '',
                     $tribFed?->piscofins?->vCofins ?? '',
