@@ -12,7 +12,7 @@ enum CStat: string
     public function label(): string
     {
         return match ($this) {
-            self::AUTORIZADA => 'NFS-e Autorizada',
+            self::AUTORIZADA => 'NFS-e Gerada',
             self::CANCELADA => 'NFS-e Cancelada',
             self::SUBSTITUIDA => 'NFS-e Substituída',
             self::INUTILIZADA => 'NFS-e Inutilizada',

@@ -124,7 +124,7 @@ class DanfseGeneratorTest extends TestCase
         $this->assertSame('São Carlos / SP', $data['municipio_uf']);
         $this->assertSame('Sefin Nacional NFS-e', $data['ambiente_gerador']);
         $this->assertSame('Produção', $data['tipo_ambiente']);
-        $this->assertSame('NFS-e Autorizada', $data['situacao_nfse']);
+        $this->assertSame('NFS-e Gerada', $data['situacao_nfse']);
         $this->assertSame('-', $data['finalidade']);
 
         $this->assertSame('-', $data['emitente']['nif']);
