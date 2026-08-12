@@ -175,18 +175,19 @@ class DanfseTemplate
         $tomadorIdentificado = $toma !== null && ($toma->CNPJ !== '' || $toma->CPF !== '' || $toma->NIF !== '' || $toma->xNome !== '');
 
         // Determina situação do destinatário (NT 008 §2.3.1 e §2.3.2):
-        //   - mesmo_tomador: indDest=1, OU documento coincide com o do tomador,
-        //     OU bloco dest ausente/vazio com tomador identificado (destinatário
-        //     implicitamente é o próprio tomador);
-        //   - nao_identificado: sem dados de destinatário e sem tomador identificado;
+        //   - mesmo_tomador: indDest=0 (declarado na DPS) OU documento do dest
+        //     coincide com o do tomador;
+        //   - nao_identificado: bloco dest ausente/vazio no XML — sem
+        //     indicação explícita no arquivo, a NT 008 §2.1 proíbe afirmar
+        //     que o destinatário é o próprio tomador;
         //   - identificado: bloco de destinatário preenchido com dados próprios.
         $destDoc = $dest?->CNPJ ?: ($dest?->CPF ?: ($dest?->NIF ?: ''));
         $tomaDoc = $toma?->CNPJ ?: ($toma?->CPF ?: ($toma?->NIF ?: ''));
         $destVazio = $dest === null || ($dest->CNPJ === '' && $dest->CPF === '' && $dest->NIF === '' && $dest->xNome === '');
-        if ($indDest === '1' || ($destDoc !== '' && $tomaDoc !== '' && $destDoc === $tomaDoc)) {
+        if ($indDest === '0' || ($destDoc !== '' && $tomaDoc !== '' && $destDoc === $tomaDoc)) {
             $destinatarioSituacao = 'mesmo_tomador';
         } elseif ($destVazio) {
-            $destinatarioSituacao = $tomadorIdentificado ? 'mesmo_tomador' : 'nao_identificado';
+            $destinatarioSituacao = 'nao_identificado';
         } else {
             $destinatarioSituacao = 'identificado';
         }
