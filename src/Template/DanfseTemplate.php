@@ -206,16 +206,16 @@ class DanfseTemplate
         $vProcesso = $tribMun?->nProcessoSuspensao ?? '';
         $linhaRegimeVazia = $vRegime === '-' && ($vTipoImunidade === '' || $vTipoImunidade === '-') && ($vSuspensao === '' || $vSuspensao === '-') && $vProcesso === '';
 
-        $vBeneficio = $tribMun?->beneficioMunicipal ?? '';
-        $vCalcBM = ($valoresNfse?->tpBM ?? '') !== '' || ($valoresNfse?->vCalcBM ?? '') !== ''
-            ? ($valoresNfse->tpBM ?: '-') . ' / ' . ($valoresNfse->vCalcBM ? $this->fmt->currency($valoresNfse->vCalcBM) : '-')
+        $vBeneficio = $valoresNfse?->tpBM ?? '';
+        $vCalcBM = $valoresNfse?->vCalcBM !== null && $valoresNfse->vCalcBM !== ''
+            ? $this->fmt->currency($valoresNfse->vCalcBM)
             : '-';
         $vTotalDeducoes = $this->sumCurrency(
             $tribMun?->vDeducao ?? '',
             $tribMun?->vOutDed ?? '',
         );
         $vDescIncondTrib = $tribMun?->vDescIncond ? $this->fmt->currency($tribMun->vDescIncond) : '-';
-        $linhaBeneficioVazia = $vBeneficio === '' && ($vCalcBM === '-' || $vCalcBM === '- / -') && $vTotalDeducoes === '-' && $vDescIncondTrib === '-';
+        $linhaBeneficioVazia = $vBeneficio === '' && $vCalcBM === '-' && $vTotalDeducoes === '-' && $vDescIncondTrib === '-';
 
         // Situação da NFS-e (cStat) — nunca usar tpEmis
         $cStatValue = $inf?->cStat ?? '';
