@@ -360,10 +360,9 @@ class DanfseTemplate
                 'irrf' => $tribFed?->vRetIRRF ? $this->fmt->currency($tribFed->vRetIRRF) : '-',
                 'cp' => $tribFed?->vRetCP ? $this->fmt->currency($tribFed->vRetCP) : '-',
                 'csll' => $tribFed?->vRetCSLL ? $this->fmt->currency($tribFed->vRetCSLL) : '-',
-                'contrib_sociais' => $this->sumCurrency(
-                    $tribFed?->vRetCSLL ?? '',
-                    $tribFed?->vRetCP ?? '',
-                ),
+                'contrib_sociais' => $tribFed?->vRetCSLL !== null && $tribFed->vRetCSLL !== ''
+                    ? $this->fmt->currency($tribFed->vRetCSLL)
+                    : '-',
                 'desc_contrib_sociais' => TpRetPisCofins::labelFor($tribFed?->piscofins?->tpRetPisCofins ?? ''),
                 'pis' => $tribFed?->piscofins?->vPis ? $this->fmt->currency($tribFed->piscofins->vPis) : '-',
                 'cofins' => $tribFed?->piscofins?->vCofins ? $this->fmt->currency($tribFed->piscofins->vCofins) : '-',
