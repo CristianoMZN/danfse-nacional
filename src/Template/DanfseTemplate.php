@@ -370,7 +370,9 @@ class DanfseTemplate
             ],
 
             // ===== Bloco 9: Tributação IBS / CBS =====
-            'ibscbs_has_data' => $ibscbsNfse !== null || $ibscbsDps !== null,
+            // O bloco sempre é renderizado (NT 008 §2.4.5; lista de supressões
+            // permitidas em suppression_rules.md não inclui este bloco);
+            // campos sem informação no XML recebem '-' (Nota 12 §2.4.5).
             'ibs_cbs' => [
                 'cst' => $ibsCbsDpsValores?->CST ?: '-',
                 'c_class_trib' => $ibsCbsDpsValores?->cClassTrib ?: '-',
@@ -379,10 +381,21 @@ class DanfseTemplate
                 'x_localidade_incid' => $ibscbsNfse?->xLocalidadeIncid ?: '-',
                 'c_sigla_uf' => Municipios::uf($ibscbsNfse?->cLocalidadeIncid ?? ''),
 
-                // Exclusões e Reduções da BC — somatório de valores em R$
+                // Exclusões e Reduções da BC — somatório dos termos subtraídos
+                // da BC do IBS/CBS conforme NT 008 §2.4.5 e fórmula da NT 009:
+                //   vBC = vServ - descIncond - vCalcAjusteBCIBSCBS/LocImoveis
+                //         - vISSQN - vPIS - vCOFINS (até 2026)
+                // Os termos subtraídos são exatamente o que entra neste somatório.
+                // PIS/COFINS só compõem até fim de 2026 (Nota 6 §2.4.5).
                 'exclusoes_reducoes' => $this->sumCurrency(
                     $ibsCbsValores?->vCalcAjusteBCIBSCBS ?? '',
                     $ibsCbsValores?->vCalcAjusteBCLocImoveis ?? '',
+                    $valores?->vDescCondIncond?->vDescIncond ?? '',
+                    $valoresNfse?->vISSQN ?? '',
+                    ...($hidePisCofins ? [] : [
+                        $tribFed?->piscofins?->vPis ?? '',
+                        $tribFed?->piscofins?->vCofins ?? '',
+                    ]),
                 ),
 
                 // Percentuais de redução da alíquota

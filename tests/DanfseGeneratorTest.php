@@ -291,7 +291,7 @@ class DanfseGeneratorTest extends TestCase
 
     // ========== v1.01 sem bloco IBS/CBS ==========
 
-    public function test_renders_without_ibscbs_block(): void
+    public function test_bloco_9_ibscbs_renderizado_mesmo_sem_grupo_no_xml(): void
     {
         $xml = preg_replace(
             '#<IBSCBS>.*?</IBSCBS>#s',
@@ -308,9 +308,8 @@ class DanfseGeneratorTest extends TestCase
         $this->assertNull($nfse->infNFSe->IBSCBS);
         $this->assertNull($nfse->infNFSe->DPS->infDPS->IBSCBS);
 
-        $template = new \DanfseNacional\Template\DanfseTemplate();
-        $data = $template->buildData($nfse);
-        $this->assertFalse($data['ibscbs_has_data']);
+        $html = $generator->generateHtml($nfse);
+        $this->assertStringContainsString('TRIBUTAÇÃO IBS / CBS', $html);
     }
 
     public function test_xml_without_ibscbs_is_loaded_from_fixture(): void

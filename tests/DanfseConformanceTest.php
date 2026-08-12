@@ -373,13 +373,13 @@ class DanfseConformanceTest extends TestCase
         $this->assertMatchesRegularExpression('/\bbody\s*\{[^}]*padding:\s*5pt\s+7pt/s', $html);
     }
 
-    public function test_bloco_ibscbs_omitido_quando_xml_sem_grupo(): void
+    public function test_bloco_ibscbs_renderizado_mesmo_sem_grupo_no_xml(): void
     {
         $xmlSemIb = preg_replace('#<IBSCBS>.*?</IBSCBS>#s', '', $this->xml, 2);
         $generator = new DanfseGenerator();
         $html = $generator->generateHtml($generator->parseXml($xmlSemIb));
 
-        $this->assertStringNotContainsString('TRIBUTAÇÃO IBS / CBS', $html);
+        $this->assertStringContainsString('TRIBUTAÇÃO IBS / CBS', $html);
     }
 
     public function test_bloco_ibscbs_renderizado_quando_xml_tem_grupo(): void
@@ -507,17 +507,15 @@ class DanfseConformanceTest extends TestCase
         }
     }
 
-    public function test_xml_sem_ibscbs_nao_renderiza_bloco_9(): void
+    public function test_bloco_9_ibscbs_renderizado_mesmo_sem_grupo_no_xml(): void
     {
         $xmlSem = preg_replace('#<IBSCBS>.*?</IBSCBS>#s', '', $this->xml, 2);
         $generator = new DanfseGenerator();
         $nfse = $generator->parseXml($xmlSem);
-        $data = (new DanfseTemplate())->buildData($nfse);
-
-        $this->assertFalse($data['ibscbs_has_data']);
 
         $html = $generator->generateHtml($nfse);
-        $this->assertStringNotContainsString('TRIBUTAÇÃO IBS / CBS', $html);
+        $this->assertStringContainsString('TRIBUTAÇÃO IBS / CBS', $html);
+        $this->assertStringContainsString('Exclusões e Reduções da Base de Cálculo', $html);
     }
 
     public function test_campos_vazios_renderizados_como_traco(): void
