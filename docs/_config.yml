@@ -1,0 +1,8 @@
+title: DANFSe Nacional
+description: Biblioteca PHP 8.1+ para geração de DANFSe (PDF), parser tipado do XML e visualizador HTML da NFS-e Nacional 2.0 (NT 008/2026 e NT 009/2026 — IBS/CBS).
+theme: jekyll-theme-cayman
+show_downloads: false
+google_analytics:
+repository: CristianoMZN/danfse-nacional
+baseurl: ""
+url: "https://cristianomzn.github.io"

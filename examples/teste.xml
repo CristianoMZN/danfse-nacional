@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.01">
+<infNFSe Id="NFS21053022211111111000199000000000001126088220928139">
+<xLocEmi>Imperatriz</xLocEmi><xLocPrestacao>Goiânia</xLocPrestacao><nNFSe>11</nNFSe>
+<cLocIncid>5208707</cLocIncid><xLocIncid>Goiânia</xLocIncid>
+<xTribNac>Execução, por administração, de obras de construção civil.</xTribNac>
+<verAplic>SefinNacional_1.6.0</verAplic><ambGer>2</ambGer><tpEmis>1</tpEmis><procEmi>1</procEmi>
+<cStat>100</cStat><dhProc>2026-08-03T18:48:57-03:00</dhProc><nDFSe>1017339</nDFSe>
+<emit><CNPJ>11111111000199</CNPJ><IM>915831</IM><xNome>EMPRESA EXEMPLO CONSTRUCOES LTDA</xNome>
+<enderNac><xLgr>AVENIDA EXEMPLO</xLgr><nro>366</nro><xBairro>CENTRO</xBairro><cMun>2105302</cMun><UF>MA</UF><CEP>65910547</CEP></enderNac>
+<fone>9900000000</fone></emit>
+<valores>
+<vBC>23690.00</vBC><pAliqAplic>2.00</pAliqAplic><vISSQN>473.80</vISSQN>
+<vTotalRet>473.80</vTotalRet><vLiq>23216.20</vLiq>
+</valores>
+<DPS xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.01">
+<infDPS Id="DPS21053022211111111000199000002000000000000002">
+<tpAmb>1</tpAmb><dhEmi>2026-08-03T18:43:57-03:00</dhEmi><verAplic>1.0</verAplic>
+<serie>2</serie><nDPS>2</nDPS><dCompet>2026-08-03</dCompet><tpEmit>1</tpEmit><cLocEmi>2105302</cLocEmi>
+<prest><CNPJ>11111111000199</CNPJ><IM>915831</IM>
+<regTrib><opSimpNac>3</opSimpNac><regApTribSN>1</regApTribSN><regEspTrib>0</regEspTrib></regTrib></prest>
+<toma><CNPJ>22222222000188</CNPJ><xNome>TOMADOR EXEMPLO SPE LTDA</xNome>
+<end><endNac><cMun>5208707</cMun><CEP>74835130</CEP></endNac><xLgr>Rua Exemplo</xLgr><nro>148</nro><xBairro>Centro</xBairro></end></toma>
+<serv><locPrest><cLocPrestacao>5208707</cLocPrestacao></locPrest>
+<cServ><cTribNac>070201</cTribNac><xDescServ>Serviços prestados do mes 08/2026</xDescServ></cServ>
+<obra><end><CEP>74835130</CEP><xLgr>Rua Exemplo</xLgr><nro>148</nro><xBairro>Centro</xBairro></end></obra></serv>
+<valores><vServPrest><vServ>23690.00</vServ></vServPrest>
+<trib><tribMun><tribISSQN>1</tribISSQN><tpRetISSQN>2</tpRetISSQN><pAliq>2.00</pAliq></tribMun>
+<totTrib><pTotTrib><pTotTribFed>0.00</pTotTribFed><pTotTribEst>0.00</pTotTribEst><pTotTribMun>0.00</pTotTribMun></pTotTrib></totTrib></trib></valores>
+</infDPS></DPS>
+</infNFSe></NFSe>

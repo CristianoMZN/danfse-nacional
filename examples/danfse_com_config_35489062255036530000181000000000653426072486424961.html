@@ -316,7 +316,7 @@
                 </td>
                 <td class="table-data">
                     <span class="label">Situação da NFS-e</span>
-                    <span class="value">NFS-e Autorizada</span>
+                    <span class="value">NFS-e Gerada</span>
                 </td>
                 <td class="table-data">
                     <span class="label">Finalidade</span>
@@ -517,11 +517,11 @@
                                     <tr>
                 <td>
                     <span class="label">BC ISSQN</span>
-                    <span class="value">-</span>
+                    <span class="value">R$ 44,19</span>
                 </td>
                 <td>
                     <span class="label">Alíquota Aplicada</span>
-                    <span class="value">-</span>
+                    <span class="value">2,00%</span>
                 </td>
                 <td>
                     <span class="label">Retenção do ISSQN</span>
@@ -529,7 +529,7 @@
                 </td>
                 <td>
                     <span class="label">ISSQN Apurado</span>
-                    <span class="value">-</span>
+                    <span class="value">R$ 0,88</span>
                 </td>
             </tr>
         </table>
@@ -572,8 +572,10 @@
                     </table>
     </div>
 
-    <!-- Bloco 9: Tributação IBS / CBS (condicional — NT 008 §2.2.4 e §2.4) -->
-        <div class="bordered-section">
+    <!-- Bloco 9: Tributação IBS / CBS (sempre renderizado — NT 008 §2.4.5;
+         este bloco não está na lista de supressões permitidas de
+         suppression_rules.md; campos sem dado no XML exibem '-' via Nota 12) -->
+    <div class="bordered-section">
         <table>
             <tr>
                 <td class="section-header table-data">
@@ -593,7 +595,7 @@
             <tr>
                 <td>
                     <span class="label">Exclusões e Reduções da Base de Cálculo</span>
-                    <span class="value">-</span>
+                    <span class="value">R$ 4,97</span>
                 </td>
                 <td>
                     <span class="label">Base de Cálculo Após Exclusões e Reduções</span>
@@ -648,7 +650,7 @@
             </tr>
         </table>
     </div>
-    
+
     <!-- Bloco 10: Valor Total da NFS-e -->
     <div class="bordered-section">
         <table>
@@ -680,7 +682,7 @@
                 </td>
                 <td>
                     <span class="label">Total do IBS / CBS</span>
-                    <span class="value">R$ 44,19</span>
+                    <span class="value">R$ 0,39</span>
                 </td>
                 <td class="highlight-shade">
                     <span class="label">Valor Líquido da NFS-e + IBS/CBS</span>

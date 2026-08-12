@@ -316,7 +316,7 @@
                 </td>
                 <td class="table-data">
                     <span class="label">Situação da NFS-e</span>
-                    <span class="value">NFS-e Autorizada</span>
+                    <span class="value">NFS-e Gerada</span>
                 </td>
                 <td class="table-data">
                     <span class="label">Finalidade</span>
@@ -433,7 +433,7 @@
     <!-- Bloco 4: Destinatário da Operação -->
     <div class="bordered-section">
                 <div class="fixed-text-block">
-            O DESTINATÁRIO É O PRÓPRIO TOMADOR/ADQUIRENTE DA OPERAÇÃO
+            DESTINATÁRIO DA OPERAÇÃO NÃO IDENTIFICADO NA NFS-e
         </div>
             </div>
 
@@ -517,7 +517,7 @@
                                     <tr>
                 <td>
                     <span class="label">BC ISSQN</span>
-                    <span class="value">-</span>
+                    <span class="value">R$ 162,94</span>
                 </td>
                 <td>
                     <span class="label">Alíquota Aplicada</span>
@@ -529,7 +529,7 @@
                 </td>
                 <td>
                     <span class="label">ISSQN Apurado</span>
-                    <span class="value">-</span>
+                    <span class="value">R$ 4,72</span>
                 </td>
             </tr>
         </table>
@@ -572,8 +572,85 @@
                     </table>
     </div>
 
-    <!-- Bloco 9: Tributação IBS / CBS (condicional — NT 008 §2.2.4 e §2.4) -->
-    
+    <!-- Bloco 9: Tributação IBS / CBS (sempre renderizado — NT 008 §2.4.5;
+         este bloco não está na lista de supressões permitidas de
+         suppression_rules.md; campos sem dado no XML exibem '-' via Nota 12) -->
+    <div class="bordered-section">
+        <table>
+            <tr>
+                <td class="section-header table-data">
+                    <span class="section-title">TRIBUTAÇÃO IBS / CBS</span>
+                </td>
+                <td>
+                    <span class="label">CST / cClassTrib</span>
+                    <span class="value">
+                        - / -                    </span>
+                </td>
+                <td colspan="2">
+                    <span class="label">Indicador de Operação / Cód. IBGE Incidência / Município Incidência / Sigla UF</span>
+                    <span class="value">
+                        - / - / - / -                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="label">Exclusões e Reduções da Base de Cálculo</span>
+                    <span class="value">R$ 4,72</span>
+                </td>
+                <td>
+                    <span class="label">Base de Cálculo Após Exclusões e Reduções</span>
+                    <span class="value">-</span>
+                </td>
+                <td>
+                    <span class="label">Red. Alíquota IBS / Red. Alíquota CBS</span>
+                    <span class="value">
+                        - / - / -                    </span>
+                </td>
+                <td>
+                    <span class="label">Alíquota IBS UF / IBS Mun</span>
+                    <span class="value">
+                        - / -                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="label">Alíq. Efetiva Municipal - IBS</span>
+                    <span class="value">-</span>
+                </td>
+                <td>
+                    <span class="label">Valor Apurado Municipal - IBS</span>
+                    <span class="value">-</span>
+                </td>
+                <td>
+                    <span class="label">Alíq. Efetiva Estadual - IBS</span>
+                    <span class="value">-</span>
+                </td>
+                <td>
+                    <span class="label">Valor Apurado Estadual - IBS</span>
+                    <span class="value">-</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span class="label">Valor Total Apurado - IBS</span>
+                    <span class="value">-</span>
+                </td>
+                <td>
+                    <span class="label">Alíquota - CBS</span>
+                    <span class="value">-</span>
+                </td>
+                <td>
+                    <span class="label">Alíquota Efetiva - CBS</span>
+                    <span class="value">-</span>
+                </td>
+                <td>
+                    <span class="label">Valor Total Apurado - CBS</span>
+                    <span class="value">-</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
     <!-- Bloco 10: Valor Total da NFS-e -->
     <div class="bordered-section">
         <table>
