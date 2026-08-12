@@ -11,5 +11,3 @@ tests/output/*
 # o realXmlProvider() e o test_batch_generation_all_xmls varrem o diretório
 # em paralelo a tests/xmls/ (com override por basename).
 tests/xmls.local/
-
-.docs
